@@ -3,6 +3,7 @@ import { useStorefrontCategorias, useStorefrontDestacados, useStorefrontNormales
 import { MetodoChip } from '../../shared/MetodoIcons';
 import { useAuthSessionStore } from '../../../store/useAuthSession';
 import AuthView from './AuthView';
+import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 
 const FONTS = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap');
@@ -334,7 +335,7 @@ function Hero({ carrusel }: { carrusel: any[] }) {
 
   const go = useCallback(
     (dir: number) => {
-      if (fading) return;
+      if (fading || carrusel.length === 0) return;
       setFading(true);
       setTimeout(() => {
         setCur((c) => (c + dir + carrusel.length) % carrusel.length);
@@ -365,7 +366,15 @@ function Hero({ carrusel }: { carrusel: any[] }) {
     setOffsetX(0);
   };
 
-  const slide = carrusel[cur];
+  const slide = carrusel[cur] ?? {};
+
+  if (carrusel.length === 0) {
+    return (
+      <div style={{ height: '94vh', minHeight: '520px', display: 'grid', placeItems: 'center', background: DARK, color: '#fff' }}>
+        <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '1rem', opacity: 0.9 }}>No hay elementos en el carrusel.</p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -511,7 +520,7 @@ function Hero({ carrusel }: { carrusel: any[] }) {
             transition: 'all .5s ease',
           }}
         >
-          {slide.titulo || 'Nueva Colección'}
+          {slide?.titulo || 'Nueva Colección'}
         </h1>
         <div
           style={{
@@ -532,7 +541,7 @@ function Hero({ carrusel }: { carrusel: any[] }) {
               transition: 'opacity .5s .1s ease',
             }}
           >
-            {slide.subtitulo || 'Descubre nuestras mejores prendas'}
+            {slide?.subtitulo || 'Descubre nuestras mejores prendas'}
           </p>
           <button
             style={{
@@ -554,7 +563,7 @@ function Hero({ carrusel }: { carrusel: any[] }) {
             onMouseEnter={(e) => (e.currentTarget.style.opacity = '.85')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
-            {slide.cta || 'Explorar'}
+            {slide?.cta || 'Explorar'}
           </button>
         </div>
       </div>
@@ -2187,12 +2196,22 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
   const { data: destacadosData } = useStorefrontDestacados(tiendaIdNum);
   const destacadosProducts = destacadosData?.datos || [];
 
+  
   console.log('carrusel en tienda ', tienda?.carrusel);
   const [cart, setCart] = useState<any[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [view, setView] = useState<'home' | 'auth' | 'account'>('home');
+  //guardamos el id en forma global
+  const { setTiendaId } = useTiendaIDStore();
+  
+    //ahora guardamos el id de la tienda en el store para usarlo en los hooks
+    useEffect(() => {
+      if (tienda?.id) {
+        setTiendaId(tienda.id);
+      }
+    }, [tienda?.id, setTiendaId]);
 
   const { cliente, logout } = useAuthSessionStore();
 

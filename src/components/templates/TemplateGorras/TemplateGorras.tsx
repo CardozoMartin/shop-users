@@ -8,6 +8,7 @@ import { useAuthSessionStore } from '../../../store/useAuthSession';
 import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 import { MetodoChip } from '../../shared/MetodoIcons';
 import AuthView from './AuthView';
+import { useCarrito } from '../../../hooks/useCarrito';
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');`;
 
@@ -1309,19 +1310,50 @@ function Contacto({ tienda }: { tienda: any }) {
 
 // ── CART DRAWER ───────────────────────────────────────────────
 function CartDrawer({
-  items,
+  carrito,
+  tienda,
+  isVaciando,
   onClose,
   onQty,
   onRemove,
+  onConfirmar,
 }: {
-  items: any[];
+  carrito: any;
+  tienda?: any;
+  isVaciando?: boolean;
   onClose: () => void;
   onQty: (id: number, q: number) => void;
   onRemove: (id: number) => void;
+  onConfirmar: () => void;
 }) {
-  const subtotal = items.reduce((a, i) => a + i.precio * i.qty, 0);
+  const items = carrito?.items || [];
+  const subtotal = Number(carrito?.total || 0);
   const ship = subtotal > 8000 ? 0 : 800;
   const total = subtotal + ship;
+
+  const handleConfirmar = () => {
+    if (!items.length) return;
+
+    // 1. Armamos el mensaje para WhatsApp
+    let msj = `¡Hola! Quiero confirmar mi pedido:\n\n`;
+    items.forEach((item: any) => {
+      msj += `- ${item.cantidad}x ${item.producto?.nombre} ($${(Number(item.precioUnit) * item.cantidad).toLocaleString()})\n`;
+    });
+    msj += `\nSubtotal: $${subtotal.toLocaleString()}`;
+    msj += `\nEnvío: $${ship === 0 ? 'Gratis' : ship.toLocaleString()}`;
+    msj += `\n*TOTAL: $${total.toLocaleString()}*\n\n`;
+    msj += `Espero confirmación. ¡Muchas gracias!`;
+
+    // 2. Extraer el número base o usar default
+    const numeroStr = tienda?.whatsapp?.toString().replace(/\D/g, '') || TIENDA.whatsapp.replace(/\D/g, '');
+    const url = `https://wa.me/${numeroStr}?text=${encodeURIComponent(msj)}`;
+
+    // 3. Abrimos WhatsApp
+    window.open(url, '_blank');
+
+    // 4. Invocamos callback para vaciar el carrito y cerrar drawer
+    onConfirmar();
+  };
 
   return (
     <>
@@ -1428,7 +1460,7 @@ function CartDrawer({
               </button>
             </div>
           ) : (
-            items.map((item) => (
+            items.map((item: any) => (
               <div
                 key={item.id}
                 style={{
@@ -1449,8 +1481,8 @@ function CartDrawer({
                   }}
                 >
                   <img
-                    src={item.img}
-                    alt={item.nombre}
+                    src={item.producto?.imagenPrincipalUrl || item.producto?.imagenes?.[0]?.url || 'https://via.placeholder.com/150'}
+                    alt={item.producto?.nombre}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
@@ -1463,7 +1495,7 @@ function CartDrawer({
                       color: TXT,
                     }}
                   >
-                    {item.nombre}
+                    {item.producto?.nombre}
                   </p>
                   <p
                     style={{
@@ -1473,7 +1505,7 @@ function CartDrawer({
                       marginTop: '2px',
                     }}
                   >
-                    {item.cat}
+                    {item.producto?.categoria?.nombre || 'General'}
                   </p>
                   <div
                     style={{
@@ -1495,10 +1527,10 @@ function CartDrawer({
                         {
                           l: '−',
                           a: () =>
-                            item.qty > 1 ? onQty(item.id, item.qty - 1) : onRemove(item.id),
+                            item.cantidad > 1 ? onQty(item.id, item.cantidad - 1) : onRemove(item.id),
                         },
-                        { l: String(item.qty), a: null },
-                        { l: '+', a: () => onQty(item.id, item.qty + 1) },
+                        { l: String(item.cantidad), a: null },
+                        { l: '+', a: () => onQty(item.id, item.cantidad + 1) },
                       ].map(({ l, a }, i) => (
                         <div
                           key={i}
@@ -1530,7 +1562,7 @@ function CartDrawer({
                         color: ACENTO,
                       }}
                     >
-                      ${(item.precio * item.qty).toLocaleString()}
+                      ${(Number(item.precioUnit) * item.cantidad).toLocaleString()}
                     </span>
                   </div>
                   <button
@@ -1637,6 +1669,8 @@ function CartDrawer({
               </span>
             </div>
             <button
+              onClick={handleConfirmar}
+              disabled={isVaciando || items.length === 0}
               style={{
                 width: '100%',
                 padding: '14px',
@@ -1649,14 +1683,19 @@ function CartDrawer({
                 fontWeight: 700,
                 letterSpacing: '.1em',
                 textTransform: 'uppercase',
-                cursor: 'pointer',
+                cursor: (isVaciando || items.length === 0) ? 'not-allowed' : 'pointer',
                 marginBottom: '8px',
                 transition: 'opacity .2s',
+                opacity: (isVaciando || items.length === 0) ? 0.6 : 1,
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '.85')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseEnter={(e) => {
+                if (!isVaciando && items.length > 0) e.currentTarget.style.opacity = '.85';
+              }}
+              onMouseLeave={(e) => {
+                if (!isVaciando && items.length > 0) e.currentTarget.style.opacity = '1';
+              }}
             >
-              Confirmar pedido
+              {isVaciando ? 'Procesando...' : 'Confirmar pedido'}
             </button>
             <button
               onClick={onClose}
@@ -2498,29 +2537,29 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
     '--gor-acento': resolvedAccent,
   } as React.CSSProperties;
 
-  const [cart, setCart] = useState<any[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [view, setView] = useState<'home' | 'auth' | 'account'>('home');
 
   const { cliente, logout } = useAuthSessionStore();
+  
+  // Custom Hook del carrito conectado con el Backend
+  const { carrito, agregarAlCarrito, actualizarCantidad, eliminarItem, vaciarCarrito, isVaciando } = useCarrito(tienda?.id || 0);
 
-  // Hook para login
-  // (Manejo de sesión centralizado en AuthView y useAuthSessionStore)
-
-  const addToCart = (p: any, qty: number = 1) => {
-    setCart((prev) => {
-      const ex = prev.find((i) => i.id === p.id);
-      return ex
-        ? prev.map((i) => (i.id === p.id ? { ...i, qty: i.qty + qty } : i))
-        : [...prev, { ...p, qty: qty }];
-    });
-    setToast({ msg: `${p.nombre} agregado`, visible: true });
-    setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+  const addToCart = async (p: any, qty: number = 1) => {
+    if (!tienda?.id) return;
+    try {
+      await agregarAlCarrito({ productoId: p.id, cantidad: qty, varianteId: null });
+      setToast({ msg: `${p.nombre} agregado`, visible: true });
+      setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+    } catch (error) {
+      // El error ya es manejado por react-hot-toast en useCarrito
+      console.error(error);
+    }
   };
 
-  const cartCount = cart.reduce((a, i) => a + i.qty, 0);
+  const cartCount = carrito?.cantidad || 0;
 
   return (
     <div style={cssVars}>
@@ -2703,10 +2742,16 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
 
       {cartOpen && (
         <CartDrawer
-          items={cart}
+          carrito={carrito}
+          tienda={tienda}
+          isVaciando={isVaciando}
           onClose={() => setCartOpen(false)}
-          onQty={(id, q) => setCart((p) => p.map((i) => (i.id === id ? { ...i, qty: q } : i)))}
-          onRemove={(id) => setCart((p) => p.filter((i) => i.id !== id))}
+          onQty={(id, q) => actualizarCantidad({ itemId: id, cantidad: q })}
+          onRemove={(id) => eliminarItem(id)}
+          onConfirmar={async () => {
+            await vaciarCarrito();
+            setCartOpen(false);
+          }}
         />
       )}
 

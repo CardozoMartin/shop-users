@@ -38,11 +38,13 @@ export default function FormRegistro({
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<IClientForm>({ mode: 'onBlur' });
 
   // 2. Traemos el ID de la tienda del store
   const { tiendaId } = useTiendaIDStore();
+  console.log('Tienda ID en FormRegistro:', tiendaId); // Debug para verificar que se obtiene el ID correctamente
 
   // 3. Mutación de registro
   const { mutate: postRegister, isPending  } = useRegisterCliente();
@@ -62,6 +64,8 @@ export default function FormRegistro({
     };
 
     postRegister(dataRegister);
+    // Limpiamos el formulario tras el envío
+    reset(); 
   };
 
   return (

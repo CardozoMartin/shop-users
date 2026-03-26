@@ -51,16 +51,12 @@ export default function FormLogin({
   const { mutate: postLogin } = useLoginCliente();
 
   const handleSubmitForm = (data: LoginData) => {
-    console.log('📝 Datos del form:', data);
-    console.log('🏪 tiendaId del store:', tiendaId);
-
     const dataLogin: LoginData = {
       email: data.email,
       password: data.password,
       tiendaId: tiendaId!,
     };
 
-    console.log('📦 Payload a enviar:', dataLogin);
     postLogin(dataLogin);
   };
 
