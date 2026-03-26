@@ -4,8 +4,10 @@ import {
   useStorefrontDestacados,
   useStorefrontNormales,
 } from '../../../hooks/useStorefrontProducts';
-
 import { MetodoChip } from '../../shared/MetodoIcons';
+import AuthView from './AuthView';
+import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
+import { useAuthSessionStore } from '../../../store/useAuthSession';
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');`;
 
@@ -58,9 +60,25 @@ const SLIDES = [
 ];
 
 // ── NAVBAR ────────────────────────────────────────────────────
-function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
+function Navbar({ 
+  cartCount, 
+  onCart, 
+  logo, 
+  titulo, 
+  onIngresar, 
+  onMiCuenta 
+}: { 
+  cartCount: number; 
+  onCart: () => void; 
+  logo?: string; 
+  titulo?: string; 
+  onIngresar: () => void;
+  onMiCuenta: () => void; 
+}) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const cliente = useAuthSessionStore((s) => s.cliente);
 
   useEffect(() => {
     const el = document.querySelector('.cz-scroll');
@@ -228,7 +246,7 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
           )}
         </button>
 
-        {/* CTA */}
+        {/* Mi Cuenta / Ingresar */}
         <button
           style={{
             padding: '9px 22px',
@@ -244,8 +262,9 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
           }}
           onMouseEnter={(e) => (e.currentTarget.style.opacity = '.85')}
           onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+          onClick={cliente ? onMiCuenta : onIngresar}
         >
-          Ingresar
+          {cliente ? 'Mi cuenta' : 'Ingresar'}
         </button>
       </div>
 
@@ -295,6 +314,7 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
             </a>
           ))}
           <button
+            onClick={cliente ? onMiCuenta : onIngresar}
             style={{
               alignSelf: 'flex-start',
               padding: '10px 24px',
@@ -309,7 +329,7 @@ function Navbar({ cartCount, onCart, logo, titulo }: INavProps) {
               marginTop: '.5rem',
             }}
           >
-            Ingresar
+            {cliente ? 'Mi cuenta' : 'Ingresar'}
           </button>
         </div>
       )}
@@ -2397,6 +2417,8 @@ function SobreNosotros({ tienda }: { tienda: any }) {
   );
 }
 
+// (El componente Login anterior fue reemplazado por AuthView)
+
 // ── ROOT ──────────────────────────────────────────────────────
 export interface PlantillaGorrasProps {
   tienda?: any;
@@ -2420,7 +2442,14 @@ interface INavProps {
 
 export default function PlantillaGorras({ tienda, accent, themeConfig }: PlantillaGorrasProps) {
   const resolvedAccent = accent || themeConfig?.primary || '#f97316';
+  const { setTiendaId } = useTiendaIDStore();
 
+  //ahora guardamos el id de la tienda en el store para usarlo en los hooks
+  useEffect(() => {
+    if (tienda?.id) {
+      setTiendaId(tienda.id);
+    }
+  }, [tienda?.id, setTiendaId]);
   const mergedTienda = useMemo(
     () => ({
       ...TIENDA,
@@ -2473,6 +2502,12 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [view, setView] = useState<'home' | 'auth' | 'account'>('home');
+
+  const { cliente, logout } = useAuthSessionStore();
+
+  // Hook para login
+  // (Manejo de sesión centralizado en AuthView y useAuthSessionStore)
 
   const addToCart = (p: any, qty: number = 1) => {
     setCart((prev) => {
@@ -2503,27 +2538,80 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
       `}</style>
 
       <div className="cz-scroll" style={{ background: BG }}>
-        <Navbar {...navbarProps} cartCount={cartCount} onCart={() => setCartOpen(true)} />
+        <Navbar
+          {...navbarProps}
+          cartCount={cartCount}
+          onCart={() => setCartOpen(true)}
+          onIngresar={() => setView('auth')}
+          onMiCuenta={() => setView('account')}
+        />
 
-        {selectedProduct ? (
-          <ProductDetailView
-            product={selectedProduct}
-            onBack={() => setSelectedProduct(null)}
-            onCart={addToCart}
-            tienda={tienda}
-          />
-        ) : (
-          <>
-            <Hero {...heroProps} />
-            <Marquee />
-            <ProductosDestacados onSelect={setSelectedProduct} tiendaId={tienda?.id} />
-            <Productos onSelect={setSelectedProduct} tiendaId={tienda?.id} />
-            <SobreNosotros tienda={mergedTienda} />
-          </>
+        {view === 'home' && (
+          selectedProduct ? (
+            <ProductDetailView
+              product={selectedProduct}
+              onBack={() => setSelectedProduct(null)}
+              onCart={addToCart}
+              tienda={mergedTienda}
+            />
+          ) : (
+            <>
+              <Hero {...heroProps} />
+              <Marquee />
+              <ProductosDestacados onSelect={setSelectedProduct} tiendaId={tienda?.id} />
+              <Productos onSelect={setSelectedProduct} tiendaId={tienda?.id} />
+              <SobreNosotros tienda={mergedTienda} />
+              <Contacto tienda={mergedTienda} />
+              <Footer tienda={mergedTienda} />
+            </>
+          )
         )}
 
-        <Contacto tienda={mergedTienda} />
-        <Footer tienda={mergedTienda} />
+        {view === 'auth' && (
+          <AuthView
+            onClose={() => setView('home')}
+            tienda={tienda}
+          />
+        )}
+
+        {view === 'account' && (
+          <div style={{ padding: '6rem 2rem', minHeight: '80vh', display: 'flex', justifyContent: 'center' }}>
+             <div style={{ maxWidth: '480px', width: '100%' }}>
+                <button 
+                  onClick={() => setView('home')}
+                  style={{ background: 'none', border: 'none', color: ACENTO, cursor: 'pointer', marginBottom: '2.5rem', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <span style={{ fontSize: '1.2rem' }}>←</span> VOLVER A LA TIENDA
+                </button>
+                <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3.5vw, 2.8rem)', color: TXT, marginBottom: '0.5rem', fontWeight: 700 }}>Mi Cuenta</h1>
+                <div style={{ width: '40px', height: '3px', background: ACENTO, borderRadius: '2px', marginBottom: '2rem' }} />
+                
+                <div style={{ background: SURFACE2, padding: '2rem', borderRadius: '16px', border: `1.5px solid ${BORDER}`, fontFamily: "'DM Sans', sans-serif" }}>
+                   <div style={{ marginBottom: '1.5rem' }}>
+                      <p style={{ color: MUTED, fontSize: '.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '4px' }}>Email</p>
+                      <p style={{ color: TXT, fontSize: '1rem' }}>{cliente?.email}</p>
+                   </div>
+                   <div style={{ marginBottom: '1.5rem' }}>
+                      <p style={{ color: MUTED, fontSize: '.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '4px' }}>Nombre completo</p>
+                      <p style={{ color: TXT, fontSize: '1rem' }}>{cliente?.nombre} {cliente?.apellido}</p>
+                   </div>
+                   <div style={{ marginBottom: '2rem' }}>
+                      <p style={{ color: MUTED, fontSize: '.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '4px' }}>Teléfono</p>
+                      <p style={{ color: TXT, fontSize: '1rem' }}>{cliente?.telefono}</p>
+                   </div>
+                   
+                   <button 
+                     onClick={() => { logout(); setView('home'); }}
+                     style={{ width: '100%', padding: '14px', background: ACENTO, color: BTN_TXT, border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", transition: 'opacity .2s' }}
+                     onMouseEnter={(e) => (e.currentTarget.style.opacity = '.9')}
+                     onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                   >
+                     Cerrar Sesión
+                   </button>
+                </div>
+             </div>
+          </div>
+        )}
       </div>
 
       {cartOpen && (

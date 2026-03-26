@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStorefrontCategorias, useStorefrontDestacados, useStorefrontNormales } from '../../../hooks/useStorefrontProducts';
 import { MetodoChip } from '../../shared/MetodoIcons';
+import { useAuthSessionStore } from '../../../store/useAuthSession';
+import AuthView from './AuthView';
 
 const FONTS = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap');
@@ -64,9 +66,21 @@ const LOOKBOOK = [
 /* ═══════════════════════════════════════════════
    NAVBAR
 ═══════════════════════════════════════════════ */
-function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }) {
+function Navbar({ 
+  cartCount, 
+  onCart,
+  onIngresar,
+  onMiCuenta 
+}: { 
+  cartCount: number; 
+  onCart: () => void;
+  onIngresar: () => void;
+  onMiCuenta: () => void;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const cliente = useAuthSessionStore((s) => s.cliente);
 
   useEffect(() => {
     const el = document.querySelector('.vt-scroll');
@@ -214,8 +228,9 @@ function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }
           )}
         </button>
 
-        {/* CTA */}
+        {/* Mi Cuenta / Ingresar */}
         <button
+          onClick={cliente ? onMiCuenta : onIngresar}
           className="vt-hide-mob"
           style={{
             padding: '9px 22px',
@@ -233,7 +248,7 @@ function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }
           onMouseEnter={(e) => (e.currentTarget.style.background = ACENTO)}
           onMouseLeave={(e) => (e.currentTarget.style.background = DARK)}
         >
-          Ingresar
+          {cliente ? 'Mi cuenta' : 'Ingresar'}
         </button>
 
         {/* Hamburger */}
@@ -283,6 +298,7 @@ function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }
             </a>
           ))}
           <button
+            onClick={cliente ? onMiCuenta : onIngresar}
             style={{
               alignSelf: 'flex-start',
               padding: '10px 24px',
@@ -297,7 +313,7 @@ function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }
               marginTop: '.5rem',
             }}
           >
-            Ingresar
+            {cliente ? 'Mi cuenta' : 'Ingresar'}
           </button>
         </div>
       )}
@@ -2176,6 +2192,9 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [view, setView] = useState<'home' | 'auth' | 'account'>('home');
+
+  const { cliente, logout } = useAuthSessionStore();
 
   const addToCart = (p: any, qty: number = 1) => {
     setCart((prev) => {
@@ -2206,25 +2225,65 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
       `}</style>
 
       <div className="vt-scroll" style={{ background: BG }}>
-        <Navbar cartCount={cartCount} onCart={() => setCartOpen(true)} />
-        {selectedProduct ? (
-          <ProductDetailView
-            product={selectedProduct}
-            onBack={() => setSelectedProduct(null)}
-            onCart={addToCart}
+        <Navbar 
+          cartCount={cartCount} 
+          onCart={() => setCartOpen(true)} 
+          onIngresar={() => setView('auth')}
+          onMiCuenta={() => setView('account')}
+        />
+
+        {view === 'home' && (
+          selectedProduct ? (
+            <ProductDetailView
+              product={selectedProduct}
+              onBack={() => setSelectedProduct(null)}
+              onCart={addToCart}
+              tienda={mergedTienda}
+            />
+          ) : (
+            <>
+              <Hero carrusel={carruselItems} />
+              <Marquee />
+              <Lookbook />
+              <CarruselProductos onCart={(p) => addToCart(p, 1)} items={destacadosProducts} />
+              <GridProductos onSelect={setSelectedProduct} tiendaId={tiendaIdNum} />
+              <SobreNosotros tienda={mergedTienda} />
+              <Banner />
+              <Footer tienda={mergedTienda} />
+            </>
+          )
+        )}
+
+        {view === 'auth' && (
+          <AuthView 
+            onClose={() => setView('home')} 
             tienda={mergedTienda}
           />
-        ) : (
-          <>
-            <Hero carrusel={carruselItems} />
-            <Marquee />
-            <Lookbook />
-            <CarruselProductos onCart={(p) => addToCart(p, 1)} items={destacadosProducts} />
-            <GridProductos onSelect={setSelectedProduct} tiendaId={tiendaIdNum} />
-            <SobreNosotros tienda={mergedTienda} />
-            <Banner />
-            <Footer tienda={mergedTienda} />
-          </>
+        )}
+
+        {view === 'account' && (
+          <div style={{ padding: '6rem 2rem', minHeight: '80vh', display: 'flex', justifyContent: 'center', background: BG }}>
+             <div style={{ maxWidth: '500px', width: '100%' }}>
+                <button 
+                  onClick={() => setView('home')}
+                  style={{ background: 'none', border: 'none', color: ACENTO, cursor: 'pointer', marginBottom: '2rem', fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}
+                >
+                  ← VOLVER
+                </button>
+                <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '3rem', color: DARK, marginBottom: '2rem', letterSpacing: '.05em' }}>MI CUENTA</h2>
+                <div style={{ background: SURFACE, padding: '2rem', borderRadius: '8px', border: `1px solid ${BORDER}`, fontFamily: "'Outfit', sans-serif" }}>
+                   <p style={{ color: DARK, marginBottom: '1rem', fontSize: '0.9rem' }}><strong>EMAIL:</strong> {cliente?.email}</p>
+                   <p style={{ color: DARK, marginBottom: '1rem', fontSize: '0.9rem' }}><strong>NOMBRE:</strong> {cliente?.nombre} {cliente?.apellido}</p>
+                   <p style={{ color: DARK, marginBottom: '2rem', fontSize: '0.9rem' }}><strong>TELÉFONO:</strong> {cliente?.telefono}</p>
+                   <button 
+                     onClick={() => { logout(); setView('home'); }}
+                     style={{ padding: '12px 24px', background: DARK, color: BTN_TXT, border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600, fontFamily: "'Outfit', sans-serif", letterSpacing: '.1em' }}
+                   >
+                     CERRAR SESIÓN
+                   </button>
+                </div>
+             </div>
+          </div>
         )}
       </div>
 

@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useStorefrontCategorias, useStorefrontNormales } from '../../../hooks/useStorefrontProducts';
+import { useAuthSessionStore } from '../../../store/useAuthSession';
+import AuthView from './AuthView';
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap');`;
 
@@ -34,9 +36,22 @@ let HERO_IMGS = [
 ];
 
 // ── NAVBAR ────────────────────────────────────────────────────
-function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }) {
+function Navbar({ 
+  cartCount, 
+  onCart,
+  onIngresar,
+  onMiCuenta 
+}: { 
+  cartCount: number; 
+  onCart: () => void;
+  onIngresar: () => void;
+  onMiCuenta: () => void;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+
+  // Obtenemos el cliente del store de sesión
+  const cliente = useAuthSessionStore((s) => s.cliente);
 
   useEffect(() => {
     const el = document.querySelector('.ac-scroll');
@@ -152,8 +167,9 @@ function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }
           )}
         </button>
 
-        {/* CTA */}
+        {/* CTA Login / Mi Cuenta */}
         <button
+          onClick={cliente ? onMiCuenta : onIngresar}
           style={{
             padding: '8px 20px',
             background: 'transparent',
@@ -176,7 +192,7 @@ function Navbar({ cartCount, onCart }: { cartCount: number; onCart: () => void }
             (e.currentTarget as HTMLButtonElement).style.color = ACENTO;
           }}
         >
-          Ingresar
+          {cliente ? 'Mi cuenta' : 'Ingresar'}
         </button>
       </div>
 
@@ -1873,6 +1889,9 @@ export default function PlantillaAccesorios({
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [view, setView] = useState<'home' | 'auth' | 'account'>('home');
+
+  const { cliente, logout } = useAuthSessionStore();
 
   const heroProps: IHeroProps = {
     titulo: mergedTienda.nombre,
@@ -1909,23 +1928,63 @@ export default function PlantillaAccesorios({
       `}</style>
 
       <div className="ac-scroll" style={{ background: BG }}>
-        <Navbar cartCount={cartCount} onCart={() => setCartOpen(true)} />
-        {selectedProduct ? (
-          <ProductDetailView
-            product={selectedProduct}
-            onBack={() => setSelectedProduct(null)}
-            onCart={addToCart}
+        <Navbar 
+          cartCount={cartCount} 
+          onCart={() => setCartOpen(true)} 
+          onIngresar={() => setView('auth')}
+          onMiCuenta={() => setView('account')}
+        />
+
+        {view === 'home' && (
+          selectedProduct ? (
+            <ProductDetailView
+              product={selectedProduct}
+              onBack={() => setSelectedProduct(null)}
+              onCart={addToCart}
+              tienda={mergedTienda}
+            />
+          ) : (
+            <>
+              <Hero {...heroProps} />
+              <Marquee />
+              <Productos onSelect={setSelectedProduct} onCart={(p) => addToCart(p, 1)} tiendaId={tiendaId} />
+              <SobreNosotros tienda={mergedTienda} />
+              <TrustBadges />
+              <Footer tienda={mergedTienda} />
+            </>
+          )
+        )}
+
+        {view === 'auth' && (
+          <AuthView 
+            onClose={() => setView('home')} 
             tienda={mergedTienda}
           />
-        ) : (
-          <>
-            <Hero {...heroProps} />
-            <Marquee />
-            <Productos onSelect={setSelectedProduct} onCart={(p) => addToCart(p, 1)} tiendaId={tiendaId} />
-            <SobreNosotros tienda={mergedTienda} />
-            <TrustBadges />
-            <Footer tienda={mergedTienda} />
-          </>
+        )}
+
+        {view === 'account' && (
+          <div style={{ padding: '6rem 2rem', minHeight: '80vh', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ maxWidth: '500px', width: '100%' }}>
+               <button 
+                onClick={() => setView('home')}
+                style={{ background: 'none', border: 'none', color: ACENTO, cursor: 'pointer', marginBottom: '2rem', fontFamily: "'Jost', sans-serif" }}
+               >
+                 ← Volver al inicio
+               </button>
+               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.4rem', color: TXT, marginBottom: '2rem', fontWeight: 300 }}>Mi Cuenta</h2>
+               <div style={{ background: SURFACE2, padding: '2rem', borderRadius: '12px', border: `1px solid ${BORDER}`, fontFamily: "'Jost', sans-serif" }}>
+                  <p style={{ color: TXT, marginBottom: '1rem' }}><strong>Email:</strong> {cliente?.email}</p>
+                  <p style={{ color: TXT, marginBottom: '1rem' }}><strong>Nombre:</strong> {cliente?.nombre} {cliente?.apellido}</p>
+                  <p style={{ color: TXT, marginBottom: '2rem' }}><strong>Teléfono:</strong> {cliente?.telefono}</p>
+                  <button 
+                    onClick={() => { logout(); setView('home'); }}
+                    style={{ padding: '10px 20px', background: ACENTO, color: BTN_TXT, border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 500 }}
+                  >
+                    Cerrar Sesión
+                  </button>
+               </div>
+            </div>
+          </div>
         )}
       </div>
 
