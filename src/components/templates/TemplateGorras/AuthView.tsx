@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import FormRegistro from './FormRegistro';
 import FormLogin from './FormLogin';
+import FormRegistro from './FormRegistro';
 // ── TIPOS ─────────────────────────────────────────────────────
 
 type AuthMode = 'login' | 'registro' | 'olvide';
@@ -113,9 +113,6 @@ function Field({
     </div>
   );
 }
-
-
-
 
 // ── VISTA OLVIDÉ CONTRASEÑA ───────────────────────────────────
 

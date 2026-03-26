@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
-import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 import { useLoginCliente } from '../../../hooks/useCliente';
+import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 
 // ── TIPOS ─────────────────────────────────────────────────────
 
@@ -38,9 +38,8 @@ export default function FormLogin({
   loading,
   errorGlobal,
 }: FormLoginProps) {
-
   //obtenemos el id de la tienda del store para enviarlo al backend junto con los datos del cliente
-   const { tiendaId } = useTiendaIDStore();
+  const { tiendaId } = useTiendaIDStore();
   //manejo de formulario con react-hook-form
   const {
     register,
@@ -54,16 +53,16 @@ export default function FormLogin({
   const handleSubmitForm = (data: LoginData) => {
     console.log('📝 Datos del form:', data);
     console.log('🏪 tiendaId del store:', tiendaId);
-    
+
     const dataLogin: LoginData = {
       email: data.email,
       password: data.password,
       tiendaId: tiendaId!,
     };
-    
+
     console.log('📦 Payload a enviar:', dataLogin);
     postLogin(dataLogin);
-  }
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>

@@ -4,10 +4,10 @@ import {
   useStorefrontDestacados,
   useStorefrontNormales,
 } from '../../../hooks/useStorefrontProducts';
+import { useAuthSessionStore } from '../../../store/useAuthSession';
+import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 import { MetodoChip } from '../../shared/MetodoIcons';
 import AuthView from './AuthView';
-import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
-import { useAuthSessionStore } from '../../../store/useAuthSession';
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');`;
 
@@ -60,20 +60,20 @@ const SLIDES = [
 ];
 
 // ── NAVBAR ────────────────────────────────────────────────────
-function Navbar({ 
-  cartCount, 
-  onCart, 
-  logo, 
-  titulo, 
-  onIngresar, 
-  onMiCuenta 
-}: { 
-  cartCount: number; 
-  onCart: () => void; 
-  logo?: string; 
-  titulo?: string; 
+function Navbar({
+  cartCount,
+  onCart,
+  logo,
+  titulo,
+  onIngresar,
+  onMiCuenta,
+}: {
+  cartCount: number;
+  onCart: () => void;
+  logo?: string;
+  titulo?: string;
   onIngresar: () => void;
-  onMiCuenta: () => void; 
+  onMiCuenta: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -2546,8 +2546,8 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
           onMiCuenta={() => setView('account')}
         />
 
-        {view === 'home' && (
-          selectedProduct ? (
+        {view === 'home' &&
+          (selectedProduct ? (
             <ProductDetailView
               product={selectedProduct}
               onBack={() => setSelectedProduct(null)}
@@ -2564,52 +2564,139 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
               <Contacto tienda={mergedTienda} />
               <Footer tienda={mergedTienda} />
             </>
-          )
-        )}
+          ))}
 
-        {view === 'auth' && (
-          <AuthView
-            onClose={() => setView('home')}
-            tienda={tienda}
-          />
-        )}
+        {view === 'auth' && <AuthView onClose={() => setView('home')} tienda={tienda} />}
 
         {view === 'account' && (
-          <div style={{ padding: '6rem 2rem', minHeight: '80vh', display: 'flex', justifyContent: 'center' }}>
-             <div style={{ maxWidth: '480px', width: '100%' }}>
-                <button 
-                  onClick={() => setView('home')}
-                  style={{ background: 'none', border: 'none', color: ACENTO, cursor: 'pointer', marginBottom: '2.5rem', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <span style={{ fontSize: '1.2rem' }}>←</span> VOLVER A LA TIENDA
-                </button>
-                <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2rem, 3.5vw, 2.8rem)', color: TXT, marginBottom: '0.5rem', fontWeight: 700 }}>Mi Cuenta</h1>
-                <div style={{ width: '40px', height: '3px', background: ACENTO, borderRadius: '2px', marginBottom: '2rem' }} />
-                
-                <div style={{ background: SURFACE2, padding: '2rem', borderRadius: '16px', border: `1.5px solid ${BORDER}`, fontFamily: "'DM Sans', sans-serif" }}>
-                   <div style={{ marginBottom: '1.5rem' }}>
-                      <p style={{ color: MUTED, fontSize: '.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '4px' }}>Email</p>
-                      <p style={{ color: TXT, fontSize: '1rem' }}>{cliente?.email}</p>
-                   </div>
-                   <div style={{ marginBottom: '1.5rem' }}>
-                      <p style={{ color: MUTED, fontSize: '.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '4px' }}>Nombre completo</p>
-                      <p style={{ color: TXT, fontSize: '1rem' }}>{cliente?.nombre} {cliente?.apellido}</p>
-                   </div>
-                   <div style={{ marginBottom: '2rem' }}>
-                      <p style={{ color: MUTED, fontSize: '.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '4px' }}>Teléfono</p>
-                      <p style={{ color: TXT, fontSize: '1rem' }}>{cliente?.telefono}</p>
-                   </div>
-                   
-                   <button 
-                     onClick={() => { logout(); setView('home'); }}
-                     style={{ width: '100%', padding: '14px', background: ACENTO, color: BTN_TXT, border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 700, fontFamily: "'DM Sans', sans-serif", transition: 'opacity .2s' }}
-                     onMouseEnter={(e) => (e.currentTarget.style.opacity = '.9')}
-                     onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-                   >
-                     Cerrar Sesión
-                   </button>
+          <div
+            style={{
+              padding: '6rem 2rem',
+              minHeight: '80vh',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <div style={{ maxWidth: '480px', width: '100%' }}>
+              <button
+                onClick={() => setView('home')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: ACENTO,
+                  cursor: 'pointer',
+                  marginBottom: '2.5rem',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <span style={{ fontSize: '1.2rem' }}>←</span> VOLVER A LA TIENDA
+              </button>
+              <h1
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: 'clamp(2rem, 3.5vw, 2.8rem)',
+                  color: TXT,
+                  marginBottom: '0.5rem',
+                  fontWeight: 700,
+                }}
+              >
+                Mi Cuenta
+              </h1>
+              <div
+                style={{
+                  width: '40px',
+                  height: '3px',
+                  background: ACENTO,
+                  borderRadius: '2px',
+                  marginBottom: '2rem',
+                }}
+              />
+
+              <div
+                style={{
+                  background: SURFACE2,
+                  padding: '2rem',
+                  borderRadius: '16px',
+                  border: `1.5px solid ${BORDER}`,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <p
+                    style={{
+                      color: MUTED,
+                      fontSize: '.75rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '.05em',
+                      marginBottom: '4px',
+                    }}
+                  >
+                    Email
+                  </p>
+                  <p style={{ color: TXT, fontSize: '1rem' }}>{cliente?.email}</p>
                 </div>
-             </div>
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <p
+                    style={{
+                      color: MUTED,
+                      fontSize: '.75rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '.05em',
+                      marginBottom: '4px',
+                    }}
+                  >
+                    Nombre completo
+                  </p>
+                  <p style={{ color: TXT, fontSize: '1rem' }}>
+                    {cliente?.nombre} {cliente?.apellido}
+                  </p>
+                </div>
+                <div style={{ marginBottom: '2rem' }}>
+                  <p
+                    style={{
+                      color: MUTED,
+                      fontSize: '.75rem',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      letterSpacing: '.05em',
+                      marginBottom: '4px',
+                    }}
+                  >
+                    Teléfono
+                  </p>
+                  <p style={{ color: TXT, fontSize: '1rem' }}>{cliente?.telefono}</p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    logout();
+                    setView('home');
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    background: ACENTO,
+                    color: BTN_TXT,
+                    border: 'none',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                    fontFamily: "'DM Sans', sans-serif",
+                    transition: 'opacity .2s',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '.9')}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                >
+                  Cerrar Sesión
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
