@@ -80,7 +80,7 @@ export default function CheckoutView({ tienda, carrito, onClose, onSuccess, sess
     if (step === 'entrega') {
       const ok = await trigger('metodoEntregaId');
       if (!ok) {
-        setError('Selecciona un método de entrega');
+        setError('Selecciona un mï¿½todo de entrega');
         return;
       }
       setError('');
@@ -91,7 +91,7 @@ export default function CheckoutView({ tienda, carrito, onClose, onSuccess, sess
     if (step === 'pago') {
       const ok = await trigger('metodoPagoId');
       if (!ok) {
-        setError('Selecciona un método de pago');
+        setError('Selecciona un mï¿½todo de pago');
         return;
       }
       setError('');
@@ -154,7 +154,7 @@ export default function CheckoutView({ tienda, carrito, onClose, onSuccess, sess
             className="flex items-center gap-2 bg-transparent border-none text-[.85rem] font-medium cursor-pointer p-0 transition-colors duration-200"
             style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
           >
-            <span className="text-xl">?</span> {step === 'datos' ? 'Volver al carrito' : 'Volver atrás'}
+            <span className="text-xl">?</span> {step === 'datos' ? 'Volver al carrito' : 'Volver atrï¿½s'}
           </button>
           <span className="text-[.75rem] font-bold uppercase tracking-widest" style={{ color: ACENTO }}>
             Paso {step === 'datos' ? '1' : step === 'entrega' ? '2' : step === 'pago' ? '3' : '4'} de 4
@@ -165,9 +165,9 @@ export default function CheckoutView({ tienda, carrito, onClose, onSuccess, sess
           className="font-bold leading-[1.1] mb-6"
           style={{ fontFamily: "'Playfair Display',serif", fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', color: TXT }}
         >
-          {step === 'datos' && 'Datos de envío'}
-          {step === 'entrega' && 'Método de envío'}
-          {step === 'pago' && 'Método de pago'}
+          {step === 'datos' && 'Datos de envï¿½o'}
+          {step === 'entrega' && 'Mï¿½todo de envï¿½o'}
+          {step === 'pago' && 'Mï¿½todo de pago'}
           {step === 'resumen' && 'Resumen de tu pedido'}
         </h1>
 
@@ -213,8 +213,8 @@ export default function CheckoutView({ tienda, carrito, onClose, onSuccess, sess
           </button>
           <p className="text-[.75rem] text-center" style={{ color: MUTED }}>
             {step === 'resumen'
-              ? 'Al hacer clic en finalizar, tu pedido será registrado y nos pondremos en contacto.'
-              : 'Todos tus datos están protegidos y son necesarios para procesar la compra.'}
+              ? 'Al hacer clic en finalizar, tu pedido serï¿½ registrado y nos pondremos en contacto.'
+              : 'Todos tus datos estï¿½n protegidos y son necesarios para procesar la compra.'}
           </p>
         </div>
       </div>
