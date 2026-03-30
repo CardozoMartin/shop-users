@@ -1,8 +1,10 @@
+import { lazy, Suspense } from 'react';
 import { resolveTemplateIdFromShop } from './registry';
-import PlantillaGorras from './templates/TemplateGorras/TemplateGorras';
-import PlantillaAccesorios from './templates/TemplateJoyeria/TemplateJoyeria';
-import PlantillaRopa from './templates/TemplateRopa/TemplateRop';
-import PlantillaUrban from './templates/TemplateUrban/UrbanTiendzi';
+
+const PlantillaGorras = lazy(() => import('./templates/TemplateGorras/TemplateGorras'));
+const PlantillaAccesorios = lazy(() => import('./templates/TemplateJoyeria/TemplateJoyeria'));
+const PlantillaRopa = lazy(() => import('./templates/TemplateRopa/TemplateRop'));
+const PlantillaUrban = lazy(() => import('./templates/TemplateUrban/UrbanTiendzi'));
 
 const TEMPLATES: Record<string, React.ComponentType<any>> = {
   plantilla_accesorios: PlantillaAccesorios,
@@ -41,12 +43,19 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
   const resolvedAccent = tema?.colorAcento || tema?.colorPrimario || defaultAccent;
 
   return (
-    <Template
-      tienda={tienda}
-      tema={tema}
-      accent={resolvedAccent}
-      fontFamily={tema?.fuenteTitulo || defaultFont}
-      themeConfig={{
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500" />
+        </div>
+      }
+    >
+      <Template
+        tienda={tienda}
+        tema={tema}
+        accent={resolvedAccent}
+        fontFamily={tema?.fuenteTitulo || defaultFont}
+        themeConfig={{
         primary: resolvedAccent,
         secondary: tema?.colorSecundario || '#64748b',
         accent: resolvedAccent,
@@ -97,7 +106,8 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
         })),
       }}
     />
-  );
+  </Suspense>
+);
 };
 
 export default StoreRenderer;

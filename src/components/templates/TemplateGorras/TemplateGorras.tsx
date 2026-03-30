@@ -121,7 +121,7 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
   }>({ msg: '', visible: false });
 
   // ── Carrito ───────────────────────────────────────────────
-  const { carrito, agregarAlCarrito, actualizarCantidad, eliminarItem, vaciarCarrito, isVaciando, sessionId } =
+  const { carrito, agregarAlCarrito, actualizarCantidad, eliminarItem, isVaciando, sessionId } =
     useCarrito(tienda?.id || 0);
 
   const cartCount = carrito?.cantidad || 0;
@@ -280,7 +280,13 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
         )}
 
         {/* ── AUTH ── */}
-        {view === 'auth' && <AuthView onClose={() => setView('home')} tienda={tienda} />}
+        {view === 'auth' && (
+          <AuthView
+            onClose={() => setView('home')}
+            onLoginSuccess={() => setView('account')}
+            tienda={tienda}
+          />
+        )}
         {/* ── ACCOUNT ── */}
         {view === 'account' && (
           <AccountView

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import type { Tienda, Carrito, ThemeProps } from './Types';
+import type { Tienda, Carrito } from './Types';
 import { createPedido } from '../../../api/pedidos.api';
 
 interface CheckoutViewProps {

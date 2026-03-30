@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoginCliente } from '../../../hooks/useCliente';
 import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
-import type { FormLoginProps, LoginData } from './Types';
+import { useAuthSessionStore } from '../../../store/useAuthSession';
+import type { LoginData } from './Types';
 
 const ACENTO = 'var(--gor-acento)';
 const MUTED = 'var(--gor-muted)';
@@ -10,8 +12,23 @@ const BORDER = 'var(--gor-border)';
 const SURFACE = 'var(--gor-surface)';
 const TXT = 'var(--gor-txt)';
 
-export default function FormLogin({ tiendaNombre, onGoRegistro, onGoOlvide }: FormLoginProps) {
+interface FormLoginProps {
+  tiendaNombre: string;
+  onGoRegistro: () => void;
+  onGoOlvide: () => void;
+  onLoginSuccess: () => void;
+}
+
+export default function FormLogin({ tiendaNombre, onGoRegistro, onGoOlvide, onLoginSuccess }: FormLoginProps) {
   const { tiendaId } = useTiendaIDStore();
+  const token = useAuthSessionStore((state) => state.token);
+
+  useEffect(() => {
+    if (token) {
+      onLoginSuccess();
+    }
+  }, [token, onLoginSuccess]);
+
   const {
     register,
     handleSubmit,

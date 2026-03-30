@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthSessionStore } from '../../../store/useAuthSession';
+import { getMisPedidos } from '../../../api/pedidos.api';
 
 interface AccountViewProps {
   onBack: () => void;
@@ -18,6 +20,13 @@ export default function AccountView({ onBack, onLogout }: AccountViewProps) {
     }),
     [cliente]
   );
+
+  const { data: pedidos = [], isLoading: pedidosLoading, isError: pedidosError } = useQuery<any[]>({
+    queryKey: ['misPedidos', cliente?.id],
+    queryFn: () => (cliente ? getMisPedidos(cliente.id) : Promise.resolve([])),
+    enabled: !!cliente?.id,
+    staleTime: 1000 * 60 * 1, // 1 minuto
+  });
 
   return (
     <div className="px-6 py-10 min-h-[80vh] flex flex-col items-center justify-center">
@@ -50,6 +59,42 @@ export default function AccountView({ onBack, onLogout }: AccountViewProps) {
           <p>
             <span className="font-semibold">Teléfono:</span> {datosMostrar.telefono}
           </p>
+        </div>
+
+        <div className="mt-6 border-t border-slate-200 dark:border-slate-600 pt-5">
+          <h2 className="text-lg font-semibold mb-3" style={{ color: 'var(--gor-txt)' }}>
+            Mis pedidos
+          </h2>
+
+          {pedidosLoading && <p>Cargando pedidos...</p>}
+          {pedidosError && <p className="text-red-500">No se pudieron cargar tus pedidos.</p>}
+          {!pedidosLoading && !pedidosError && (!pedidos || pedidos.length === 0) && (
+            <p>No tenés pedidos recientes.</p>
+          )}
+
+          {!pedidosLoading && !pedidosError && pedidos && pedidos.length > 0 && (
+            <ul className="space-y-3">
+              {pedidos.map((pedido: any) => (
+                <li key={pedido.id} className="p-3 bg-slate-100/80 dark:bg-slate-800 rounded-xl">
+                  <p>
+                    <strong>ID:</strong> {pedido.id}
+                  </p>
+                  <p>
+                    <strong>Fecha:</strong>{' '}
+                    {pedido.creadoEn || pedido.fecha
+                      ? new Date(pedido.creadoEn || pedido.fecha).toLocaleDateString()
+                      : 'N/A'}
+                  </p>
+                  <p>
+                    <strong>Estado:</strong> {pedido.estado || 'Pendiente'}
+                  </p>
+                  <p>
+                    <strong>Total:</strong> ${pedido.total || 0}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <button

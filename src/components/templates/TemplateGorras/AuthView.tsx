@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuthSessionStore } from '../../../store/useAuthSession';
 import FormLogin from './FormLogin';
 import FormRegistro from './FormRegistro';
 
@@ -7,6 +8,7 @@ type AuthMode = 'login' | 'registro' | 'olvide';
 
 interface AuthViewProps {
   onClose: () => void;
+  onLoginSuccess: () => void;
   tienda?: { nombre?: string; logoUrl?: string };
 }
 
@@ -180,9 +182,17 @@ function FormOlvide({
 }
 
 // ── AuthView — root ───────────────────────────────────────────
-export default function AuthView({ onClose, tienda }: AuthViewProps) {
+export default function AuthView({ onClose, onLoginSuccess, tienda }: AuthViewProps) {
   const [mode, setMode] = useState<AuthMode>('login');
   const [olvideEnviado, setOlvideEnviado] = useState(false);
+
+  const token = useAuthSessionStore((state) => state.token);
+
+  useEffect(() => {
+    if (token) {
+      onLoginSuccess();
+    }
+  }, [token, onLoginSuccess]);
 
   const tiendaNombre = tienda?.nombre || 'la tienda';
 
@@ -240,6 +250,7 @@ export default function AuthView({ onClose, tienda }: AuthViewProps) {
             tiendaNombre={tiendaNombre}
             onGoRegistro={() => cambiarModo('registro')}
             onGoOlvide={() => cambiarModo('olvide')}
+            onLoginSuccess={() => onLoginSuccess()}
           />
         )}
         {mode === 'registro' && (
