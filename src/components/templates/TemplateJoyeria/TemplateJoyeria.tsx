@@ -1,5 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useStorefrontCategorias, useStorefrontNormales } from '../../../hooks/useStorefrontProducts';
+import { useEffect, useMemo, useState } from 'react';
+import { useCarrito } from '../../../hooks/useCarrito';
+import {
+  useStorefrontCategorias,
+  useStorefrontNormales,
+} from '../../../hooks/useStorefrontProducts';
 import { useAuthSessionStore } from '../../../store/useAuthSession';
 import AuthView from './AuthView';
 
@@ -15,8 +19,8 @@ const MUTED = 'var(--acc-muted)';
 const SUBTLE = 'var(--acc-subtle)';
 const BORDER = 'var(--acc-border)';
 const BTN_TXT = 'var(--acc-btn-txt)';
-let ACENTO_BG = `${ACENTO}18`;
-let ACENTO_BDR = `${ACENTO}40`;
+const ACENTO_BG = `${ACENTO}18`;
+const ACENTO_BDR = `${ACENTO}40`;
 
 let TIENDA = {
   nombre: 'Alma Dorada',
@@ -29,20 +33,20 @@ let TIENDA = {
   pais: 'Argentina',
 };
 
-let HERO_IMGS = [
+const HERO_IMGS = [
   'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=900&h=900&fit=crop&q=80',
   'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=900&h=900&fit=crop&q=80',
   'https://images.unsplash.com/photo-1573408301185-9519f94815b0?w=900&h=900&fit=crop&q=80',
 ];
 
 // ── NAVBAR ────────────────────────────────────────────────────
-function Navbar({ 
-  cartCount, 
+function Navbar({
+  cartCount,
   onCart,
   onIngresar,
-  onMiCuenta 
-}: { 
-  cartCount: number; 
+  onMiCuenta,
+}: {
+  cartCount: number;
   onCart: () => void;
   onIngresar: () => void;
   onMiCuenta: () => void;
@@ -249,7 +253,7 @@ function Navbar({
 // ── HERO PARALLAX ─────────────────────────────────────────────
 function Hero({ titulo, descripcion, imagenes }: IHeroProps) {
   const [scrollY, setScrollY] = useState(0);
-console.log("imagenes de carrusel en hero", imagenes);
+  console.log('imagenes de carrusel en hero', imagenes);
   useEffect(() => {
     const el = document.querySelector('.ac-scroll');
     const fn = () => setScrollY(el?.scrollTop ?? 0);
@@ -455,9 +459,33 @@ console.log("imagenes de carrusel en hero", imagenes);
         {/* Parallax image stack */}
         <div style={{ position: 'relative', height: '480px' }}>
           {[
-            { src: imagenes?.[0] || HERO_IMGS[0], w: '72%', h: '76%', top: '0', left: '0', z: 1, factor: 0.9 },
-            { src: imagenes?.[1] || HERO_IMGS[1], w: '58%', h: '58%', top: '30%', left: '33%', z: 2, factor: 2.0 },
-            { src: imagenes?.[2] || HERO_IMGS[2], w: '40%', h: '40%', top: '5%', left: '53%', z: 3, factor: 3.2 },
+            {
+              src: imagenes?.[0] || HERO_IMGS[0],
+              w: '72%',
+              h: '76%',
+              top: '0',
+              left: '0',
+              z: 1,
+              factor: 0.9,
+            },
+            {
+              src: imagenes?.[1] || HERO_IMGS[1],
+              w: '58%',
+              h: '58%',
+              top: '30%',
+              left: '33%',
+              z: 2,
+              factor: 2.0,
+            },
+            {
+              src: imagenes?.[2] || HERO_IMGS[2],
+              w: '40%',
+              h: '40%',
+              top: '5%',
+              left: '53%',
+              z: 3,
+              factor: 3.2,
+            },
           ].map((l, i) => (
             <div
               key={i}
@@ -627,7 +655,15 @@ function TrustBadges() {
 }
 
 // ── PRODUCTOS ─────────────────────────────────────────────────
-function Productos({ onCart, onSelect, tiendaId }: { onCart: (p: any) => void; onSelect: (p: any) => void; tiendaId: number }) {
+function Productos({
+  onCart,
+  onSelect,
+  tiendaId,
+}: {
+  onCart: (p: any) => void;
+  onSelect: (p: any) => void;
+  tiendaId: number;
+}) {
   const [cat, setCat] = useState<number | 'Todo'>('Todo');
   const [hov, setHov] = useState<number | null>(null);
   const [visibleCount, setVisibleCount] = useState(12);
@@ -635,12 +671,12 @@ function Productos({ onCart, onSelect, tiendaId }: { onCart: (p: any) => void; o
   //hook para obtener los productos desde la base de datos
   const tiendaIdNum = Number(tiendaId);
   const { data: categoriasData } = useStorefrontCategorias(tiendaIdNum);
-  console.log("categoriasData", categoriasData);
+  console.log('categoriasData', categoriasData);
   const categorias = categoriasData || [];
 
   const { data: productosData } = useStorefrontNormales(tiendaIdNum, {
-      categoriaId: cat !== 'Todo' ? cat : undefined,
-    });
+    categoriaId: cat !== 'Todo' ? cat : undefined,
+  });
   const allProductos = productosData?.datos || [];
   const productos = allProductos.slice(0, visibleCount);
   return (
@@ -970,7 +1006,8 @@ function SobreNosotros({ tienda }: { tienda: any }) {
             margin: '0 auto 2rem',
           }}
         >
-          {tienda?.descripcion || 'Somos un emprendimiento familiar del norte argentino. Diseñamos y fabricamos cada accesorio a mano, con materiales naturales y mucho amor.'}
+          {tienda?.descripcion ||
+            'Somos un emprendimiento familiar del norte argentino. Diseñamos y fabricamos cada accesorio a mano, con materiales naturales y mucho amor.'}
         </p>
         <a
           href={`https://instagram.com/${tienda?.instagram || TIENDA.instagram}`}
@@ -1007,6 +1044,7 @@ function ProductDetailView({
   tienda?: any;
 }) {
   const [qty, setQty] = useState(1);
+  const tiendaNombre = tienda?.nombre || tienda?.titulo || 'Tienda';
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -1020,7 +1058,14 @@ function ProductDetailView({
     Number(product.precioOferta) < Number(product.precio);
 
   return (
-    <div style={{ padding: '3rem 1.5rem', minHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{
+        padding: '3rem 1.5rem',
+        minHeight: '80vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <div style={{ maxWidth: '1060px', margin: '0 auto', width: '100%', flex: 1 }}>
         <button
           onClick={onBack}
@@ -1038,7 +1083,7 @@ function ProductDetailView({
             marginBottom: '2rem',
             padding: 0,
             textTransform: 'uppercase',
-            letterSpacing: '.12em'
+            letterSpacing: '.12em',
           }}
         >
           <span style={{ fontSize: '1rem' }}>←</span> Volver a la colección
@@ -1078,6 +1123,17 @@ function ProductDetailView({
               {product.categoria?.nombre || 'Esencial'}
             </span>
 
+            <p
+              style={{
+                fontFamily: "'Jost',sans-serif",
+                fontSize: '.82rem',
+                color: MUTED,
+                marginBottom: '.5rem',
+              }}
+            >
+              {tiendaNombre}
+            </p>
+
             <h1
               style={{
                 fontFamily: "'Cormorant Garamond',serif",
@@ -1091,19 +1147,43 @@ function ProductDetailView({
               {product.nombre}
             </h1>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '2.5rem' }}>
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '2.5rem' }}
+            >
               {hasOffer ? (
                 <>
-                  <span style={{ fontFamily: "'Jost',sans-serif", fontSize: '1.1rem', color: SUBTLE, textDecoration: 'line-through', fontWeight: 300 }}>
+                  <span
+                    style={{
+                      fontFamily: "'Jost',sans-serif",
+                      fontSize: '1.1rem',
+                      color: SUBTLE,
+                      textDecoration: 'line-through',
+                      fontWeight: 300,
+                    }}
+                  >
                     ${Number(product.precio).toLocaleString()}
                   </span>
-                  <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: '2.4rem', fontWeight: 400, color: TXT }}>
+                  <span
+                    style={{
+                      fontFamily: "'Cormorant Garamond',serif",
+                      fontSize: '2.4rem',
+                      fontWeight: 400,
+                      color: TXT,
+                    }}
+                  >
                     ${Number(product.precioOferta).toLocaleString()}
                   </span>
                 </>
               ) : (
-                <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: '2.4rem', fontWeight: 400, color: TXT }}>
-                   ${Number(product.precio).toLocaleString()}
+                <span
+                  style={{
+                    fontFamily: "'Cormorant Garamond',serif",
+                    fontSize: '2.4rem',
+                    fontWeight: 400,
+                    color: TXT,
+                  }}
+                >
+                  ${Number(product.precio).toLocaleString()}
                 </span>
               )}
             </div>
@@ -1116,26 +1196,56 @@ function ProductDetailView({
                 lineHeight: 1.8,
                 marginBottom: '2.5rem',
                 fontWeight: 300,
-                whiteSpace: 'pre-wrap'
+                whiteSpace: 'pre-wrap',
               }}
             >
-              {product.descripcion || 'Una pieza única de diseño artesanal, pensada para resaltar la elegancia natural con materiales de primera calidad.'}
+              {product.descripcion ||
+                'Una pieza única de diseño artesanal, pensada para resaltar la elegancia natural con materiales de primera calidad.'}
             </p>
 
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '2.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', border: `1px solid ${BORDER}`, borderRadius: '0px' }}>
+            <div
+              style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '2.5rem' }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: '0px',
+                }}
+              >
                 <button
                   onClick={() => setQty(Math.max(1, qty - 1))}
-                  style={{ padding: '10px 15px', background: 'none', border: 'none', color: TXT, cursor: 'pointer' }}
+                  style={{
+                    padding: '10px 15px',
+                    background: 'none',
+                    border: 'none',
+                    color: TXT,
+                    cursor: 'pointer',
+                  }}
                 >
                   −
                 </button>
-                <span style={{ padding: '0 10px', fontFamily: "'Jost',sans-serif", minWidth: '30px', textAlign: 'center', color: TXT }}>
+                <span
+                  style={{
+                    padding: '0 10px',
+                    fontFamily: "'Jost',sans-serif",
+                    minWidth: '30px',
+                    textAlign: 'center',
+                    color: TXT,
+                  }}
+                >
                   {qty}
                 </span>
                 <button
                   onClick={() => setQty(qty + 1)}
-                  style={{ padding: '10px 15px', background: 'none', border: 'none', color: TXT, cursor: 'pointer' }}
+                  style={{
+                    padding: '10px 15px',
+                    background: 'none',
+                    border: 'none',
+                    color: TXT,
+                    cursor: 'pointer',
+                  }}
                 >
                   +
                 </button>
@@ -1156,7 +1266,7 @@ function ProductDetailView({
                   textTransform: 'uppercase',
                   letterSpacing: '.15em',
                   cursor: 'pointer',
-                  transition: 'all .3s'
+                  transition: 'all .3s',
                 }}
               >
                 Agregar a la bolsa
@@ -1165,10 +1275,24 @@ function ProductDetailView({
 
             <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#4CAF50' }} />
-                 <span style={{ fontFamily: "'Jost',sans-serif", fontSize: '.7rem', color: MUTED, letterSpacing: '.05em' }}>
-                   DISPONIBLE PARA ENVÍO INMEDIATO
-                 </span>
+                <div
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: '#4CAF50',
+                  }}
+                />
+                <span
+                  style={{
+                    fontFamily: "'Jost',sans-serif",
+                    fontSize: '.7rem',
+                    color: MUTED,
+                    letterSpacing: '.05em',
+                  }}
+                >
+                  DISPONIBLE PARA ENVÍO INMEDIATO
+                </span>
               </div>
             </div>
           </div>
@@ -1190,8 +1314,8 @@ function CartDrawer({
   onQty: (id: number, q: number) => void;
   onRemove: (id: number) => void;
 }) {
-  const subtotal = items.reduce((a, i) => a + i.precio * i.qty, 0);
-  const ship = subtotal > 5000 ? 0 : 500;
+  const subtotal = items.reduce((a, i) => a + Number(i.precioUnit) * i.cantidad, 0);
+  const ship = subtotal >= 5000 ? 0 : 750;
   const total = subtotal + ship;
 
   return (
@@ -1314,8 +1438,8 @@ function CartDrawer({
                   }}
                 >
                   <img
-                    src={item.img}
-                    alt={item.nombre}
+                    src={item.producto?.imagenPrincipalUrl || 'https://via.placeholder.com/150'}
+                    alt={item.producto?.nombre}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
@@ -1328,7 +1452,7 @@ function CartDrawer({
                       color: TXT,
                     }}
                   >
-                    {item.nombre}
+                    {item.producto?.nombre}
                   </p>
                   <p
                     style={{
@@ -1338,7 +1462,7 @@ function CartDrawer({
                       marginTop: '2px',
                     }}
                   >
-                    {item.cat}
+                    {item.producto?.categoria?.nombre || 'General'}
                   </p>
                   <div
                     style={{
@@ -1360,10 +1484,12 @@ function CartDrawer({
                         {
                           l: '−',
                           a: () =>
-                            item.qty > 1 ? onQty(item.id, item.qty - 1) : onRemove(item.id),
+                            item.cantidad > 1
+                              ? onQty(item.id, item.cantidad - 1)
+                              : onRemove(item.id),
                         },
-                        { l: String(item.qty), a: null },
-                        { l: '+', a: () => onQty(item.id, item.qty + 1) },
+                        { l: String(item.cantidad), a: null },
+                        { l: '+', a: () => onQty(item.id, item.cantidad + 1) },
                       ].map(({ l, a }, i) => (
                         <div
                           key={i}
@@ -1393,7 +1519,7 @@ function CartDrawer({
                         color: ACENTO,
                       }}
                     >
-                      ${(item.precio * item.qty).toLocaleString()}
+                      ${(Number(item.precioUnit) * item.cantidad).toLocaleString()}
                     </span>
                   </div>
                   <button
@@ -1842,8 +1968,6 @@ interface IHeroProps {
   imagenes?: string[];
 }
 
-
-
 export default function PlantillaAccesorios({
   tienda,
   accent,
@@ -1885,7 +2009,8 @@ export default function PlantillaAccesorios({
     '--acc-acento': resolvedAccent,
   } as React.CSSProperties;
 
-  const [cart, setCart] = useState<any[]>([]);
+  const { carrito, agregarAlCarrito, actualizarCantidad, eliminarItem } = useCarrito(tiendaId);
+
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -1899,18 +2024,21 @@ export default function PlantillaAccesorios({
     imagenes: tienda?.carrusel?.length ? tienda.carrusel.map((img: any) => img.url) : HERO_IMGS,
   };
 
-  const addToCart = (p: any, qty: number = 1) => {
-    setCart((prev) => {
-      const ex = prev.find((i) => i.id === p.id);
-      return ex
-        ? prev.map((i) => (i.id === p.id ? { ...i, qty: i.qty + qty } : i))
-        : [...prev, { ...p, qty: qty }];
-    });
-    setToast({ msg: `${p.nombre} agregado`, visible: true });
-    setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+  const addToCart = async (p: any, qty: number = 1) => {
+    try {
+      await agregarAlCarrito({
+        productoId: p.id,
+        cantidad: qty,
+        varianteId: null,
+      });
+      setToast({ msg: `${p.nombre} agregado`, visible: true });
+      setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+    } catch (error) {
+      console.error('Error al agregar al carrito:', error);
+    }
   };
 
-  const cartCount = cart.reduce((a, i) => a + i.qty, 0);
+  const cartCount = carrito?.cantidad || 0;
 
   return (
     <div style={cssVars}>
@@ -1928,15 +2056,15 @@ export default function PlantillaAccesorios({
       `}</style>
 
       <div className="ac-scroll" style={{ background: BG }}>
-        <Navbar 
-          cartCount={cartCount} 
-          onCart={() => setCartOpen(true)} 
+        <Navbar
+          cartCount={cartCount}
+          onCart={() => setCartOpen(true)}
           onIngresar={() => setView('auth')}
           onMiCuenta={() => setView('account')}
         />
 
-        {view === 'home' && (
-          selectedProduct ? (
+        {view === 'home' &&
+          (selectedProduct ? (
             <ProductDetailView
               product={selectedProduct}
               onBack={() => setSelectedProduct(null)}
@@ -1947,42 +2075,89 @@ export default function PlantillaAccesorios({
             <>
               <Hero {...heroProps} />
               <Marquee />
-              <Productos onSelect={setSelectedProduct} onCart={(p) => addToCart(p, 1)} tiendaId={tiendaId} />
+              <Productos
+                onSelect={setSelectedProduct}
+                onCart={(p) => addToCart(p, 1)}
+                tiendaId={tiendaId}
+              />
               <SobreNosotros tienda={mergedTienda} />
               <TrustBadges />
               <Footer tienda={mergedTienda} />
             </>
-          )
-        )}
+          ))}
 
-        {view === 'auth' && (
-          <AuthView 
-            onClose={() => setView('home')} 
-            tienda={mergedTienda}
-          />
-        )}
+        {view === 'auth' && <AuthView onClose={() => setView('home')} tienda={mergedTienda} />}
 
         {view === 'account' && (
-          <div style={{ padding: '6rem 2rem', minHeight: '80vh', display: 'flex', justifyContent: 'center' }}>
+          <div
+            style={{
+              padding: '6rem 2rem',
+              minHeight: '80vh',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
             <div style={{ maxWidth: '500px', width: '100%' }}>
-               <button 
+              <button
                 onClick={() => setView('home')}
-                style={{ background: 'none', border: 'none', color: ACENTO, cursor: 'pointer', marginBottom: '2rem', fontFamily: "'Jost', sans-serif" }}
-               >
-                 ← Volver al inicio
-               </button>
-               <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2.4rem', color: TXT, marginBottom: '2rem', fontWeight: 300 }}>Mi Cuenta</h2>
-               <div style={{ background: SURFACE2, padding: '2rem', borderRadius: '12px', border: `1px solid ${BORDER}`, fontFamily: "'Jost', sans-serif" }}>
-                  <p style={{ color: TXT, marginBottom: '1rem' }}><strong>Email:</strong> {cliente?.email}</p>
-                  <p style={{ color: TXT, marginBottom: '1rem' }}><strong>Nombre:</strong> {cliente?.nombre} {cliente?.apellido}</p>
-                  <p style={{ color: TXT, marginBottom: '2rem' }}><strong>Teléfono:</strong> {cliente?.telefono}</p>
-                  <button 
-                    onClick={() => { logout(); setView('home'); }}
-                    style={{ padding: '10px 20px', background: ACENTO, color: BTN_TXT, border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 500 }}
-                  >
-                    Cerrar Sesión
-                  </button>
-               </div>
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: ACENTO,
+                  cursor: 'pointer',
+                  marginBottom: '2rem',
+                  fontFamily: "'Jost', sans-serif",
+                }}
+              >
+                ← Volver al inicio
+              </button>
+              <h2
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: '2.4rem',
+                  color: TXT,
+                  marginBottom: '2rem',
+                  fontWeight: 300,
+                }}
+              >
+                Mi Cuenta
+              </h2>
+              <div
+                style={{
+                  background: SURFACE2,
+                  padding: '2rem',
+                  borderRadius: '12px',
+                  border: `1px solid ${BORDER}`,
+                  fontFamily: "'Jost', sans-serif",
+                }}
+              >
+                <p style={{ color: TXT, marginBottom: '1rem' }}>
+                  <strong>Email:</strong> {cliente?.email}
+                </p>
+                <p style={{ color: TXT, marginBottom: '1rem' }}>
+                  <strong>Nombre:</strong> {cliente?.nombre} {cliente?.apellido}
+                </p>
+                <p style={{ color: TXT, marginBottom: '2rem' }}>
+                  <strong>Teléfono:</strong> {cliente?.telefono}
+                </p>
+                <button
+                  onClick={() => {
+                    logout();
+                    setView('home');
+                  }}
+                  style={{
+                    padding: '10px 20px',
+                    background: ACENTO,
+                    color: BTN_TXT,
+                    border: 'none',
+                    borderRadius: '20px',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                  }}
+                >
+                  Cerrar Sesión
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -1990,10 +2165,10 @@ export default function PlantillaAccesorios({
 
       {cartOpen && (
         <CartDrawer
-          items={cart}
+          items={carrito?.items || []}
           onClose={() => setCartOpen(false)}
-          onQty={(id, q) => setCart((p) => p.map((i) => (i.id === id ? { ...i, qty: q } : i)))}
-          onRemove={(id) => setCart((p) => p.filter((i) => i.id !== id))}
+          onQty={(id, q) => actualizarCantidad({ itemId: id, cantidad: q })}
+          onRemove={(id) => eliminarItem(id)}
         />
       )}
 

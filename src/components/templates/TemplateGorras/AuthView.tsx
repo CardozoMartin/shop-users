@@ -1,65 +1,31 @@
 import { useState } from 'react';
 import FormLogin from './FormLogin';
 import FormRegistro from './FormRegistro';
-// ── TIPOS ─────────────────────────────────────────────────────
 
+// ── Tipos ─────────────────────────────────────────────────────
 type AuthMode = 'login' | 'registro' | 'olvide';
 
 interface AuthViewProps {
   onClose: () => void;
-  tienda?: {
-    nombre?: string;
-    logoUrl?: string;
-  };
-  // Callbacks para conectar con tu backend cuando lo implementes
-  onLogin?: (data: LoginData) => Promise<void>;
-  onRegistro?: (data: RegistroData) => Promise<void>;
-  onOlvide?: (email: string) => Promise<void>;
+  tienda?: { nombre?: string; logoUrl?: string };
 }
 
-interface LoginData {
-  email: string;
-  password: string;
-  tiendaId: number;
-}
-
-interface RegistroData {
-  nombre: string;
-  apellido: string;
-  email: string;
-  telefono: string;
-  password: string;
-}
-
-// ── COLORES (heredados de las CSS vars de la plantilla) ───────
-
+// ── CSS vars ──────────────────────────────────────────────────
 const ACENTO = 'var(--gor-acento)';
-const BG = 'var(--gor-bg)';
-const SURFACE = 'var(--gor-surface)';
 const TXT = 'var(--gor-txt)';
 const MUTED = 'var(--gor-muted)';
 const BORDER = 'var(--gor-border)';
+const SURFACE = 'var(--gor-surface)';
 const BTN_TXT = 'var(--gor-btn-txt)';
 
-// ── HELPERS ───────────────────────────────────────────────────
+// ── Meta títulos por modo ─────────────────────────────────────
+const META: Record<AuthMode, string> = {
+  login: '¡Qué bueno verte!',
+  registro: 'Creá tu cuenta',
+  olvide: 'Recuperar contraseña',
+};
 
-/** Estilos base para los inputs, reutilizados en los 3 formularios */
-function inputStyle(focused: boolean): React.CSSProperties {
-  return {
-    width: '100%',
-    padding: '13px 16px',
-    border: `1.5px solid ${focused ? 'var(--gor-acento)' : 'var(--gor-border)'}`,
-    borderRadius: '10px',
-    background: 'var(--gor-surface)',
-    color: 'var(--gor-txt)',
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: '.95rem',
-    outline: 'none',
-    transition: 'border-color .2s',
-  };
-}
-
-/** Input controlado con foco automático del borde acento */
+// ── Field — input con foco acento ─────────────────────────────
 function Field({
   label,
   type = 'text',
@@ -76,16 +42,12 @@ function Field({
   error?: string;
 }) {
   const [focused, setFocused] = useState(false);
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+    <div className="flex flex-col gap-1.5">
       <label
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.78rem',
-          fontWeight: 600,
-          color: MUTED,
-          letterSpacing: '.03em',
-        }}
+        className="text-[.78rem] font-semibold tracking-[.03em]"
+        style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
       >
         {label}
       </label>
@@ -96,17 +58,16 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        style={inputStyle(focused)}
+        className="w-full px-4 py-3 rounded-[10px] text-[.95rem] outline-none transition-colors duration-200"
+        style={{
+          border: `1.5px solid ${focused ? ACENTO : BORDER}`,
+          background: SURFACE,
+          color: TXT,
+          fontFamily: "'DM Sans',sans-serif",
+        }}
       />
-      {/* Error inline debajo del campo */}
       {error && (
-        <span
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '.72rem',
-            color: '#ef4444',
-          }}
-        >
+        <span className="text-[.72rem] text-red-500" style={{ fontFamily: "'DM Sans',sans-serif" }}>
           {error}
         </span>
       )}
@@ -114,25 +75,20 @@ function Field({
   );
 }
 
-// ── VISTA OLVIDÉ CONTRASEÑA ───────────────────────────────────
-
+// ── FormOlvide ────────────────────────────────────────────────
 function FormOlvide({
   onSubmit,
   onGoLogin,
-  loading,
   enviado,
-  errorGlobal,
 }: {
   onSubmit: (email: string) => void;
   onGoLogin: () => void;
-  loading: boolean;
   enviado: boolean;
-  errorGlobal?: string;
 }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
-  function handleSubmit() {
+  const handleSubmit = () => {
     if (!email.trim()) {
       setError('El email es requerido');
       return;
@@ -143,64 +99,32 @@ function FormOlvide({
     }
     setError('');
     onSubmit(email.trim());
-  }
+  };
 
-  // Estado "enviado" — confirmación
+  // ── Estado enviado ────────────────────────────────────────
   if (enviado) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '1.5rem',
-          paddingTop: '1rem',
-        }}
-      >
+      <div className="flex flex-col items-center gap-6 pt-4">
         <div
-          style={{
-            width: '64px',
-            height: '64px',
-            borderRadius: '50%',
-            background: `var(--gor-acento)14`,
-            border: `2px solid var(--gor-acento)`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.8rem',
-          }}
+          className="w-16 h-16 rounded-full flex items-center justify-center text-[1.8rem]"
+          style={{ background: `${ACENTO}14`, border: `2px solid ${ACENTO}` }}
         >
           ✉️
         </div>
         <p
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '1rem',
-            color: TXT,
-            textAlign: 'center',
-            lineHeight: 1.7,
-          }}
+          className="text-base text-center leading-[1.7]"
+          style={{ color: TXT, fontFamily: "'DM Sans',sans-serif" }}
         >
           Te enviamos un email con las instrucciones para recuperar tu contraseña.
           <br />
-          <span style={{ color: MUTED, fontSize: '.88rem' }}>
+          <span className="text-[.88rem]" style={{ color: MUTED }}>
             Revisá también tu carpeta de spam.
           </span>
         </p>
         <button
           onClick={onGoLogin}
-          style={{
-            padding: '12px 28px',
-            background: 'var(--gor-acento)',
-            color: BTN_TXT,
-            border: 'none',
-            borderRadius: '10px',
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '.9rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-            marginTop: '.5rem',
-          }}
+          className="px-7 py-3 rounded-[10px] text-[.9rem] font-bold border-none cursor-pointer mt-2 transition-opacity hover:opacity-85"
+          style={{ background: ACENTO, color: BTN_TXT, fontFamily: "'DM Sans',sans-serif" }}
         >
           Volver al login
         </button>
@@ -208,21 +132,17 @@ function FormOlvide({
     );
   }
 
+  // ── Formulario ────────────────────────────────────────────
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+    <div className="flex flex-col">
       <p
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.95rem',
-          color: MUTED,
-          marginBottom: '2.5rem',
-          lineHeight: 1.6,
-        }}
+        className="text-[.95rem] leading-[1.6] mb-10"
+        style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
       >
         Ingresá tu email y te mandamos un link para restablecer tu contraseña.
       </p>
 
-      <div style={{ marginBottom: '1.5rem' }}>
+      <div className="mb-6">
         <Field
           label="Email registrado"
           type="email"
@@ -233,58 +153,23 @@ function FormOlvide({
         />
       </div>
 
-      {errorGlobal && (
-        <div
-          style={{
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '8px',
-            padding: '10px 14px',
-            marginBottom: '1rem',
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '.82rem',
-            color: '#dc2626',
-          }}
-        >
-          {errorGlobal}
-        </div>
-      )}
-
       <button
         onClick={handleSubmit}
-        disabled={loading}
+        className="w-full py-3.5 rounded-[10px] text-[.95rem] font-bold border-none transition-opacity duration-200"
         style={{
-          width: '100%',
-          padding: '14px',
-          background: loading ? `${ACENTO}80` : ACENTO,
+          background: ACENTO,
           color: BTN_TXT,
-          border: 'none',
-          borderRadius: '10px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.95rem',
-          fontWeight: 700,
-          cursor: loading ? 'not-allowed' : 'pointer',
-          transition: 'opacity .2s',
+          cursor: 'pointer',
+          fontFamily: "'DM Sans',sans-serif",
         }}
       >
-        {loading ? 'Enviando...' : 'Enviar instrucciones'}
+        Enviar instrucciones
       </button>
 
       <button
         onClick={onGoLogin}
-        style={{
-          marginTop: '1.25rem',
-          background: 'none',
-          border: 'none',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.85rem',
-          color: MUTED,
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          padding: 0,
-          alignSelf: 'center',
-          transition: 'color .2s',
-        }}
+        className="self-center mt-5 bg-transparent border-none text-[.85rem] cursor-pointer underline p-0 transition-colors duration-200"
+        style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
         onMouseEnter={(e) => (e.currentTarget.style.color = TXT)}
         onMouseLeave={(e) => (e.currentTarget.style.color = MUTED)}
       >
@@ -294,201 +179,77 @@ function FormOlvide({
   );
 }
 
-// ── COMPONENTE RAÍZ ───────────────────────────────────────────
-
-export default function AuthView({
-  onClose,
-  tienda,
-  onLogin,
-  onRegistro,
-  onOlvide,
-}: AuthViewProps) {
+// ── AuthView — root ───────────────────────────────────────────
+export default function AuthView({ onClose, tienda }: AuthViewProps) {
   const [mode, setMode] = useState<AuthMode>('login');
-  const [loading, setLoading] = useState(false);
-  const [errorGlobal, setErrorGlobal] = useState('');
   const [olvideEnviado, setOlvideEnviado] = useState(false);
 
-  // Nombre de tienda para los mensajes personalizados
   const tiendaNombre = tienda?.nombre || 'la tienda';
 
-  // Títulos y subtítulos dinámicos según el modo
-  const meta: Record<AuthMode, { titulo: string; subtitulo?: string }> = {
-    login: {
-      titulo: `¡Qué bueno verte!`,
-    },
-    registro: {
-      titulo: 'Creá tu cuenta',
-    },
-    olvide: {
-      titulo: 'Recuperar contraseña',
-    },
+  // Cambia de modo (login / registro / olvide)
+  const cambiarModo = (m: AuthMode) => {
+    setMode(m);
   };
 
-  // ── Handlers conectados a los callbacks del padre ──────────
-
-  async function handleLogin(data: LoginData) {
-    if (!onLogin) return;
-    try {
-      setLoading(true);
-      setErrorGlobal('');
-      await onLogin(data);
-      // Si no tira error, el padre maneja el cierre/redirección
-    } catch (e: any) {
-      setErrorGlobal(e?.message || 'Email o contraseña incorrectos.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleRegistro(data: RegistroData) {
-    if (!onRegistro) return;
-    try {
-      setLoading(true);
-      setErrorGlobal('');
-      await onRegistro(data);
-    } catch (e: any) {
-      setErrorGlobal(e?.message || 'No se pudo crear la cuenta. Intentá de nuevo.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleOlvide(email: string) {
-    if (!onOlvide) {
-      setOlvideEnviado(true);
-      return;
-    } // demo sin backend
-    try {
-      setLoading(true);
-      setErrorGlobal('');
-      await onOlvide(email);
-      setOlvideEnviado(true);
-    } catch (e: any) {
-      setErrorGlobal(e?.message || 'No se pudo enviar el email. Intentá de nuevo.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // Limpiar error global al cambiar de modo
-  function cambiarModo(m: AuthMode) {
-    setErrorGlobal('');
-    setMode(m);
-  }
+  // ── Handlers ──────────────────────────────────────────────
+  const handleOlvide = () => {
+    setOlvideEnviado(true);
+  };
 
   return (
-    <div
-      style={{
-        padding: '3rem 1.5rem',
-        minHeight: '80vh',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <div
-        style={{
-          maxWidth: '480px',
-          margin: '0 auto',
-          width: '100%',
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-        }}
-      >
-        {/* Botón volver a la tienda */}
+    <div className="px-6 py-12 min-h-[80vh] flex flex-col">
+      <div className="max-w-[480px] mx-auto w-full flex-1 flex flex-col justify-center">
+        {/* Volver a la tienda */}
         <button
           onClick={onClose}
-          style={{
-            alignSelf: 'flex-start',
-            background: 'none',
-            border: 'none',
-            color: MUTED,
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '.85rem',
-            fontWeight: 500,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '3rem',
-            padding: 0,
-            transition: 'color .2s',
-          }}
+          className="self-start flex items-center gap-2 bg-transparent border-none text-[.85rem] font-medium cursor-pointer p-0 mb-12 transition-colors duration-200"
+          style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
           onMouseEnter={(e) => (e.currentTarget.style.color = TXT)}
           onMouseLeave={(e) => (e.currentTarget.style.color = MUTED)}
         >
-          <span style={{ fontSize: '1.2rem' }}>←</span> Volver a la tienda
+          <span className="text-xl">←</span> Volver a la tienda
         </button>
 
-        {/* Logo de la tienda si existe */}
+        {/* Logo */}
         {tienda?.logoUrl && (
           <img
             src={tienda.logoUrl}
             alt={tiendaNombre}
-            style={{
-              height: '40px',
-              objectFit: 'contain',
-              alignSelf: 'flex-start',
-              marginBottom: '1.5rem',
-            }}
+            className="h-10 object-contain self-start mb-6"
           />
         )}
 
-        {/* Título dinámico */}
+        {/* Título */}
         <h1
+          className="font-bold leading-[1.1] mb-2"
           style={{
-            fontFamily: "'Playfair Display', serif",
+            fontFamily: "'Playfair Display',serif",
             fontSize: 'clamp(1.9rem, 3.5vw, 2.6rem)',
-            fontWeight: 700,
             color: TXT,
-            marginBottom: '.5rem',
-            lineHeight: 1.1,
           }}
         >
-          {meta[mode].titulo}
+          {META[mode]}
         </h1>
 
-        {/* Divisor acento */}
-        <div
-          style={{
-            width: '40px',
-            height: '3px',
-            background: 'var(--gor-acento)',
-            borderRadius: '2px',
-            marginBottom: '1.75rem',
-          }}
-        />
+        {/* Línea acento */}
+        <div className="w-10 h-[3px] rounded-sm mb-7" style={{ background: ACENTO }} />
 
         {/* Formulario activo */}
         {mode === 'login' && (
           <FormLogin
             tiendaNombre={tiendaNombre}
-            onSubmit={handleLogin}
             onGoRegistro={() => cambiarModo('registro')}
             onGoOlvide={() => cambiarModo('olvide')}
-            loading={loading}
-            errorGlobal={errorGlobal}
           />
         )}
-
         {mode === 'registro' && (
-          <FormRegistro
-            tiendaNombre={tiendaNombre}
-            onSubmit={handleRegistro}
-            onGoLogin={() => cambiarModo('login')}
-            loading={loading}
-            errorGlobal={errorGlobal}
-          />
+          <FormRegistro tiendaNombre={tiendaNombre} onGoLogin={() => cambiarModo('login')} />
         )}
-
         {mode === 'olvide' && (
           <FormOlvide
             onSubmit={handleOlvide}
             onGoLogin={() => cambiarModo('login')}
-            loading={loading}
             enviado={olvideEnviado}
-            errorGlobal={errorGlobal}
           />
         )}
       </div>

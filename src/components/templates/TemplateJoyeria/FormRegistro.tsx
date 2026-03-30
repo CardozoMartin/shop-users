@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
-import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 import { useRegisterCliente } from '../../../hooks/useCliente';
+import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 import type { IClient } from '../../../types/clients.type';
 
 // ── TIPOS ─────────────────────────────────────────────────────
@@ -26,13 +26,7 @@ const TXT = 'var(--acc-txt)';
 
 // ── COMPONENTE ────────────────────────────────────────────────
 // Este componente maneja el registro de nuevos clientes para la plantilla Joyería
-export default function FormRegistro({
-  tiendaNombre,
-  onGoLogin,
-  loading,
-  errorGlobal,
-}: FormRegistroProps) {
-
+export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: FormRegistroProps) {
   // 1. Iniciamos react-hook-form
   const {
     register,
@@ -45,7 +39,7 @@ export default function FormRegistro({
   const { tiendaId } = useTiendaIDStore();
 
   // 3. Hook para la petición asíncrona de registro
-  const { mutate: postRegister, isPending  } = useRegisterCliente();
+  const { mutate: postRegister, isPending } = useRegisterCliente();
 
   // 4. Observamos la contraseña actual para validar que la confirmación coincida
   const passwordActual = watch('password');
@@ -66,25 +60,16 @@ export default function FormRegistro({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* 6. Descripción breve del propósito del formulario */}
-      <p
-        style={{
-          fontFamily: "'Jost', sans-serif",
-          fontSize: '.95rem',
-          color: MUTED,
-          marginBottom: '2rem',
-          lineHeight: 1.6,
-        }}
-      >
-        Creá tu cuenta en <strong style={{ color: ACENTO, fontWeight: 500 }}>{tiendaNombre}</strong>{' '}
+    <div className="flex flex-col gap-5">
+      <p className="text-sm leading-7" style={{ color: MUTED, fontFamily: "'Jost', sans-serif" }}>
+        Creá tu cuenta en{' '}
+        <strong className="font-semibold" style={{ color: ACENTO }}>
+          {tiendaNombre}
+        </strong>{' '}
         para hacer seguimiento de tus pedidos.
       </p>
 
-      {/* ── 7. CAMPOS DE REGISTRO ── */}
-      <div
-        style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}
-      >
+      <form onSubmit={handleSubmit(handleSubmitForm)} className="flex flex-col gap-4">
         {/* Fila doble: Nombre y Apellido */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <FieldGroup label="Nombre" error={errors.nombre?.message}>
@@ -155,79 +140,37 @@ export default function FormRegistro({
             style={fieldStyle(!!errors.confirmar)}
           />
         </FieldGroup>
-      </div>
+      </form>
 
-      {/* 8. Error global proveniente del servidor */}
       {errorGlobal && (
-        <div
-          style={{
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '8px',
-            padding: '10px 14px',
-            marginBottom: '1rem',
-            fontFamily: "'Jost', sans-serif",
-            fontSize: '.82rem',
-            color: '#dc2626',
-          }}
+        <p
+          className="rounded-lg p-3 text-xs"
+          style={{ background: '#fef2f2', color: '#dc2626', fontFamily: "'Jost', sans-serif" }}
         >
           {errorGlobal}
-        </div>
+        </p>
       )}
 
-      {/* 9. Botón de creación con estilo redondeado elegante (pill) */}
       <button
+        type="submit"
         onClick={handleSubmit(handleSubmitForm)}
         disabled={isPending}
-        style={{
-          width: '100%',
-          padding: '14px',
-          background: isPending ? `${ACENTO}80` : ACENTO,
-          color: BTN_TXT,
-          border: 'none',
-          borderRadius: '50px',
-          fontFamily: "'Jost', sans-serif",
-          fontSize: '.78rem',
-          fontWeight: 600,
-          letterSpacing: '.12em',
-          textTransform: 'uppercase',
-          cursor: isPending ? 'not-allowed' : 'pointer',
-          transition: 'opacity .2s',
-        }}
-        onMouseEnter={(e) => {
-          if (!isPending) e.currentTarget.style.opacity = '.85';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.opacity = '1';
-        }}
+        className="w-full py-3 rounded-full text-sm font-bold tracking-widest uppercase text-white"
+        style={{ background: isPending ? `${ACENTO}80` : ACENTO, color: BTN_TXT }}
       >
         {isPending ? 'Creando cuenta...' : 'Crear cuenta'}
       </button>
 
-      {/* 10. Link de navegación rápida al login */}
       <p
-        style={{
-          fontFamily: "'Jost', sans-serif",
-          fontSize: '.85rem',
-          color: MUTED,
-          textAlign: 'center',
-          marginTop: '1.75rem',
-        }}
+        className="text-sm text-center mt-4"
+        style={{ color: MUTED, fontFamily: "'Jost', sans-serif" }}
       >
         ¿Ya tenés cuenta?{' '}
         <button
+          type="button"
           onClick={onGoLogin}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: ACENTO,
-            fontFamily: "'Jost', sans-serif",
-            fontSize: '.85rem',
-            fontWeight: 500,
-            cursor: 'pointer',
-            padding: 0,
-            textDecoration: 'underline',
-          }}
+          className="underline font-semibold"
+          style={{ color: ACENTO }}
         >
           Iniciá sesión
         </button>

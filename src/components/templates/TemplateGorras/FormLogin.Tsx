@@ -1,25 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useLoginCliente } from '../../../hooks/useCliente';
 import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
-
-// ── TIPOS ─────────────────────────────────────────────────────
-
-interface LoginData {
-  email: string;
-  password: string;
-  tiendaId: number;
-}
-
-interface FormLoginProps {
-  tiendaNombre: string;
-  onSubmit: (data: LoginData) => void;
-  onGoRegistro: () => void;
-  onGoOlvide: () => void;
-  loading: boolean;
-  errorGlobal?: string;
-}
-
-// ── COLORES (heredados de las CSS vars de la plantilla) ───────
+import type { FormLoginProps, LoginData } from './Types';
 
 const ACENTO = 'var(--gor-acento)';
 const MUTED = 'var(--gor-muted)';
@@ -28,178 +10,103 @@ const BORDER = 'var(--gor-border)';
 const SURFACE = 'var(--gor-surface)';
 const TXT = 'var(--gor-txt)';
 
-// ── COMPONENTE ────────────────────────────────────────────────
-
-export default function FormLogin({
-  tiendaNombre,
-  onSubmit,
-  onGoRegistro,
-  onGoOlvide,
-  loading,
-  errorGlobal,
-}: FormLoginProps) {
-  //obtenemos el id de la tienda del store para enviarlo al backend junto con los datos del cliente
+export default function FormLogin({ tiendaNombre, onGoRegistro, onGoOlvide }: FormLoginProps) {
   const { tiendaId } = useTiendaIDStore();
-  //manejo de formulario con react-hook-form
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginData>({ mode: 'onBlur' });
 
-  //hook para enviar los datos al back end
-  const { mutate: postLogin } = useLoginCliente();
+  const { mutate: postLogin, isPending } = useLoginCliente();
 
   const handleSubmitForm = (data: LoginData) => {
-    const dataLogin: LoginData = {
-      email: data.email,
-      password: data.password,
-      tiendaId: tiendaId!,
-    };
-
-    postLogin(dataLogin);
+    postLogin({ email: data.email, password: data.password, tiendaId: tiendaId! });
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* Descripción personalizada con nombre de tienda */}
+    <div className="flex flex-col">
+      {/* Descripción */}
       <p
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.95rem',
-          color: MUTED,
-          marginBottom: '2rem',
-          lineHeight: 1.6,
-        }}
+        className="text-[.95rem] leading-[1.6] mb-8"
+        style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
       >
         Bienvenido de nuevo a{' '}
-        <strong style={{ color: ACENTO, fontWeight: 700 }}>{tiendaNombre}</strong>. Ingresá para ver
-        tus pedidos y datos guardados.
+        <strong className="font-bold" style={{ color: ACENTO }}>
+          {tiendaNombre}
+        </strong>
+        . Ingresá para ver tus pedidos y datos guardados.
       </p>
 
-      {/* ── CAMPOS ── */}
-      <div
-        style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '0.5rem' }}
-      >
+      {/* Campos */}
+      <div className="flex flex-col gap-4 mb-2">
         <FieldGroup label="Email" error={errors.email?.message}>
           <input
             {...register('email', {
               required: 'El email es requerido',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Email inválido',
-              },
+              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Email inválido' },
             })}
             type="email"
             placeholder="tucorreo@email.com"
+            className="w-full px-4 py-3 rounded-lg text-[.88rem] outline-none transition-colors duration-200"
             style={fieldStyle(!!errors.email)}
           />
         </FieldGroup>
 
         <FieldGroup label="Contraseña" error={errors.password?.message}>
           <input
-            {...register('password', {
-              required: 'La contraseña es requerida',
-            })}
+            {...register('password', { required: 'La contraseña es requerida' })}
             type="password"
             placeholder="••••••••"
+            className="w-full px-4 py-3 rounded-lg text-[.88rem] outline-none transition-colors duration-200"
             style={fieldStyle(!!errors.password)}
           />
         </FieldGroup>
       </div>
 
-      {/* Link olvidaste contraseña — alineado a la derecha */}
+      {/* ¿Olvidaste tu contraseña? */}
       <button
         onClick={onGoOlvide}
-        style={{
-          alignSelf: 'flex-end',
-          background: 'none',
-          border: 'none',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.78rem',
-          color: MUTED,
-          cursor: 'pointer',
-          padding: '8px 0 1.5rem',
-          textDecoration: 'underline',
-          transition: 'color .2s',
-        }}
+        className="self-end bg-transparent border-none text-[.78rem] cursor-pointer py-2 pb-6 underline transition-colors duration-200"
+        style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
         onMouseEnter={(e) => (e.currentTarget.style.color = ACENTO)}
         onMouseLeave={(e) => (e.currentTarget.style.color = MUTED)}
       >
         ¿Olvidaste tu contraseña?
       </button>
 
-      {/* Error global del servidor */}
-      {errorGlobal && (
-        <div
-          style={{
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '8px',
-            padding: '10px 14px',
-            marginBottom: '1rem',
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '.82rem',
-            color: '#dc2626',
-          }}
-        >
-          {errorGlobal}
-        </div>
-      )}
+      {/* Error global */}
 
-      {/* Botón submit — pill igual al resto de la plantilla */}
+      {/* Botón submit */}
       <button
         onClick={handleSubmit(handleSubmitForm)}
-        disabled={loading}
+        className="w-full py-3.5 rounded-full text-[.78rem] font-bold tracking-wide uppercase border-none transition-opacity duration-200"
         style={{
-          width: '100%',
-          padding: '14px',
-          background: loading ? `${ACENTO}80` : ACENTO,
+          background: isPending ? `${ACENTO}80` : ACENTO,
           color: BTN_TXT,
-          border: 'none',
-          borderRadius: '50px',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.78rem',
-          fontWeight: 700,
-          letterSpacing: '.06em',
-          textTransform: 'uppercase',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          transition: 'opacity .2s',
+          cursor: isPending ? 'not-allowed' : 'pointer',
+          fontFamily: "'DM Sans',sans-serif",
         }}
         onMouseEnter={(e) => {
-          if (!loading) e.currentTarget.style.opacity = '.85';
+          if (!isPending) e.currentTarget.style.opacity = '.85';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.opacity = '1';
         }}
       >
-        {loading ? 'Ingresando...' : 'Ingresar'}
+        {isPending ? 'Ingresando...' : 'Ingresar'}
       </button>
 
       {/* Link a registro */}
       <p
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.85rem',
-          color: MUTED,
-          textAlign: 'center',
-          marginTop: '1.75rem',
-        }}
+        className="text-[.85rem] text-center mt-7"
+        style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
       >
         ¿No tenés cuenta?{' '}
         <button
           onClick={onGoRegistro}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: ACENTO,
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '.85rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            padding: 0,
-            textDecoration: 'underline',
-          }}
+          className="bg-transparent border-none text-[.85rem] font-semibold cursor-pointer p-0 underline"
+          style={{ color: ACENTO, fontFamily: "'DM Sans',sans-serif" }}
         >
           Registrate gratis
         </button>
@@ -208,20 +115,14 @@ export default function FormLogin({
   );
 }
 
-// ── HELPERS DE ESTILO ─────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────────
 
+// Solo el borde es dinámico, el resto va en className del input
 function fieldStyle(hasError: boolean): React.CSSProperties {
   return {
-    width: '100%',
-    padding: '12px 16px',
     border: `1.5px solid ${hasError ? '#ef4444' : BORDER}`,
-    borderRadius: '8px',
     background: SURFACE,
     color: TXT,
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: '.88rem',
-    outline: 'none',
-    transition: 'border-color .2s',
   };
 }
 
@@ -235,27 +136,16 @@ function FieldGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+    <div className="flex flex-col gap-1.5">
       <label
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.75rem',
-          fontWeight: 600,
-          color: MUTED,
-          letterSpacing: '.03em',
-        }}
+        className="text-[.75rem] font-semibold tracking-[.03em]"
+        style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
       >
         {label}
       </label>
       {children}
       {error && (
-        <span
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '.7rem',
-            color: '#ef4444',
-          }}
-        >
+        <span className="text-[.7rem] text-red-500" style={{ fontFamily: "'DM Sans',sans-serif" }}>
           {error}
         </span>
       )}

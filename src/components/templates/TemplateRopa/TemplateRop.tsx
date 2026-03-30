@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useStorefrontCategorias, useStorefrontDestacados, useStorefrontNormales } from '../../../hooks/useStorefrontProducts';
+import {
+  useStorefrontCategorias,
+  useStorefrontDestacados,
+  useStorefrontNormales,
+} from '../../../hooks/useStorefrontProducts';
 import { MetodoChip } from '../../shared/MetodoIcons';
 import { useAuthSessionStore } from '../../../store/useAuthSession';
 import AuthView from './AuthView';
 import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
+import { useCarrito } from '../../../hooks/useCarrito';
 
 const FONTS = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap');
@@ -1458,7 +1463,7 @@ function CartDrawer({
   onQty: (id: number, q: number) => void;
   onRemove: (id: number) => void;
 }) {
-  const subtotal = items.reduce((a, i) => a + i.precio * i.qty, 0);
+  const subtotal = items.reduce((a, i) => a + Number(i.precioUnit) * i.cantidad, 0);
   const ship = subtotal >= 10000 ? 0 : 900;
   const total = subtotal + ship;
 
@@ -1590,8 +1595,8 @@ function CartDrawer({
                   }}
                 >
                   <img
-                    src={item.img}
-                    alt={item.nombre}
+                    src={item.producto?.imagenPrincipalUrl || 'https://via.placeholder.com/150'}
+                    alt={item.producto?.nombre}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
@@ -1604,7 +1609,7 @@ function CartDrawer({
                       color: DARK,
                     }}
                   >
-                    {item.nombre}
+                    {item.producto?.nombre}
                   </p>
                   <p
                     style={{
@@ -1614,7 +1619,7 @@ function CartDrawer({
                       marginTop: '2px',
                     }}
                   >
-                    {item.cat}
+                    {item.producto?.categoria?.nombre || 'General'}
                   </p>
                   <div
                     style={{
@@ -1636,10 +1641,10 @@ function CartDrawer({
                         {
                           l: '−',
                           a: () =>
-                            item.qty > 1 ? onQty(item.id, item.qty - 1) : onRemove(item.id),
+                            item.cantidad > 1 ? onQty(item.id, item.cantidad - 1) : onRemove(item.id),
                         },
-                        { l: String(item.qty), a: null },
-                        { l: '+', a: () => onQty(item.id, item.qty + 1) },
+                        { l: String(item.cantidad), a: null },
+                        { l: '+', a: () => onQty(item.id, item.cantidad + 1) },
                       ].map(({ l, a }, i) => (
                         <div
                           key={i}
@@ -1671,7 +1676,7 @@ function CartDrawer({
                         letterSpacing: '.04em',
                       }}
                     >
-                      ${(item.precio * item.qty).toLocaleString()}
+                      ${(Number(item.precioUnit) * item.cantidad).toLocaleString()}
                     </span>
                   </div>
                   <button
@@ -2198,7 +2203,13 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
 
   
   console.log('carrusel en tienda ', tienda?.carrusel);
-  const [cart, setCart] = useState<any[]>([]);
+  const {
+    carrito,
+    agregarAlCarrito,
+    actualizarCantidad,
+    eliminarItem,
+  } = useCarrito(tiendaIdNum);
+
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
@@ -2215,18 +2226,21 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
 
   const { cliente, logout } = useAuthSessionStore();
 
-  const addToCart = (p: any, qty: number = 1) => {
-    setCart((prev) => {
-      const ex = prev.find((i) => i.id === p.id);
-      return ex
-        ? prev.map((i) => (i.id === p.id ? { ...i, qty: i.qty + qty } : i))
-        : [...prev, { ...p, qty: qty }];
-    });
-    setToast({ msg: `${p.nombre} agregado`, visible: true });
-    setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+  const addToCart = async (p: any, qty: number = 1) => {
+    try {
+      await agregarAlCarrito({
+        productoId: p.id,
+        cantidad: qty,
+        varianteId: null, // O el que corresponda si hubiera variantes
+      });
+      setToast({ msg: `${p.nombre} agregado`, visible: true });
+      setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+    } catch (error) {
+      console.error("Error al agregar al carrito:", error);
+    }
   };
 
-  const cartCount = cart.reduce((a, i) => a + i.qty, 0);
+  const cartCount = carrito?.cantidad || 0;
 
   return (
     <div style={cssVars}>
@@ -2308,10 +2322,10 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
 
       {cartOpen && (
         <CartDrawer
-          items={cart}
+          items={carrito?.items || []}
           onClose={() => setCartOpen(false)}
-          onQty={(id, q) => setCart((p) => p.map((i) => (i.id === id ? { ...i, qty: q } : i)))}
-          onRemove={(id) => setCart((p) => p.filter((i) => i.id !== id))}
+          onQty={(id, q) => actualizarCantidad({ itemId: id, cantidad: q })}
+          onRemove={(id) => eliminarItem(id)}
         />
       )}
 

@@ -1,18 +1,8 @@
 import { useForm } from 'react-hook-form';
-import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 import { useRegisterCliente } from '../../../hooks/useCliente';
+import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 import type { IClient } from '../../../types/clients.type';
-
-
-interface FormRegistroProps {
-  tiendaNombre: string;
-  onSubmit: (data: Omit<IClient, 'confirmar'>) => void;
-  onGoLogin: () => void;
-  loading: boolean;
-  errorGlobal?: string;
-}
-
-// ── COLORES (heredados de las CSS vars de la plantilla) ───────
+import type { FormRegistroProps } from './Types';
 
 const ACENTO = 'var(--gor-acento)';
 const MUTED = 'var(--gor-muted)';
@@ -21,69 +11,53 @@ const BORDER = 'var(--gor-border)';
 const SURFACE = 'var(--gor-surface)';
 const TXT = 'var(--gor-txt)';
 
-// ── COMPONENTE ────────────────────────────────────────────────
-
-export default function FormRegistro({
-  tiendaNombre,
-  onSubmit,
-  onGoLogin,
-  loading,
-  errorGlobal,
-}: FormRegistroProps) {
+export default function FormRegistro({ tiendaNombre, onGoLogin }: FormRegistroProps) {
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<IClient>({ mode: 'onBlur' });
-  //obtenemos el id de la tienda del store para enviarlo al backend junto con los datos del cliente
+  } = useForm<IClient & { confirmar: string }>({ mode: 'onBlur' });
+
   const { tiendaId } = useTiendaIDStore();
-
-  //hook para enviar la pepticion al back end
-  const { mutate: postRegister, isPending  } = useRegisterCliente();
-  // Necesitamos observar password para validar que confirmar coincida
+  const { mutate: postRegister, isPending } = useRegisterCliente();
   const passwordActual = watch('password');
+  const tiendaIdNum = Number(tiendaId ?? 0);
 
-  const handleSubmitForm = (data: IClient) => {
-    const dataRegister: IClient = {
+  const handleSubmitForm = (data: IClient & { confirmar: string }) => {
+    postRegister({
       nombre: data.nombre,
       apellido: data.apellido,
       email: data.email,
       telefono: data.telefono,
       password: data.password,
-      tiendaId: tiendaId,
-    };
-
-    postRegister(dataRegister);
+      tiendaId: tiendaIdNum,
+    });
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* Descripción personalizada */}
+    <div className="flex flex-col">
+      {/* Descripción */}
       <p
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.95rem',
-          color: MUTED,
-          marginBottom: '2rem',
-          lineHeight: 1.6,
-        }}
+        className="text-[.95rem] leading-[1.6] mb-8"
+        style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
       >
-        Creá tu cuenta en <strong style={{ color: ACENTO, fontWeight: 700 }}>{tiendaNombre}</strong>{' '}
+        Creá tu cuenta en{' '}
+        <strong className="font-bold" style={{ color: ACENTO }}>
+          {tiendaNombre}
+        </strong>{' '}
         para hacer seguimiento de tus pedidos.
       </p>
 
-      {/* ── FORMULARIO ── */}
-      {/* Usamos div en lugar de form para evitar submit nativo */}
-      <div
-        style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}
-      >
-        {/* Nombre y Apellido en grilla 2 columnas */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+      {/* Campos */}
+      <div className="flex flex-col gap-4 mb-6">
+        {/* Nombre + Apellido */}
+        <div className="grid grid-cols-2 gap-4">
           <FieldGroup label="Nombre" error={errors.nombre?.message}>
             <input
               {...register('nombre', { required: 'Requerido' })}
               placeholder="Juan"
+              className="w-full px-4 py-3 rounded-lg text-[.88rem] outline-none transition-colors duration-200"
               style={fieldStyle(!!errors.nombre)}
             />
           </FieldGroup>
@@ -92,6 +66,7 @@ export default function FormRegistro({
             <input
               {...register('apellido', { required: 'Requerido' })}
               placeholder="García"
+              className="w-full px-4 py-3 rounded-lg text-[.88rem] outline-none transition-colors duration-200"
               style={fieldStyle(!!errors.apellido)}
             />
           </FieldGroup>
@@ -101,13 +76,11 @@ export default function FormRegistro({
           <input
             {...register('email', {
               required: 'El email es requerido',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Email inválido',
-              },
+              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Email inválido' },
             })}
             type="email"
             placeholder="tucorreo@email.com"
+            className="w-full px-4 py-3 rounded-lg text-[.88rem] outline-none transition-colors duration-200"
             style={fieldStyle(!!errors.email)}
           />
         </FieldGroup>
@@ -117,6 +90,7 @@ export default function FormRegistro({
             {...register('telefono', { required: 'El teléfono es requerido' })}
             type="tel"
             placeholder="381 123-4567"
+            className="w-full px-4 py-3 rounded-lg text-[.88rem] outline-none transition-colors duration-200"
             style={fieldStyle(!!errors.telefono)}
           />
         </FieldGroup>
@@ -129,6 +103,7 @@ export default function FormRegistro({
             })}
             type="password"
             placeholder="Mínimo 8 caracteres"
+            className="w-full px-4 py-3 rounded-lg text-[.88rem] outline-none transition-colors duration-200"
             style={fieldStyle(!!errors.password)}
           />
         </FieldGroup>
@@ -141,47 +116,23 @@ export default function FormRegistro({
             })}
             type="password"
             placeholder="••••••••"
+            className="w-full px-4 py-3 rounded-lg text-[.88rem] outline-none transition-colors duration-200"
             style={fieldStyle(!!errors.confirmar)}
           />
         </FieldGroup>
       </div>
 
       {/* Error global del servidor */}
-      {errorGlobal && (
-        <div
-          style={{
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '8px',
-            padding: '10px 14px',
-            marginBottom: '1rem',
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '.82rem',
-            color: '#dc2626',
-          }}
-        >
-          {errorGlobal}
-        </div>
-      )}
 
       {/* Botón submit */}
       <button
         onClick={handleSubmit(handleSubmitForm)}
-        disabled={isPending}
+        className="w-full py-3.5 rounded-full text-[.78rem] font-bold tracking-wide uppercase border-none transition-opacity duration-200"
         style={{
-          width: '100%',
-          padding: '14px',
           background: isPending ? `${ACENTO}80` : ACENTO,
           color: BTN_TXT,
-          border: 'none',
-          borderRadius: '50px', // pill — igual al resto de botones de la plantilla
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.78rem',
-          fontWeight: 700,
-          letterSpacing: '.06em',
-          textTransform: 'uppercase',
           cursor: isPending ? 'not-allowed' : 'pointer',
-          transition: 'opacity .2s',
+          fontFamily: "'DM Sans',sans-serif",
         }}
         onMouseEnter={(e) => {
           if (!isPending) e.currentTarget.style.opacity = '.85';
@@ -195,28 +146,14 @@ export default function FormRegistro({
 
       {/* Link a login */}
       <p
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.85rem',
-          color: MUTED,
-          textAlign: 'center',
-          marginTop: '1.75rem',
-        }}
+        className="text-[.85rem] text-center mt-7"
+        style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
       >
         ¿Ya tenés cuenta?{' '}
         <button
           onClick={onGoLogin}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: ACENTO,
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '.85rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            padding: 0,
-            textDecoration: 'underline',
-          }}
+          className="bg-transparent border-none text-[.85rem] font-semibold cursor-pointer p-0 underline"
+          style={{ color: ACENTO, fontFamily: "'DM Sans',sans-serif" }}
         >
           Iniciá sesión
         </button>
@@ -225,31 +162,20 @@ export default function FormRegistro({
   );
 }
 
-// ── HELPERS DE ESTILO ─────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────────
 
 /**
- * Estilo del input: borde rojo si hay error, acento si está enfocado.
- * No usamos estado de foco local porque RHF ya maneja el blur/touch.
+ * Solo el borde cambia dinámicamente (error vs normal),
+ * el resto de estilos del input están en className
  */
 function fieldStyle(hasError: boolean): React.CSSProperties {
   return {
-    width: '100%',
-    padding: '12px 16px',
     border: `1.5px solid ${hasError ? '#ef4444' : BORDER}`,
-    borderRadius: '8px',
     background: SURFACE,
     color: TXT,
-    fontFamily: "'DM Sans', sans-serif",
-    fontSize: '.88rem',
-    outline: 'none',
-    transition: 'border-color .2s',
   };
 }
 
-/**
- * Wrapper de label + input + mensaje de error.
- * Separa la lógica de presentación del campo en sí.
- */
 function FieldGroup({
   label,
   error,
@@ -260,27 +186,16 @@ function FieldGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+    <div className="flex flex-col gap-1.5">
       <label
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '.75rem',
-          fontWeight: 600,
-          color: MUTED,
-          letterSpacing: '.03em',
-        }}
+        className="text-[.75rem] font-semibold tracking-[.03em]"
+        style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
       >
         {label}
       </label>
       {children}
       {error && (
-        <span
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '.7rem',
-            color: '#ef4444',
-          }}
-        >
+        <span className="text-[.7rem] text-red-500" style={{ fontFamily: "'DM Sans',sans-serif" }}>
           {error}
         </span>
       )}

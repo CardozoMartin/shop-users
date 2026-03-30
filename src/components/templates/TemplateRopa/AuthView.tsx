@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import FormRegistro from './FormRegistro';
 import FormLogin from './FormLogin';
+import FormRegistro from './FormRegistro';
 
 // ── 1. TIPOS ─────────────────────────────────────────────────────
 type AuthMode = 'login' | 'registro' | 'olvide';
@@ -17,13 +17,11 @@ interface AuthViewProps {
 }
 
 // ── 2. COLORES (heredados de VESTE / Ropa) ────────────────────────
-const ACENTO = 'var(--rop-acento)'; 
+const ACENTO = 'var(--rop-acento)';
 const DARK = 'var(--rop-dark)';
 const MUTED = 'var(--rop-muted)';
-const TXT = 'var(--rop-txt)';
 const BTN_TXT = 'var(--rop-btn-txt)';
 const BORDER = 'var(--rop-border)';
-const SURFACE = 'var(--rop-surface)';
 
 // ── 3. FORMULARIO OLVIDÉ CONTRASEÑA ──────────────────────────────
 
@@ -41,12 +39,20 @@ function FormOlvide({
   onSubmit: (email: string) => void;
 }) {
   const [email, setEmail] = useState('');
-  
+
   // Vista de confirmación tras el envío
   if (enviado) {
     return (
       <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-        <p style={{ fontFamily: "'Outfit', sans-serif", color: DARK, marginBottom: '2.5rem', fontWeight: 300, lineHeight: 1.6 }}>
+        <p
+          style={{
+            fontFamily: "'Outfit', sans-serif",
+            color: DARK,
+            marginBottom: '2.5rem',
+            fontWeight: 300,
+            lineHeight: 1.6,
+          }}
+        >
           Te enviamos un email con las instrucciones para recuperar tu contraseña.
         </p>
         <button
@@ -62,7 +68,7 @@ function FormOlvide({
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '.12em',
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
         >
           Volver al login
@@ -73,14 +79,31 @@ function FormOlvide({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: '.9rem', color: MUTED, fontWeight: 300 }}>
+      <p
+        style={{
+          fontFamily: "'Outfit', sans-serif",
+          fontSize: '.9rem',
+          color: MUTED,
+          fontWeight: 300,
+        }}
+      >
         Ingresá tu email y te mandamos un link para restablecer tu contraseña.
       </p>
-      
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <label style={{ fontFamily: "'Outfit', sans-serif", fontSize: '.62rem', fontWeight: 600, color: DARK, letterSpacing: '.12em' }}>EMAIL</label>
-        <input 
-          type="email" 
+        <label
+          style={{
+            fontFamily: "'Outfit', sans-serif",
+            fontSize: '.62rem',
+            fontWeight: 600,
+            color: DARK,
+            letterSpacing: '.12em',
+          }}
+        >
+          EMAIL
+        </label>
+        <input
+          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="hola@tuemail.com"
@@ -91,12 +114,14 @@ function FormOlvide({
             background: 'transparent',
             color: DARK,
             fontFamily: "'Outfit', sans-serif",
-            outline: 'none'
+            outline: 'none',
           }}
         />
       </div>
 
-      {errorGlobal && <p style={{ color: ACENTO, fontSize: '.75rem', textAlign: 'center' }}>{errorGlobal}</p>}
+      {errorGlobal && (
+        <p style={{ color: ACENTO, fontSize: '.75rem', textAlign: 'center' }}>{errorGlobal}</p>
+      )}
 
       <button
         onClick={() => onSubmit(email)}
@@ -113,7 +138,7 @@ function FormOlvide({
           textTransform: 'uppercase',
           letterSpacing: '.15em',
           cursor: loading ? 'not-allowed' : 'pointer',
-          opacity: loading ? 0.6 : 1
+          opacity: loading ? 0.6 : 1,
         }}
       >
         {loading ? 'ENVIANDO...' : 'REPERCUPERAR ACCESO'}
@@ -121,7 +146,16 @@ function FormOlvide({
 
       <button
         onClick={onGoLogin}
-        style={{ alignSelf: 'center', background: 'none', border: 'none', color: MUTED, fontSize: '.7rem', cursor: 'pointer', textDecoration: 'underline', letterSpacing: '.05em' }}
+        style={{
+          alignSelf: 'center',
+          background: 'none',
+          border: 'none',
+          color: MUTED,
+          fontSize: '.7rem',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          letterSpacing: '.05em',
+        }}
       >
         VOLVER AL LOGIN
       </button>
@@ -181,7 +215,10 @@ export default function AuthView({
   }
 
   async function handleOlvide(email: string) {
-    if (!onOlvide) { setOlvideEnviado(true); return; }
+    if (!onOlvide) {
+      setOlvideEnviado(true);
+      return;
+    }
     try {
       setLoading(true);
       setErrorGlobal('');
@@ -209,17 +246,39 @@ export default function AuthView({
       }}
     >
       <div style={{ maxWidth: '440px', width: '100%', display: 'flex', flexDirection: 'column' }}>
-        
         {/* Enlace de retorno estilo editorial */}
         <button
           onClick={onClose}
-          style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: MUTED, fontSize: '.75rem', cursor: 'pointer', marginBottom: '4rem', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 500, letterSpacing: '.1em' }}
+          style={{
+            alignSelf: 'flex-start',
+            background: 'none',
+            border: 'none',
+            color: MUTED,
+            fontSize: '.75rem',
+            cursor: 'pointer',
+            marginBottom: '4rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontWeight: 500,
+            letterSpacing: '.1em',
+          }}
         >
           <span>←</span> VOLVER A LA TIENDA
         </button>
 
         {/* Título en tipografía IMPACTANTE (Bebas Neue) */}
-        <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '3.5rem', fontWeight: 400, color: DARK, marginBottom: '1rem', letterSpacing: '.05em', lineHeight: 1 }}>
+        <h2
+          style={{
+            fontFamily: "'Bebas Neue', sans-serif",
+            fontSize: '3.5rem',
+            fontWeight: 400,
+            color: DARK,
+            marginBottom: '1rem',
+            letterSpacing: '.05em',
+            lineHeight: 1,
+          }}
+        >
           {meta[mode].titulo}
         </h2>
 

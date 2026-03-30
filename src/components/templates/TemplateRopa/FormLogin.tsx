@@ -1,9 +1,8 @@
-import { useForm } from 'react-hook-form';
-import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
+﻿import { useForm } from 'react-hook-form';
 import { useLoginCliente } from '../../../hooks/useCliente';
+import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 
 // ── TIPOS ─────────────────────────────────────────────────────
-// Estructura de datos para el inicio de sesión
 interface LoginData {
   email: string;
   password: string;
@@ -20,16 +19,12 @@ interface FormLoginProps {
 }
 
 // ── COLORES (heredados de las CSS vars de la plantilla Ropa/VESTE) ───
-const ACENTO = 'var(--rop-acento)'; // rojo editorial
+const ACENTO = 'var(--rop-acento)';
 const DARK = 'var(--rop-dark)';
 const MUTED = 'var(--rop-muted)';
 const BTN_TXT = 'var(--rop-btn-txt)';
 const BORDER = 'var(--rop-border)';
-const SURFACE = 'var(--rop-surface)';
-const TXT = 'var(--rop-txt)';
 
-// ── COMPONENTE ────────────────────────────────────────────────
-// Este componente implementa el login con la estética minimalista de la plantilla Ropa
 export default function FormLogin({
   tiendaNombre,
   onGoRegistro,
@@ -37,52 +32,29 @@ export default function FormLogin({
   loading,
   errorGlobal,
 }: FormLoginProps) {
-
-  // 1. Obtenemos el tiendaId del store persistente
   const { tiendaId } = useTiendaIDStore();
-  
-  // 2. Setup del formulario con validaciones
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginData>({ mode: 'onBlur' });
-
-  // 3. Hook asíncrono para mutación de login
   const { mutate: postLogin } = useLoginCliente();
 
-  // 4. Procesamiento del envío del formulario
   const handleSubmitForm = (data: LoginData) => {
-    const dataLogin: LoginData = {
-      email: data.email,
-      password: data.password,
-      tiendaId: tiendaId!,
-    };
-    
-    postLogin(dataLogin);
-  }
+    postLogin({ ...data, tiendaId: tiendaId ?? 0 });
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* 5. Introducción con tipografía Outfit (moderna/geométrica) */}
-      <p
-        style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontSize: '.95rem',
-          color: MUTED,
-          marginBottom: '2rem',
-          lineHeight: 1.6,
-          fontWeight: 300
-        }}
-      >
+    <div className="flex flex-col gap-4">
+      <p className="text-sm leading-7" style={{ color: MUTED, fontFamily: "'Outfit', sans-serif" }}>
         Ingresá a tu cuenta en{' '}
-        <strong style={{ color: DARK, fontWeight: 600 }}>{tiendaNombre}</strong> para gestionar tus pedidos.
+        <strong className="font-semibold" style={{ color: DARK }}>
+          {tiendaNombre}
+        </strong>{' '}
+        para gestionar tus pedidos.
       </p>
 
-      {/* ── 6. CAMPOS ── */}
-      <div
-        style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', marginBottom: '0.5rem' }}
-      >
+      <form onSubmit={handleSubmit(handleSubmitForm)} className="flex flex-col gap-4">
         <FieldGroup label="EMAIL" error={errors.email?.message}>
           <input
             {...register('email', {
@@ -94,7 +66,12 @@ export default function FormLogin({
             })}
             type="email"
             placeholder="hola@tuemail.com"
-            style={fieldStyle(!!errors.email)}
+            className="w-full px-3.5 py-2 rounded-md border text-sm"
+            style={{
+              borderColor: errors.email ? ACENTO : BORDER,
+              color: DARK,
+              background: 'transparent',
+            }}
           />
         </FieldGroup>
 
@@ -105,126 +82,56 @@ export default function FormLogin({
             })}
             type="password"
             placeholder="••••••••"
-            style={fieldStyle(!!errors.password)}
+            className="w-full px-3.5 py-2 rounded-md border text-sm"
+            style={{
+              borderColor: errors.password ? ACENTO : BORDER,
+              color: DARK,
+              background: 'transparent',
+            }}
           />
         </FieldGroup>
-      </div>
 
-      {/* 7. Recuperación de acceso */}
-      <button
-        onClick={onGoOlvide}
-        style={{
-          alignSelf: 'flex-start',
-          background: 'none',
-          border: 'none',
-          fontFamily: "'Outfit', sans-serif",
-          fontSize: '.72rem',
-          color: MUTED,
-          cursor: 'pointer',
-          padding: '8px 0 2rem',
-          textDecoration: 'underline',
-          letterSpacing: '.05em'
-        }}
-      >
-        Olvidé mi contraseña
-      </button>
-
-      {/* 8. Errores de API */}
-      {errorGlobal && (
-        <div
-          style={{
-            background: '#000',
-            borderRadius: '2px',
-            padding: '12px',
-            marginBottom: '1.5rem',
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: '.75rem',
-            color: '#fff',
-            textAlign: 'center'
-          }}
-        >
-          {errorGlobal}
-        </div>
-      )}
-
-      {/* 9. Botón con estilo rectangular sobrio (característico de VESTE) */}
-      <button
-        onClick={handleSubmit(handleSubmitForm)}
-        disabled={loading}
-        style={{
-          width: '100%',
-          padding: '16px',
-          background: loading ? DARK : DARK,
-          color: BTN_TXT,
-          border: 'none',
-          borderRadius: '4px',
-          fontFamily: "'Outfit', sans-serif",
-          fontSize: '.75rem',
-          fontWeight: 600,
-          letterSpacing: '.15em',
-          textTransform: 'uppercase',
-          cursor: loading ? 'not-allowed' : 'pointer',
-          transition: 'all .25s',
-          opacity: loading ? 0.6 : 1
-        }}
-        onMouseEnter={(e) => {
-          if (!loading) e.currentTarget.style.background = ACENTO;
-        }}
-        onMouseLeave={(e) => {
-          if (!loading) e.currentTarget.style.background = DARK;
-        }}
-      >
-        {loading ? 'CONECTANDO...' : 'INICIAR SESIÓN'}
-      </button>
-
-      {/* 10. Alternativa de registro */}
-      <p
-        style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontSize: '.8rem',
-          color: MUTED,
-          textAlign: 'center',
-          marginTop: '2rem',
-          fontWeight: 300
-        }}
-      >
-        ¿No sos miembro?{' '}
         <button
-          onClick={onGoRegistro}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: DARK,
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: '.8rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            padding: 0,
-            textDecoration: 'underline',
-          }}
+          type="button"
+          onClick={onGoOlvide}
+          className="self-start text-xs underline"
+          style={{ color: MUTED, fontFamily: "'Outfit', sans-serif" }}
         >
-          Únete ahora
+          Olvidé mi contraseña
         </button>
-      </p>
+
+        {errorGlobal && (
+          <p className="rounded-md p-2 text-xs" style={{ background: '#fee2e2', color: '#991b1b' }}>
+            {errorGlobal}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 rounded-full text-sm font-bold tracking-widest text-white"
+          style={{ background: DARK, opacity: loading ? 0.6 : 1, color: BTN_TXT }}
+        >
+          {loading ? 'CONECTANDO...' : 'INICIAR SESIÓN'}
+        </button>
+
+        <p
+          className="text-center text-xs mt-4"
+          style={{ color: MUTED, fontFamily: "'Outfit', sans-serif" }}
+        >
+          ¿No sos miembro?{' '}
+          <button
+            type="button"
+            onClick={onGoRegistro}
+            className="underline font-semibold"
+            style={{ color: DARK }}
+          >
+            Únete ahora
+          </button>
+        </p>
+      </form>
     </div>
   );
-}
-
-// ── 11. HELPERS ───────────────────────────────────────────────
-
-function fieldStyle(hasError: boolean): React.CSSProperties {
-  return {
-    width: '100%',
-    padding: '14px 0',
-    border: 'none',
-    borderBottom: `1px solid ${hasError ? ACENTO : BORDER}`,
-    background: 'transparent',
-    color: DARK,
-    fontFamily: "'Outfit', sans-serif",
-    fontSize: '.9rem',
-    outline: 'none',
-    transition: 'border-color .3s',
-  };
 }
 
 function FieldGroup({
@@ -237,28 +144,16 @@ function FieldGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+    <div className="flex flex-col gap-1">
       <label
-        style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontSize: '.62rem',
-          fontWeight: 600,
-          color: DARK,
-          letterSpacing: '.12em',
-        }}
+        className="text-xs font-semibold"
+        style={{ color: MUTED, fontFamily: "'Outfit', sans-serif" }}
       >
         {label}
       </label>
       {children}
       {error && (
-        <span
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: '.65rem',
-            color: ACENTO,
-            marginTop: '4px'
-          }}
-        >
+        <span className="text-xs text-red-600" style={{ fontFamily: "'Outfit', sans-serif" }}>
           {error}
         </span>
       )}

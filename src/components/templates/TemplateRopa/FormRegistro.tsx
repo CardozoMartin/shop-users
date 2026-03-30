@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
-import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 import { useRegisterCliente } from '../../../hooks/useCliente';
+import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 import type { IClient } from '../../../types/clients.type';
 
 // ── TIPOS ─────────────────────────────────────────────────────
@@ -17,22 +17,15 @@ interface FormRegistroProps {
 }
 
 // ── COLORES (heredados de las CSS vars de la plantilla Ropa/VESTE) ───
-const ACENTO = 'var(--rop-acento)'; 
+const ACENTO = 'var(--rop-acento)';
 const DARK = 'var(--rop-dark)';
 const MUTED = 'var(--rop-muted)';
 const BTN_TXT = 'var(--rop-btn-txt)';
 const BORDER = 'var(--rop-border)';
-// const SURFACE = 'var(--rop-surface)'; // Comentado si no se usa
 
 // ── COMPONENTE ────────────────────────────────────────────────
 // Este componente gestiona el alta de nuevos clientes para VESTE (Ropa)
-export default function FormRegistro({
-  tiendaNombre,
-  onGoLogin,
-  // loading, // Usamos isPending
-  errorGlobal,
-}: FormRegistroProps) {
-
+export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: FormRegistroProps) {
   // 1. Iniciamos react-hook-form para captura y validación
   const {
     register,
@@ -47,7 +40,7 @@ export default function FormRegistro({
   console.log('Tienda ID en FormRegistro:', tiendaId); // Debug para verificar que se obtiene el ID correctamente
 
   // 3. Mutación de registro
-  const { mutate: postRegister, isPending  } = useRegisterCliente();
+  const { mutate: postRegister, isPending } = useRegisterCliente();
 
   // 4. Vigilamos la contraseña para match en confirmación
   const passwordActual = watch('password');
@@ -65,30 +58,21 @@ export default function FormRegistro({
 
     postRegister(dataRegister);
     // Limpiamos el formulario tras el envío
-    reset(); 
+    reset();
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      {/* 6. Cabecera informativa */}
-      <p
-        style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontSize: '.95rem',
-          color: MUTED,
-          marginBottom: '2rem',
-          lineHeight: 1.6,
-          fontWeight: 300
-        }}
-      >
-        Crea tu cuenta en <strong style={{ color: DARK, fontWeight: 600 }}>{tiendaNombre}</strong>{' '}
+    <div className="flex flex-col gap-5">
+      <p className="text-sm leading-7" style={{ color: MUTED, fontFamily: "'Outfit', sans-serif" }}>
+        Crea tu cuenta en{' '}
+        <strong className="font-semibold" style={{ color: DARK }}>
+          {tiendaNombre}
+        </strong>{' '}
         y forma parte de nuestra comunidad.
       </p>
 
       {/* ── 7. CAMPOS DE REGISTRO ── */}
-      <div
-        style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', marginBottom: '2rem' }}
-      >
+      <div className="flex flex-col gap-4 mb-6">
         {/* Nombre y Apellido */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
           <FieldGroup label="NOMBRE" error={errors.nombre?.message}>
@@ -167,7 +151,7 @@ export default function FormRegistro({
             fontFamily: "'Outfit', sans-serif",
             fontSize: '.75rem',
             color: '#fff',
-            textAlign: 'center'
+            textAlign: 'center',
           }}
         >
           {errorGlobal}
@@ -178,21 +162,12 @@ export default function FormRegistro({
       <button
         onClick={handleSubmit(handleSubmitForm)}
         disabled={isPending}
+        className="w-full py-4 rounded-full text-sm font-bold tracking-widest text-white transition-all duration-200"
         style={{
-          width: '100%',
-          padding: '16px',
           background: DARK,
           color: BTN_TXT,
-          border: 'none',
-          borderRadius: '4px',
-          fontFamily: "'Outfit', sans-serif",
-          fontSize: '.75rem',
-          fontWeight: 600,
-          letterSpacing: '.15em',
-          textTransform: 'uppercase',
           cursor: isPending ? 'not-allowed' : 'pointer',
-          transition: 'all .25s',
-          opacity: isPending ? 0.6 : 1
+          opacity: isPending ? 0.6 : 1,
         }}
         onMouseEnter={(e) => {
           if (!isPending) e.currentTarget.style.background = ACENTO;
@@ -212,7 +187,7 @@ export default function FormRegistro({
           color: MUTED,
           textAlign: 'center',
           marginTop: '2rem',
-          fontWeight: 300
+          fontWeight: 300,
         }}
       >
         ¿Ya eres miembro?{' '}
@@ -283,7 +258,7 @@ function FieldGroup({
             fontFamily: "'Outfit', sans-serif",
             fontSize: '.65rem',
             color: ACENTO,
-            marginTop: '4px'
+            marginTop: '4px',
           }}
         >
           {error}

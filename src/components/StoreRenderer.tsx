@@ -1,18 +1,18 @@
-import { resolveTemplateIdFromShop } from "./registry";
-import PlantillaGorras from "./templates/TemplateGorras/TemplateGorras";
-import PlantillaAccesorios from "./templates/TemplateJoyeria/TemplateJoyeria";
-import PlantillaRopa from "./templates/TemplateRopa/TemplateRop";
-
+import { resolveTemplateIdFromShop } from './registry';
+import PlantillaGorras from './templates/TemplateGorras/TemplateGorras';
+import PlantillaAccesorios from './templates/TemplateJoyeria/TemplateJoyeria';
+import PlantillaRopa from './templates/TemplateRopa/TemplateRop';
+import PlantillaUrban from './templates/TemplateUrban/UrbanTiendzi';
 
 const TEMPLATES: Record<string, React.ComponentType<any>> = {
   plantilla_accesorios: PlantillaAccesorios,
   plantilla_gorras: PlantillaGorras,
   plantilla_ropa: PlantillaRopa,
+  plantilla_urban: PlantillaUrban,
   // Pendientes de implementación — usan la plantilla visual más cercana como fallback
   plantilla_moder: PlantillaRopa,
   plantilla_pink: PlantillaAccesorios,
 };
-
 
 interface StoreRendererProps {
   tienda: any;
@@ -29,6 +29,8 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
         return { accent: '#f97316', font: 'Playfair Display' };
       case 'plantilla_ropa':
         return { accent: '#e63946', font: 'Bebas Neue' };
+      case 'plantilla_urban':
+        return { accent: '#ef4444', font: 'Bebas Neue' };
       default:
         return { accent: '#b5835a', font: 'Cormorant Garamond' };
     }

@@ -1,5 +1,4 @@
-import type { TemplateConfig } from "../types/types";
-
+import type { TemplateConfig } from '../types/types';
 
 export const TEMPLATES: Record<string, TemplateConfig> = {
   plantilla_accesorios: {
@@ -32,8 +31,13 @@ export const TEMPLATES: Record<string, TemplateConfig> = {
     descripcion: 'Elegante y femenino',
     secciones: [],
   },
+  plantilla_urban: {
+    id: 'plantilla_urban',
+    nombre: 'Urban',
+    descripcion: 'Streetwear urbano y edgy',
+    secciones: [],
+  },
 };
-
 
 const TEMPLATE_ALIASES: Record<string, string> = {
   '1': 'plantilla_moder',
@@ -46,6 +50,9 @@ const TEMPLATE_ALIASES: Record<string, string> = {
   gorras: 'plantilla_gorras',
   caps: 'plantilla_gorras',
   ropa: 'plantilla_ropa',
+  urban: 'plantilla_urban',
+  street: 'plantilla_urban',
+  urbana: 'plantilla_urban',
   moda: 'plantilla_ropa',
   veste: 'plantilla_ropa',
   moder: 'plantilla_moder',
