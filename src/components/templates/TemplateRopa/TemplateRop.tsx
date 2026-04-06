@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCarrito } from '../../../hooks/useCarrito';
 import {
   useStorefrontCategorias,
   useStorefrontDestacados,
   useStorefrontNormales,
 } from '../../../hooks/useStorefrontProducts';
-import { MetodoChip } from '../../shared/MetodoIcons';
 import { useAuthSessionStore } from '../../../store/useAuthSession';
-import AuthView from './AuthView';
 import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
-import { useCarrito } from '../../../hooks/useCarrito';
+import { MetodoChip } from '../../shared/MetodoIcons';
+import AuthView from './AuthView';
+import CheckoutView from './CheckoutView';
 
 const FONTS = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap');
@@ -34,51 +35,21 @@ let TIENDA = {
   instagram: 'veste.tuc',
   ciudad: 'Tucumán',
   pais: 'Argentina',
+  aboutUs: {},
 };
 
-
 // ── NAVBAR ────────────────────────────────────────────────────
-
-
-
-// ── LOOKBOOK (editorial) ──────────────────────────────────────
-const LOOKBOOK = [
-  {
-    img: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&h=800&fit=crop&q=80',
-    span: '1/3',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=400&fit=crop&q=80',
-    span: '1/1',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&h=400&fit=crop&q=80',
-    span: '1/1',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600&h=800&fit=crop&q=80',
-    span: '1/3',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop&q=80',
-    span: '1/1',
-  },
-  {
-    img: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600&h=400&fit=crop&q=80',
-    span: '1/1',
-  },
-];
 
 /* ═══════════════════════════════════════════════
    NAVBAR
 ═══════════════════════════════════════════════ */
-function Navbar({ 
-  cartCount, 
+function Navbar({
+  cartCount,
   onCart,
   onIngresar,
-  onMiCuenta 
-}: { 
-  cartCount: number; 
+  onMiCuenta,
+}: {
+  cartCount: number;
   onCart: () => void;
   onIngresar: () => void;
   onMiCuenta: () => void;
@@ -141,10 +112,11 @@ function Navbar({
 
       {/* Desktop links */}
       <div className="vt-hide-mob" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-        {['Colección', 'Lookbook', 'Nosotros', 'Contacto'].map((l) => (
+        {['Colección', 'Destacados', 'Nosotros', 'Contacto'].map((l) => (
           <a
             key={l}
             href="#"
+            onClick={(e) => e.preventDefault()}
             style={{
               fontFamily: "'Outfit',sans-serif",
               fontSize: '.78rem',
@@ -288,10 +260,14 @@ function Navbar({
             boxShadow: '0 8px 24px rgba(0,0,0,.06)',
           }}
         >
-          {['Colección', 'Lookbook', 'Nosotros', 'Contacto'].map((l) => (
+          {['Colección', 'Destacados', 'Nosotros', 'Contacto'].map((l) => (
             <a
               key={l}
               href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen(false);
+              }}
               style={{
                 fontFamily: "'Outfit',sans-serif",
                 fontSize: '.9rem',
@@ -375,8 +351,19 @@ function Hero({ carrusel }: { carrusel: any[] }) {
 
   if (carrusel.length === 0) {
     return (
-      <div style={{ height: '94vh', minHeight: '520px', display: 'grid', placeItems: 'center', background: DARK, color: '#fff' }}>
-        <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '1rem', opacity: 0.9 }}>No hay elementos en el carrusel.</p>
+      <div
+        style={{
+          height: '94vh',
+          minHeight: '520px',
+          display: 'grid',
+          placeItems: 'center',
+          background: DARK,
+          color: '#fff',
+        }}
+      >
+        <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '1rem', opacity: 0.9 }}>
+          No hay elementos en el carrusel.
+        </p>
       </div>
     );
   }
@@ -699,132 +686,6 @@ function Marquee() {
 }
 
 /* ═══════════════════════════════════════════════
-   LOOKBOOK — galería editorial asimétrica
-═══════════════════════════════════════════════ */
-function Lookbook() {
-  const [hov, setHov] = useState<number | null>(null);
-
-  return (
-    <section style={{ background: BG, padding: '5rem 2rem' }}>
-      <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'space-between',
-            marginBottom: '2.5rem',
-            flexWrap: 'wrap',
-            gap: '1rem',
-          }}
-        >
-          <div>
-            <span
-              style={{
-                fontFamily: "'Outfit',sans-serif",
-                fontSize: '.62rem',
-                letterSpacing: '.24em',
-                textTransform: 'uppercase',
-                color: ACENTO,
-                fontWeight: 600,
-                display: 'block',
-                marginBottom: '.5rem',
-              }}
-            >
-              SS 2025
-            </span>
-            <h2
-              style={{
-                fontFamily: "'Bebas Neue',sans-serif",
-                fontSize: 'clamp(2.5rem,5vw,4rem)',
-                color: DARK,
-                letterSpacing: '.04em',
-                lineHeight: 0.9,
-              }}
-            >
-              LOOKBOOK
-            </h2>
-          </div>
-          <p
-            style={{
-              fontFamily: "'Outfit',sans-serif",
-              fontSize: '.8rem',
-              fontWeight: 300,
-              color: MUTED,
-              maxWidth: '280px',
-              lineHeight: 1.7,
-            }}
-          >
-            {TIENDA.descripcion}
-          </p>
-        </div>
-
-        {/* Masonry grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gridTemplateRows: 'auto',
-            gap: '8px',
-          }}
-        >
-          {LOOKBOOK.map((item, i) => (
-            <div
-              key={i}
-              onMouseEnter={() => setHov(i)}
-              onMouseLeave={() => setHov(null)}
-              style={{
-                gridRow: item.span,
-                borderRadius: '8px',
-                overflow: 'hidden',
-                position: 'relative',
-                cursor: 'pointer',
-                aspectRatio: item.span === '1/3' ? '3/4' : '1',
-              }}
-            >
-              <img
-                src={item.img}
-                alt=""
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  transform: hov === i ? 'scale(1.05)' : 'scale(1)',
-                  transition: 'transform .55s ease',
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'rgba(20,20,20,.4)',
-                  opacity: hov === i ? 1 : 0,
-                  transition: 'opacity .3s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: "'Bebas Neue',sans-serif",
-                    fontSize: '1.1rem',
-                    color: '#fff',
-                    letterSpacing: '.18em',
-                  }}
-                >
-                  VER MÁS
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════════════════════════════════════
    CARRUSEL HORIZONTAL — productos
 ═══════════════════════════════════════════════ */
 function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items: any[] }) {
@@ -851,6 +712,8 @@ function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items:
   const scroll = (dir: number) => {
     if (trackRef.current) trackRef.current.scrollBy({ left: dir * 320, behavior: 'smooth' });
   };
+
+  if (!items?.length) return null;
 
   return (
     <section style={{ background: SURFACE, padding: '5rem 0' }}>
@@ -879,7 +742,7 @@ function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items:
                 marginBottom: '.5rem',
               }}
             >
-              Catálogo
+              Destacados
             </span>
             <h2
               style={{
@@ -890,7 +753,7 @@ function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items:
                 lineHeight: 0.9,
               }}
             >
-              NUEVA COLECCIÓN
+              DESTACADOS
             </h2>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -1082,7 +945,7 @@ function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items:
                     fontFamily: "'Bebas Neue',sans-serif",
                     fontSize: '1.2rem',
                     fontWeight: 400,
-                    color: (p.precioOferta && Number(p.precioOferta) > 0) ? ACENTO : DARK,
+                    color: p.precioOferta && Number(p.precioOferta) > 0 ? ACENTO : DARK,
                     letterSpacing: '.04em',
                   }}
                 >
@@ -1121,32 +984,130 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
   return (
     <section id="productos" style={{ background: BG, padding: '5rem 2rem' }}>
       <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <h2 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 'clamp(2.5rem,4vw,3.5rem)', color: DARK, letterSpacing: '.04em', lineHeight: 0.9 }}>
-            TODO EL<br /><span style={{ color: ACENTO }}>CATÁLOGO</span>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            marginBottom: '2rem',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "'Bebas Neue',sans-serif",
+              fontSize: 'clamp(2.5rem,4vw,3.5rem)',
+              color: DARK,
+              letterSpacing: '.04em',
+              lineHeight: 0.9,
+            }}
+          >
+            TODO EL
+            <br />
+            <span style={{ color: ACENTO }}>CATÁLOGO</span>
           </h2>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'flex-end' }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              alignItems: 'flex-end',
+            }}
+          >
             <form
-              onSubmit={(e) => { e.preventDefault(); setBusquedaFiltro(busqueda); setVisibleCount(12); }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                setBusquedaFiltro(busqueda);
+                setVisibleCount(12);
+              }}
               style={{ display: 'flex', gap: '8px', width: '100%', maxWidth: '300px' }}
             >
-              <input type="text" placeholder="Buscar..." value={busqueda} onChange={(e)=>setBusqueda(e.target.value)} style={{ flex: 1, padding: '8px 12px', borderRadius: '4px', border: `1px solid ${BORDER}`, background: SURFACE, color: DARK, fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', outline: 'none' }} onFocus={(e)=>(e.target.style.borderColor = ACENTO)} onBlur={(e)=>(e.target.style.borderColor = BORDER)} />
-              <button type="submit" style={{ padding: '0 16px', background: DARK, color: BTN_TXT, border: 'none', borderRadius: '4px', cursor: 'pointer', fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', fontWeight: 600, transition: 'background .2s' }} onMouseEnter={(e)=>(e.currentTarget.style.background = ACENTO)} onMouseLeave={(e)=>(e.currentTarget.style.background = DARK)}>Buscar</button>
+              <input
+                type="text"
+                placeholder="Buscar..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '8px 12px',
+                  borderRadius: '4px',
+                  border: `1px solid ${BORDER}`,
+                  background: SURFACE,
+                  color: DARK,
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.8rem',
+                  outline: 'none',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = ACENTO)}
+                onBlur={(e) => (e.target.style.borderColor = BORDER)}
+              />
+              <button
+                type="submit"
+                style={{
+                  padding: '0 16px',
+                  background: DARK,
+                  color: BTN_TXT,
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.8rem',
+                  fontWeight: 600,
+                  transition: 'background .2s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = ACENTO)}
+                onMouseLeave={(e) => (e.currentTarget.style.background = DARK)}
+              >
+                Buscar
+              </button>
             </form>
 
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <div
+              style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}
+            >
               <button
-                onClick={() => { setCat('Todo'); setVisibleCount(12); }}
-                style={{ padding: '7px 16px', borderRadius: '4px', border: `1px solid ${'Todo' === cat ? ACENTO : BORDER}`, background: 'Todo' === cat ? ACENTO : 'transparent', color: 'Todo' === cat ? BTN_TXT : MUTED, fontFamily: "'Outfit',sans-serif", fontSize: '.7rem', fontWeight: 'Todo' === cat ? 600 : 400, cursor: 'pointer', letterSpacing: '.06em', transition: 'all .18s' }}
+                onClick={() => {
+                  setCat('Todo');
+                  setVisibleCount(12);
+                }}
+                style={{
+                  padding: '7px 16px',
+                  borderRadius: '4px',
+                  border: `1px solid ${'Todo' === cat ? ACENTO : BORDER}`,
+                  background: 'Todo' === cat ? ACENTO : 'transparent',
+                  color: 'Todo' === cat ? BTN_TXT : MUTED,
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.7rem',
+                  fontWeight: 'Todo' === cat ? 600 : 400,
+                  cursor: 'pointer',
+                  letterSpacing: '.06em',
+                  transition: 'all .18s',
+                }}
               >
                 Todo
               </button>
               {categorias.map((c: any) => (
                 <button
                   key={c.id}
-                  onClick={() => { setCat(c.id); setVisibleCount(12); }}
-                  style={{ padding: '7px 16px', borderRadius: '4px', border: `1px solid ${c.id === cat ? ACENTO : BORDER}`, background: c.id === cat ? ACENTO : 'transparent', color: c.id === cat ? BTN_TXT : MUTED, fontFamily: "'Outfit',sans-serif", fontSize: '.7rem', fontWeight: c.id === cat ? 600 : 400, cursor: 'pointer', letterSpacing: '.06em', transition: 'all .18s' }}
+                  onClick={() => {
+                    setCat(c.id);
+                    setVisibleCount(12);
+                  }}
+                  style={{
+                    padding: '7px 16px',
+                    borderRadius: '4px',
+                    border: `1px solid ${c.id === cat ? ACENTO : BORDER}`,
+                    background: c.id === cat ? ACENTO : 'transparent',
+                    color: c.id === cat ? BTN_TXT : MUTED,
+                    fontFamily: "'Outfit',sans-serif",
+                    fontSize: '.7rem',
+                    fontWeight: c.id === cat ? 600 : 400,
+                    cursor: 'pointer',
+                    letterSpacing: '.06em',
+                    transition: 'all .18s',
+                  }}
                 >
                   {c.nombre}
                 </button>
@@ -1156,39 +1117,171 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
         </div>
 
         {isLoading && !productos.length ? (
-          <div style={{ padding: '4rem', textAlign: 'center', color: MUTED, fontFamily: "'Outfit',sans-serif" }}>Cargando prendas...</div>
+          <div
+            style={{
+              padding: '4rem',
+              textAlign: 'center',
+              color: MUTED,
+              fontFamily: "'Outfit',sans-serif",
+            }}
+          >
+            Cargando prendas...
+          </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: '16px' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))',
+              gap: '16px',
+            }}
+          >
             {visibleProducts.map((p: any) => (
-              <div key={p.id} onMouseEnter={() => setHov(p.id)} onMouseLeave={() => setHov(null)} style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', aspectRatio: '3/4', background: SURFACE, transition: 'transform .25s', transform: hov === p.id ? 'translateY(-3px)' : 'translateY(0)' }}>
-                  <img src={p.imagenPrincipalUrl || 'https://via.placeholder.com/300x400'} alt={p.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover', transform: hov === p.id ? 'scale(1.05)' : 'scale(1)', transition: 'transform .5s ease' }} />
-                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(20,20,20,.4)', opacity: hov === p.id ? 1 : 0, transition: 'opacity .3s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <button onClick={() => onSelect(p)} style={{ padding: '10px 24px', background: ACENTO, color: BTN_TXT, border: 'none', borderRadius: '4px', fontFamily: "'Outfit',sans-serif", fontSize: '.7rem', fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer' }}>
+              <div
+                key={p.id}
+                onMouseEnter={() => setHov(p.id)}
+                onMouseLeave={() => setHov(null)}
+                style={{ display: 'flex', flexDirection: 'column' }}
+              >
+                <div
+                  style={{
+                    position: 'relative',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    aspectRatio: '3/4',
+                    background: SURFACE,
+                    transition: 'transform .25s',
+                    transform: hov === p.id ? 'translateY(-3px)' : 'translateY(0)',
+                  }}
+                >
+                  <img
+                    src={p.imagenPrincipalUrl || 'https://via.placeholder.com/300x400'}
+                    alt={p.nombre}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transform: hov === p.id ? 'scale(1.05)' : 'scale(1)',
+                      transition: 'transform .5s ease',
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'rgba(20,20,20,.4)',
+                      opacity: hov === p.id ? 1 : 0,
+                      transition: 'opacity .3s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <button
+                      onClick={() => onSelect(p)}
+                      style={{
+                        padding: '10px 24px',
+                        background: ACENTO,
+                        color: BTN_TXT,
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontFamily: "'Outfit',sans-serif",
+                        fontSize: '.7rem',
+                        fontWeight: 700,
+                        letterSpacing: '.1em',
+                        textTransform: 'uppercase',
+                        cursor: 'pointer',
+                      }}
+                    >
                       Ver Producto
                     </button>
                   </div>
                   {p.destacado && (
-                    <span style={{ position: 'absolute', top: '10px', left: '10px', background: DARK, color: BG, fontSize: '.56rem', fontWeight: 700, padding: '3px 8px', borderRadius: '3px', letterSpacing: '.08em', textTransform: 'uppercase' }}>
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: '10px',
+                        left: '10px',
+                        background: DARK,
+                        color: BG,
+                        fontSize: '.56rem',
+                        fontWeight: 700,
+                        padding: '3px 8px',
+                        borderRadius: '3px',
+                        letterSpacing: '.08em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
                       Destacado
                     </span>
                   )}
                 </div>
                 <div style={{ marginTop: '8px', padding: '0 2px' }}>
-                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.8rem', fontWeight: 500, color: DARK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <p
+                    style={{
+                      fontFamily: "'Outfit',sans-serif",
+                      fontSize: '.8rem',
+                      fontWeight: 500,
+                      color: DARK,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
                     {p.nombre}
                   </p>
-                  <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.65rem', color: MUTED, marginBottom: '2px' }}>
+                  <p
+                    style={{
+                      fontFamily: "'Outfit',sans-serif",
+                      fontSize: '.65rem',
+                      color: MUTED,
+                      marginBottom: '2px',
+                    }}
+                  >
                     {p.categoria?.nombre || ''}
                   </p>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px', marginTop: '4px' }}>
-                    {p.precioOferta && Number(p.precioOferta) > 0 && Number(p.precioOferta) < Number(p.precio) ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      gap: '5px',
+                      marginTop: '4px',
+                    }}
+                  >
+                    {p.precioOferta &&
+                    Number(p.precioOferta) > 0 &&
+                    Number(p.precioOferta) < Number(p.precio) ? (
                       <>
-                        <span style={{ fontSize: '.65rem', color: SUBTLE, textDecoration: 'line-through' }}>${Number(p.precio).toLocaleString()}</span>
-                        <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '1.2rem', color: ACENTO, letterSpacing: '.04em' }}>${Number(p.precioOferta).toLocaleString()}</span>
+                        <span
+                          style={{
+                            fontSize: '.65rem',
+                            color: SUBTLE,
+                            textDecoration: 'line-through',
+                          }}
+                        >
+                          ${Number(p.precio).toLocaleString()}
+                        </span>
+                        <span
+                          style={{
+                            fontFamily: "'Bebas Neue',sans-serif",
+                            fontSize: '1.2rem',
+                            color: ACENTO,
+                            letterSpacing: '.04em',
+                          }}
+                        >
+                          ${Number(p.precioOferta).toLocaleString()}
+                        </span>
                       </>
                     ) : (
-                      <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '1.2rem', color: DARK, letterSpacing: '.04em' }}>${Number(p.precio).toLocaleString()}</span>
+                      <span
+                        style={{
+                          fontFamily: "'Bebas Neue',sans-serif",
+                          fontSize: '1.2rem',
+                          color: DARK,
+                          letterSpacing: '.04em',
+                        }}
+                      >
+                        ${Number(p.precio).toLocaleString()}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -1213,7 +1306,7 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
                 letterSpacing: '.06em',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
-                transition: 'all .25s ease'
+                transition: 'all .25s ease',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = DARK;
@@ -1233,83 +1326,448 @@ function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tie
   );
 }
 
-
 // ── PRODUCT DETAIL VIEW ───────────────────────────────────────
-function ProductDetailView({ product, onBack, onCart, tienda }: { product: any; onBack: () => void; onCart: (p: any, qty: number) => void; tienda?: any }) {
+function ProductDetailView({
+  product,
+  onBack,
+  onCart,
+  tienda,
+}: {
+  product: any;
+  onBack: () => void;
+  onCart: (p: any, qty: number, vId?: number) => void;
+  tienda?: any;
+}) {
   const [qty, setQty] = useState(1);
-  useEffect(() => { window.scrollTo(0, 0); }, []);
+  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
+  const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>({});
+  const [imagenActiva, setImagenActiva] = useState(product.imagenPrincipalUrl || '');
+
+  // 1. Extraer grupos de atributos
+  const attrGroups = useMemo(() => {
+    const groups: Record<string, Set<string>> = {};
+    product.variantes?.forEach((v: any) => {
+      const parts = v.nombre.split(' - ');
+      parts.forEach((p: string) => {
+        if (p.includes(':')) {
+          const [key, val] = p.split(':').map((s: string) => s.trim());
+          if (!groups[key]) groups[key] = new Set();
+          groups[key].add(val);
+        } else {
+          if (!groups['Opciones']) groups['Opciones'] = new Set();
+          groups['Opciones'].add(p.trim());
+        }
+      });
+    });
+    const result: Record<string, string[]> = {};
+    Object.keys(groups).forEach((k) => {
+      result[k] = Array.from(groups[k]);
+    });
+    return result;
+  }, [product.variantes]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setImagenActiva(product.imagenPrincipalUrl || '');
+
+    // Inicializar atributos seleccionados
+    if (Object.keys(attrGroups).length > 0) {
+      const initial: Record<string, string> = {};
+      const firstAv = product.variantes?.find((v: any) => v.disponible);
+      if (firstAv) {
+        firstAv.nombre.split(' - ').forEach((p: string) => {
+          if (p.includes(':')) {
+            const [k, v] = p.split(':').map((s: string) => s.trim());
+            initial[k] = v;
+          } else {
+            initial['Opciones'] = p.trim();
+          }
+        });
+      } else {
+        Object.keys(attrGroups).forEach((k) => {
+          initial[k] = attrGroups[k][0];
+        });
+      }
+      setSelectedAttrs(initial);
+    }
+  }, [product.id, attrGroups]);
+
+  // Encontrar variante actual
+  useEffect(() => {
+    if (Object.keys(attrGroups).length === 0) return;
+    const matched = product.variantes?.find((v: any) => {
+      const vAttrs: Record<string, string> = {};
+      v.nombre.split(' - ').forEach((p: string) => {
+        if (p.includes(':')) {
+          const [k, val] = p.split(':').map((s: string) => s.trim());
+          vAttrs[k] = val;
+        } else {
+          vAttrs['Opciones'] = p.trim();
+        }
+      });
+      return Object.keys(selectedAttrs).every((k) => vAttrs[k] === selectedAttrs[k]);
+    });
+
+    if (matched) {
+      setSelectedVariantId(matched.id);
+      if (matched.imagenUrl) setImagenActiva(matched.imagenUrl);
+    } else {
+      setSelectedVariantId(null);
+    }
+  }, [selectedAttrs, product, attrGroups]);
+
   if (!product) return null;
-  const hasOffer = product.precioOferta && Number(product.precioOferta) > 0 && Number(product.precioOferta) < Number(product.precio);
+  const hasOffer =
+    product.precioOferta &&
+    Number(product.precioOferta) > 0 &&
+    Number(product.precioOferta) < Number(product.precio);
+
+  let extra = 0;
+  if (selectedVariantId) {
+    const v = product.variantes?.find((x: any) => x.id === selectedVariantId);
+    if (v) extra = Number(v.precioExtra || 0);
+  }
+  const basePrice = Number(product.precio) + extra;
+  const offerPrice = hasOffer ? Number(product.precioOferta) + extra : basePrice;
 
   return (
-    <div style={{ padding: '3rem 1.5rem', minHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{
+        padding: '3rem 1.5rem',
+        minHeight: '80vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <div style={{ maxWidth: '1060px', margin: '0 auto', width: '100%', flex: 1 }}>
         <button
           onClick={onBack}
-          style={{ background: 'none', border: 'none', color: MUTED, fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2rem', padding: 0 }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: MUTED,
+            fontFamily: "'Outfit',sans-serif",
+            fontSize: '.85rem',
+            fontWeight: 500,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '2rem',
+            padding: 0,
+          }}
         >
           <span style={{ fontSize: '1.2rem' }}>←</span> Volver al catálogo
         </button>
 
         <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          <div style={{ flex: '1 1 400px', position: 'relative', aspectRatio: '3/4', borderRadius: '8px', overflow: 'hidden', background: SURFACE }}>
-            <img src={product.imagenPrincipalUrl || 'https://via.placeholder.com/600x800'} alt={product.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <div style={{ flex: '1 1 400px', flexFlow: 'column', display: 'flex', gap: '1rem' }}>
+            <div
+              style={{
+                position: 'relative',
+                aspectRatio: '3/4',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                background: SURFACE,
+              }}
+            >
+              <img
+                src={
+                  imagenActiva ||
+                  product.imagenPrincipalUrl ||
+                  'https://via.placeholder.com/600x800'
+                }
+                alt={product.nombre}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </div>
+
+            {/* Miniaturas extra */}
+            {(product.imagenes || []).length > 0 && (
+              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '5px' }}>
+                <img
+                  src={product.imagenPrincipalUrl}
+                  onClick={() => setImagenActiva(product.imagenPrincipalUrl)}
+                  style={{
+                    width: '60px',
+                    height: '80px',
+                    objectFit: 'cover',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    border:
+                      imagenActiva === product.imagenPrincipalUrl ? `2px solid ${ACENTO}` : 'none',
+                  }}
+                />
+                {product.imagenes.map((img: any) => (
+                  <img
+                    key={img.id}
+                    src={img.url}
+                    onClick={() => setImagenActiva(img.url)}
+                    style={{
+                      width: '60px',
+                      height: '80px',
+                      objectFit: 'cover',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      border: imagenActiva === img.url ? `2px solid ${ACENTO}` : 'none',
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.75rem', color: MUTED, marginBottom: '.75rem', textTransform: 'uppercase', letterSpacing: '.1em', fontWeight: 600 }}>
+            <span
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '.75rem',
+                color: MUTED,
+                marginBottom: '.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '.1em',
+                fontWeight: 600,
+              }}
+            >
               {product.categoria?.nombre || 'Producto'}
             </span>
 
-            <h1 style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 'clamp(2.5rem, 4vw, 3.5rem)', color: DARK, letterSpacing: '.04em', lineHeight: 0.9, marginBottom: '1.2rem' }}>
+            <h1
+              style={{
+                fontFamily: "'Bebas Neue',sans-serif",
+                fontSize: 'clamp(2.5rem, 4vw, 3.5rem)',
+                color: DARK,
+                letterSpacing: '.04em',
+                lineHeight: 0.9,
+                marginBottom: '1.2rem',
+              }}
+            >
               {product.nombre}
             </h1>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '2rem' }}>
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '2rem' }}
+            >
               {hasOffer ? (
                 <>
-                  <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '1.2rem', color: MUTED, textDecoration: 'line-through' }}>
-                    ${Number(product.precio).toLocaleString()}
+                  <span
+                    style={{
+                      fontFamily: "'Outfit',sans-serif",
+                      fontSize: '1.2rem',
+                      color: MUTED,
+                      textDecoration: 'line-through',
+                    }}
+                  >
+                    ${basePrice.toLocaleString()}
                   </span>
-                  <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '2.4rem', color: ACENTO, letterSpacing: '.04em' }}>
-                    ${Number(product.precioOferta).toLocaleString()}
-                  </span>
-                  <span style={{ background: `${ACENTO}15`, color: ACENTO, padding: '4px 10px', borderRadius: '4px', fontSize: '.7rem', fontWeight: 700, marginLeft: '4px', letterSpacing: '.1em', textTransform: 'uppercase' }}>
-                    Sale
+                  <span
+                    style={{
+                      fontFamily: "'Bebas Neue',sans-serif",
+                      fontSize: '2.4rem',
+                      color: ACENTO,
+                      letterSpacing: '.04em',
+                    }}
+                  >
+                    ${offerPrice.toLocaleString()}
                   </span>
                 </>
               ) : (
-                <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '2.4rem', color: DARK, letterSpacing: '.04em' }}>
-                  ${Number(product.precio).toLocaleString()}
+                <span
+                  style={{
+                    fontFamily: "'Bebas Neue',sans-serif",
+                    fontSize: '2.4rem',
+                    color: DARK,
+                    letterSpacing: '.04em',
+                  }}
+                >
+                  ${basePrice.toLocaleString()}
                 </span>
               )}
             </div>
 
-            <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: '1rem', color: SUBTLE, lineHeight: 1.7, marginBottom: '2.5rem' }}>
-              {product.descripcion ? product.descripcion : 'Diseño exclusivo pensado para la nueva temporada. Calidad superior y detalles únicos en cada prenda.'}
+            <p
+              style={{
+                fontFamily: "'Outfit',sans-serif",
+                fontSize: '1rem',
+                color: SUBTLE,
+                lineHeight: 1.7,
+                marginBottom: '2.5rem',
+              }}
+            >
+              {product.descripcion
+                ? product.descripcion
+                : 'Diseño exclusivo pensado para la nueva temporada. Calidad superior y detalles únicos en cada prenda.'}
             </p>
 
+            {/* SELECCIÓN DE ATRIBUTOS (MATRIX) */}
+            {Object.keys(attrGroups).length > 0 && (
+              <div
+                style={{
+                  marginBottom: '2.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.5rem',
+                }}
+              >
+                {Object.entries(attrGroups).map(([groupName, values]) => (
+                  <div key={groupName}>
+                    <p
+                      style={{
+                        fontFamily: "'Outfit',sans-serif",
+                        fontSize: '.75rem',
+                        color: MUTED,
+                        marginBottom: '0.8rem',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {groupName}
+                    </p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                      {values.map((v) => (
+                        <button
+                          key={v}
+                          onClick={() => setSelectedAttrs((prev) => ({ ...prev, [groupName]: v }))}
+                          style={{
+                            padding: '10px 18px',
+                            background: selectedAttrs[groupName] === v ? DARK : 'transparent',
+                            color: selectedAttrs[groupName] === v ? BG : DARK,
+                            border: `1.5px solid ${selectedAttrs[groupName] === v ? DARK : BORDER}`,
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '.85rem',
+                            fontFamily: "'Outfit',sans-serif",
+                            fontWeight: 600,
+                            transition: 'all .2s',
+                          }}
+                        >
+                          {v}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {!selectedVariantId && (
+                  <p style={{ color: ACENTO, fontSize: '.8rem', fontWeight: 500 }}>
+                    Esta combinación no está disponible temporalmente.
+                  </p>
+                )}
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '3rem', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', border: `1px solid ${BORDER}`, borderRadius: '4px', overflow: 'hidden', width: '120px', background: 'transparent' }}>
-                <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ flex: 1, background: 'transparent', border: 'none', cursor: 'pointer', color: DARK, fontSize: '1.2rem'}}>−</button>
-                <span style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Outfit',sans-serif", fontSize: '1rem', fontWeight: 600, color: DARK }}>{qty}</span>
-                <button onClick={() => setQty(qty + 1)} style={{ flex: 1, background: 'transparent', border: 'none', cursor: 'pointer', color: DARK, fontSize: '1.2rem'}}>+</button>
+              <div
+                style={{
+                  display: 'flex',
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  width: '120px',
+                  background: 'transparent',
+                }}
+              >
+                <button
+                  onClick={() => setQty(Math.max(1, qty - 1))}
+                  style={{
+                    flex: 1,
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: DARK,
+                    fontSize: '1.2rem',
+                  }}
+                >
+                  −
+                </button>
+                <span
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: "'Outfit',sans-serif",
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    color: DARK,
+                  }}
+                >
+                  {qty}
+                </span>
+                <button
+                  onClick={() => setQty(qty + 1)}
+                  style={{
+                    flex: 1,
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: DARK,
+                    fontSize: '1.2rem',
+                  }}
+                >
+                  +
+                </button>
               </div>
 
               <button
-                onClick={() => onCart(product, qty)}
-                style={{ flex: 1, background: DARK, color: BTN_TXT, border: 'none', borderRadius: '4px', fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', cursor: 'pointer', padding: '0 2rem', minHeight: '52px', transition: 'background .2s' }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = ACENTO)}
-                onMouseLeave={(e) => (e.currentTarget.style.background = DARK)}
+                disabled={Object.keys(attrGroups).length > 0 && !selectedVariantId}
+                onClick={() => onCart(product, qty, selectedVariantId || undefined)}
+                style={{
+                  flex: 1,
+                  background: DARK,
+                  color: BTN_TXT,
+                  border: 'none',
+                  borderRadius: '4px',
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.85rem',
+                  fontWeight: 600,
+                  letterSpacing: '.1em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  padding: '0 2rem',
+                  minHeight: '52px',
+                  transition: 'background .2s',
+                  opacity: Object.keys(attrGroups).length > 0 && !selectedVariantId ? 0.4 : 1,
+                }}
+                onMouseEnter={(e) => {
+                  if (e.currentTarget.style.opacity !== '0.4')
+                    e.currentTarget.style.background = ACENTO;
+                }}
+                onMouseLeave={(e) => {
+                  if (e.currentTarget.style.opacity !== '0.4')
+                    e.currentTarget.style.background = DARK;
+                }}
               >
-                Agregar al Carrito
+                {selectedVariantId || Object.keys(attrGroups).length === 0
+                  ? 'Agregar al Carrito'
+                  : 'No disponible'}
               </button>
             </div>
 
-            <div style={{ marginTop: 'auto', borderTop: `1px solid ${BORDER}`, paddingTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div
+              style={{
+                marginTop: 'auto',
+                borderTop: `1px solid ${BORDER}`,
+                paddingTop: '2rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.5rem',
+              }}
+            >
               {tienda?.metodosEntrega?.length > 0 && (
                 <div>
-                  <h4 style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', fontWeight: 600, letterSpacing: '.05em', color: DARK, marginBottom: '0.8rem', textTransform: 'uppercase' }}>Envíos</h4>
+                  <h4
+                    style={{
+                      fontFamily: "'Outfit',sans-serif",
+                      fontSize: '.85rem',
+                      fontWeight: 600,
+                      letterSpacing: '.05em',
+                      color: DARK,
+                      marginBottom: '0.8rem',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Envíos
+                  </h4>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {tienda.metodosEntrega.map((me: any) => (
                       <MetodoChip
@@ -1326,7 +1784,19 @@ function ProductDetailView({ product, onBack, onCart, tienda }: { product: any; 
               )}
               {tienda?.metodosPago?.length > 0 && (
                 <div>
-                  <h4 style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', fontWeight: 600, letterSpacing: '.05em', color: DARK, marginBottom: '0.8rem', textTransform: 'uppercase' }}>Medios de Pago</h4>
+                  <h4
+                    style={{
+                      fontFamily: "'Outfit',sans-serif",
+                      fontSize: '.85rem',
+                      fontWeight: 600,
+                      letterSpacing: '.05em',
+                      color: DARK,
+                      marginBottom: '0.8rem',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Medios de Pago
+                  </h4>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {tienda.metodosPago.map((mp: any) => (
                       <MetodoChip
@@ -1342,7 +1812,6 @@ function ProductDetailView({ product, onBack, onCart, tienda }: { product: any; 
                 </div>
               )}
             </div>
-
           </div>
         </div>
       </div>
@@ -1457,11 +1926,13 @@ function CartDrawer({
   onClose,
   onQty,
   onRemove,
+  onConfirm,
 }: {
   items: any[];
   onClose: () => void;
   onQty: (id: number, q: number) => void;
   onRemove: (id: number) => void;
+  onConfirm: () => void;
 }) {
   const subtotal = items.reduce((a, i) => a + Number(i.precioUnit) * i.cantidad, 0);
   const ship = subtotal >= 10000 ? 0 : 900;
@@ -1641,7 +2112,9 @@ function CartDrawer({
                         {
                           l: '−',
                           a: () =>
-                            item.cantidad > 1 ? onQty(item.id, item.cantidad - 1) : onRemove(item.id),
+                            item.cantidad > 1
+                              ? onQty(item.id, item.cantidad - 1)
+                              : onRemove(item.id),
                         },
                         { l: String(item.cantidad), a: null },
                         { l: '+', a: () => onQty(item.id, item.cantidad + 1) },
@@ -1779,6 +2252,7 @@ function CartDrawer({
               </span>
             </div>
             <button
+              onClick={onConfirm}
               style={{
                 width: '100%',
                 padding: '14px',
@@ -1827,7 +2301,10 @@ function CartDrawer({
    SOBRE NOSOTROS
 ═══════════════════════════════════════════════ */
 function SobreNosotros({ tienda }: { tienda: any }) {
-  if (!tienda?.descripcion) return null;
+  const descripcion = tienda?.aboutUs?.descripcion || tienda?.descripcion;
+  if (!descripcion) return null;
+  const titulo = tienda?.aboutUs?.titulo || 'SOBRE LA MARCA';
+  const direccion = tienda?.aboutUs?.direccion;
 
   return (
     <section style={{ padding: '6rem 2rem', background: BG, borderTop: `1px solid ${BORDER}` }}>
@@ -1839,10 +2316,10 @@ function SobreNosotros({ tienda }: { tienda: any }) {
             color: DARK,
             letterSpacing: '.04em',
             marginBottom: '1.5rem',
-            lineHeight: 1
+            lineHeight: 1,
           }}
         >
-          SOBRE LA MARCA
+          {titulo}
         </h2>
         <p
           style={{
@@ -1852,25 +2329,49 @@ function SobreNosotros({ tienda }: { tienda: any }) {
             color: SUBTLE,
             lineHeight: 1.8,
             maxWidth: '600px',
-            margin: '0 auto 2.5rem'
+            margin: '0 auto 2.5rem',
           }}
         >
-          {tienda.descripcion}
+          {descripcion}
         </p>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
-          {tienda?.ciudad && (
+          {(direccion || tienda?.ciudad) && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '1.2rem' }}>📍</span>
-              <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', color: DARK, fontWeight: 500, letterSpacing: '.05em', textTransform: 'uppercase' }}>
-                {tienda.ciudad}{tienda.provincia && `, ${tienda.provincia}`}
+              <span
+                style={{
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.85rem',
+                  color: DARK,
+                  fontWeight: 500,
+                  letterSpacing: '.05em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {direccion ||
+                  `${tienda?.ciudad || ''}${tienda?.provincia ? `, ${tienda.provincia}` : ''}`}
               </span>
             </div>
           )}
           {tienda?.instagram && (
-            <a href={`https://instagram.com/${tienda.instagram}`} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <a
+              href={`https://instagram.com/${tienda.instagram}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}
+            >
               <span style={{ fontSize: '1.2rem' }}>📷</span>
-              <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: '.85rem', color: DARK, fontWeight: 500, letterSpacing: '.05em', textTransform: 'uppercase' }}>
+              <span
+                style={{
+                  fontFamily: "'Outfit',sans-serif",
+                  fontSize: '.85rem',
+                  color: DARK,
+                  fontWeight: 500,
+                  letterSpacing: '.05em',
+                  textTransform: 'uppercase',
+                }}
+              >
                 @{tienda.instagram}
               </span>
             </a>
@@ -1924,7 +2425,13 @@ function Footer({ tienda }: { tienda: any }) {
     },
   ];
   return (
-    <footer style={{ background: 'var(--rop-footer-bg)', borderTop: '1px solid var(--rop-border)', padding: '0 2rem' }}>
+    <footer
+      style={{
+        background: 'var(--rop-footer-bg)',
+        borderTop: '1px solid var(--rop-border)',
+        padding: '0 2rem',
+      }}
+    >
       <div style={{ maxWidth: '1060px', margin: '0 auto' }}>
         <div
           style={{
@@ -2091,7 +2598,6 @@ function Footer({ tienda }: { tienda: any }) {
               ))}
             </div>
           </div>
-
         </div>
         <p
           style={{
@@ -2168,6 +2674,10 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
       pais: tienda?.pais || TIENDA.pais,
       metodosPago: tienda?.metodosPago || [],
       metodosEntrega: tienda?.metodosEntrega || [],
+      aboutUs: {
+        ...(TIENDA.aboutUs || {}),
+        ...(tienda?.aboutUs || {}),
+      },
     }),
     [tienda]
   );
@@ -2201,42 +2711,37 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
   const { data: destacadosData } = useStorefrontDestacados(tiendaIdNum);
   const destacadosProducts = destacadosData?.datos || [];
 
-  
   console.log('carrusel en tienda ', tienda?.carrusel);
-  const {
-    carrito,
-    agregarAlCarrito,
-    actualizarCantidad,
-    eliminarItem,
-  } = useCarrito(tiendaIdNum);
+  const { carrito, agregarAlCarrito, actualizarCantidad, eliminarItem } = useCarrito(tiendaIdNum);
 
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState({ msg: '', visible: false });
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
-  const [view, setView] = useState<'home' | 'auth' | 'account'>('home');
+  const [view, setView] = useState<'home' | 'auth' | 'account' | 'checkout' | 'success'>('home');
+  const [lastOrderId, setLastOrderId] = useState<number | null>(null);
   //guardamos el id en forma global
   const { setTiendaId } = useTiendaIDStore();
-  
-    //ahora guardamos el id de la tienda en el store para usarlo en los hooks
-    useEffect(() => {
-      if (tienda?.id) {
-        setTiendaId(tienda.id);
-      }
-    }, [tienda?.id, setTiendaId]);
+
+  //ahora guardamos el id de la tienda en el store para usarlo en los hooks
+  useEffect(() => {
+    if (tienda?.id) {
+      setTiendaId(tienda.id);
+    }
+  }, [tienda?.id, setTiendaId]);
 
   const { cliente, logout } = useAuthSessionStore();
 
-  const addToCart = async (p: any, qty: number = 1) => {
+  const addToCart = async (p: any, qty: number = 1, vId?: number) => {
     try {
       await agregarAlCarrito({
         productoId: p.id,
         cantidad: qty,
-        varianteId: null, // O el que corresponda si hubiera variantes
+        varianteId: vId || null,
       });
       setToast({ msg: `${p.nombre} agregado`, visible: true });
       setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
     } catch (error) {
-      console.error("Error al agregar al carrito:", error);
+      console.error('Error al agregar al carrito:', error);
     }
   };
 
@@ -2258,15 +2763,15 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
       `}</style>
 
       <div className="vt-scroll" style={{ background: BG }}>
-        <Navbar 
-          cartCount={cartCount} 
-          onCart={() => setCartOpen(true)} 
+        <Navbar
+          cartCount={cartCount}
+          onCart={() => setCartOpen(true)}
           onIngresar={() => setView('auth')}
           onMiCuenta={() => setView('account')}
         />
 
-        {view === 'home' && (
-          selectedProduct ? (
+        {view === 'home' &&
+          (selectedProduct ? (
             <ProductDetailView
               product={selectedProduct}
               onBack={() => setSelectedProduct(null)}
@@ -2277,45 +2782,158 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
             <>
               <Hero carrusel={carruselItems} />
               <Marquee />
-              <Lookbook />
               <CarruselProductos onCart={(p) => addToCart(p, 1)} items={destacadosProducts} />
               <GridProductos onSelect={setSelectedProduct} tiendaId={tiendaIdNum} />
               <SobreNosotros tienda={mergedTienda} />
               <Banner />
               <Footer tienda={mergedTienda} />
             </>
-          )
-        )}
+          ))}
 
-        {view === 'auth' && (
-          <AuthView 
-            onClose={() => setView('home')} 
-            tienda={mergedTienda}
-          />
-        )}
+        {view === 'auth' && <AuthView onClose={() => setView('home')} tienda={mergedTienda} />}
 
         {view === 'account' && (
-          <div style={{ padding: '6rem 2rem', minHeight: '80vh', display: 'flex', justifyContent: 'center', background: BG }}>
-             <div style={{ maxWidth: '500px', width: '100%' }}>
-                <button 
-                  onClick={() => setView('home')}
-                  style={{ background: 'none', border: 'none', color: ACENTO, cursor: 'pointer', marginBottom: '2rem', fontFamily: "'Outfit', sans-serif", fontWeight: 600 }}
+          <div
+            style={{
+              padding: '6rem 2rem',
+              minHeight: '80vh',
+              display: 'flex',
+              justifyContent: 'center',
+              background: BG,
+            }}
+          >
+            <div style={{ maxWidth: '500px', width: '100%' }}>
+              <button
+                onClick={() => setView('home')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: ACENTO,
+                  cursor: 'pointer',
+                  marginBottom: '2rem',
+                  fontFamily: "'Outfit', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
+                ← VOLVER
+              </button>
+              <h2
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: '3rem',
+                  color: DARK,
+                  marginBottom: '2rem',
+                  letterSpacing: '.05em',
+                }}
+              >
+                MI CUENTA
+              </h2>
+              <div
+                style={{
+                  background: SURFACE,
+                  padding: '2rem',
+                  borderRadius: '8px',
+                  border: `1px solid ${BORDER}`,
+                  fontFamily: "'Outfit', sans-serif",
+                }}
+              >
+                <p style={{ color: DARK, marginBottom: '1rem', fontSize: '0.9rem' }}>
+                  <strong>EMAIL:</strong> {cliente?.email}
+                </p>
+                <p style={{ color: DARK, marginBottom: '1rem', fontSize: '0.9rem' }}>
+                  <strong>NOMBRE:</strong> {cliente?.nombre} {cliente?.apellido}
+                </p>
+                <p style={{ color: DARK, marginBottom: '2rem', fontSize: '0.9rem' }}>
+                  <strong>TELÉFONO:</strong> {cliente?.telefono}
+                </p>
+                <button
+                  onClick={() => {
+                    logout();
+                    setView('home');
+                  }}
+                  style={{
+                    padding: '12px 24px',
+                    background: DARK,
+                    color: BTN_TXT,
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    fontFamily: "'Outfit', sans-serif",
+                    letterSpacing: '.1em',
+                  }}
                 >
-                  ← VOLVER
+                  CERRAR SESIÓN
                 </button>
-                <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '3rem', color: DARK, marginBottom: '2rem', letterSpacing: '.05em' }}>MI CUENTA</h2>
-                <div style={{ background: SURFACE, padding: '2rem', borderRadius: '8px', border: `1px solid ${BORDER}`, fontFamily: "'Outfit', sans-serif" }}>
-                   <p style={{ color: DARK, marginBottom: '1rem', fontSize: '0.9rem' }}><strong>EMAIL:</strong> {cliente?.email}</p>
-                   <p style={{ color: DARK, marginBottom: '1rem', fontSize: '0.9rem' }}><strong>NOMBRE:</strong> {cliente?.nombre} {cliente?.apellido}</p>
-                   <p style={{ color: DARK, marginBottom: '2rem', fontSize: '0.9rem' }}><strong>TELÉFONO:</strong> {cliente?.telefono}</p>
-                   <button 
-                     onClick={() => { logout(); setView('home'); }}
-                     style={{ padding: '12px 24px', background: DARK, color: BTN_TXT, border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 600, fontFamily: "'Outfit', sans-serif", letterSpacing: '.1em' }}
-                   >
-                     CERRAR SESIÓN
-                   </button>
-                </div>
-             </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {view === 'checkout' && (
+          <div style={{ background: BG, minHeight: '100vh', paddingTop: '5rem' }}>
+            <CheckoutView
+              tienda={mergedTienda}
+              carrito={carrito}
+              sessionId="dummy-session" // En producción usar una real
+              onClose={() => setView('home')}
+              onSuccess={(id) => {
+                setLastOrderId(id);
+                setView('success');
+              }}
+            />
+          </div>
+        )}
+
+        {view === 'success' && (
+          <div
+            style={{
+              padding: '8rem 2rem',
+              textAlign: 'center',
+              background: BG,
+              minHeight: '100vh',
+            }}
+          >
+            <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+              <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>🎉</div>
+              <h1
+                style={{
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: '3.5rem',
+                  color: DARK,
+                  marginBottom: '1rem',
+                }}
+              >
+                ¡PEDIDO RECIBIDO!
+              </h1>
+              <p
+                style={{
+                  fontFamily: "'Outfit', sans-serif",
+                  fontSize: '1.1rem',
+                  color: MUTED,
+                  marginBottom: '2.5rem',
+                }}
+              >
+                Muchas gracias por tu compra. Tu pedido <strong>#{lastOrderId}</strong> ya fue
+                registrado.
+              </p>
+              <button
+                onClick={() => setView('home')}
+                style={{
+                  padding: '15px 40px',
+                  background: DARK,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontFamily: "'Bebas Neue', sans-serif",
+                  fontSize: '1.2rem',
+                  letterSpacing: '.1em',
+                }}
+              >
+                VOLVER A LA TIENDA
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -2326,6 +2944,10 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
           onClose={() => setCartOpen(false)}
           onQty={(id, q) => actualizarCantidad({ itemId: id, cantidad: q })}
           onRemove={(id) => eliminarItem(id)}
+          onConfirm={() => {
+            setCartOpen(false);
+            setView('checkout');
+          }}
         />
       )}
 

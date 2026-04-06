@@ -9,6 +9,7 @@ export const Footer = ({
   pais,
   acento = 'var(--gor-acento)',
   nombreTienda,
+  onNavigate,
 }: IFooterProps) => {
   const socials = [
     {
@@ -107,6 +108,47 @@ export const Footer = ({
 
         {/* Columnas derecha */}
         <div className="flex-1 flex items-start md:justify-end gap-16 md:gap-20">
+          {/* Navegación */}
+          <div className="hidden sm:block">
+            <h2 className="font-semibold mb-4 text-white text-sm tracking-widest uppercase">
+              Navegación
+            </h2>
+            <ul className="text-sm space-y-2 list-none p-0 m-0">
+              <li>
+                <button
+                  onClick={() => onNavigate?.('inicio')}
+                  className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
+                >
+                  Inicio
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate?.('producto')}
+                  className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
+                >
+                  Catálogo
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate?.('sobrenosotros')}
+                  className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
+                >
+                  Sobre Nosotros
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate?.('contacto')}
+                  className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
+                >
+                  Contacto
+                </button>
+              </li>
+            </ul>
+          </div>
+
           {/* Contacto */}
           <div>
             <h2 className="font-semibold mb-4 text-white text-sm tracking-widest uppercase">
@@ -117,7 +159,7 @@ export const Footer = ({
                 href={`https://wa.me/${whatsapp}`}
                 target="_blank"
                 rel="noreferrer"
-                className="block text-white/50 hover:text-white/80 transition-colors"
+                className="block text-white/50 hover:text-white/80 transition-colors no-underline"
               >
                 📱 {whatsapp}
               </a>
@@ -125,7 +167,7 @@ export const Footer = ({
                 href={`https://instagram.com/${instagram}`}
                 target="_blank"
                 rel="noreferrer"
-                className="block text-white/50 hover:text-white/80 transition-colors"
+                className="block text-white/50 hover:text-white/80 transition-colors no-underline"
               >
                 📷 @{instagram}
               </a>

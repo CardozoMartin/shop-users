@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuthSessionStore } from '../../../store/useAuthSession';
 import FormLogin from './FormLogin';
 import FormRegistro from './FormRegistro';
+import { useOlvidePasswordCliente } from '../../../hooks/useCliente';
+import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 
 // ── Tipos ─────────────────────────────────────────────────────
 type AuthMode = 'login' | 'registro' | 'olvide';
@@ -82,10 +84,12 @@ function FormOlvide({
   onSubmit,
   onGoLogin,
   enviado,
+  isPending,
 }: {
   onSubmit: (email: string) => void;
   onGoLogin: () => void;
   enviado: boolean;
+  isPending: boolean;
 }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
@@ -157,15 +161,16 @@ function FormOlvide({
 
       <button
         onClick={handleSubmit}
+        disabled={isPending}
         className="w-full py-3.5 rounded-[10px] text-[.95rem] font-bold border-none transition-opacity duration-200"
         style={{
-          background: ACENTO,
+          background: isPending ? `${ACENTO}80` : ACENTO,
           color: BTN_TXT,
-          cursor: 'pointer',
+          cursor: isPending ? 'not-allowed' : 'pointer',
           fontFamily: "'DM Sans',sans-serif",
         }}
       >
-        Enviar instrucciones
+        {isPending ? 'Enviando...' : 'Enviar instrucciones'}
       </button>
 
       <button
@@ -202,8 +207,17 @@ export default function AuthView({ onClose, onLoginSuccess, tienda }: AuthViewPr
   };
 
   // ── Handlers ──────────────────────────────────────────────
-  const handleOlvide = () => {
-    setOlvideEnviado(true);
+  const { tiendaId } = useTiendaIDStore();
+  const { mutate: solicitarReset, isPending } = useOlvidePasswordCliente();
+
+  const handleOlvide = (email: string) => {
+    if (!tiendaId) return;
+    solicitarReset(
+      { email, tiendaId },
+      {
+        onSuccess: () => setOlvideEnviado(true),
+      }
+    );
   };
 
   return (
@@ -225,7 +239,8 @@ export default function AuthView({ onClose, onLoginSuccess, tienda }: AuthViewPr
           <img
             src={tienda.logoUrl}
             alt={tiendaNombre}
-            className="h-10 object-contain self-start mb-6"
+            onClick={onClose}
+            className="h-10 object-contain self-start mb-6 cursor-pointer transition-transform hover:scale-105"
           />
         )}
 
@@ -261,6 +276,7 @@ export default function AuthView({ onClose, onLoginSuccess, tienda }: AuthViewPr
             onSubmit={handleOlvide}
             onGoLogin={() => cambiarModo('login')}
             enviado={olvideEnviado}
+            isPending={isPending}
           />
         )}
       </div>

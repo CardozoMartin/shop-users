@@ -34,7 +34,10 @@ export const Navbar = ({
       }}
     >
       {/* Brand */}
-      <div className="flex items-center gap-2">
+      <div 
+        className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-80"
+        onClick={() => onNavigate('inicio')}
+      >
         <span
           className="text-2xl font-bold font-['Playfair_Display',serif]"
           style={{ color: 'var(--gor-txt)' }}

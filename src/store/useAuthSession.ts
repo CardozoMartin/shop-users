@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-
+import { persist } from 'zustand/middleware';
 
 // Datos del cliente autenticado
 export interface IAuthCliente {
@@ -20,12 +20,19 @@ interface AuthSessionState {
   logout: () => void;
 }
 
-export const useAuthSessionStore = create<AuthSessionState>((set) => ({
-  token: null,
-  cliente: null,
-  setToken: (token) => set({ token }),
-  setCliente: (cliente) => set({ cliente }),
-  logout: () => set({ token: null, cliente: null }),
-}));
+export const useAuthSessionStore = create<AuthSessionState>()(
+  persist(
+    (set) => ({
+      token: null,
+      cliente: null,
+      setToken: (token) => set({ token }),
+      setCliente: (cliente) => set({ cliente }),
+      logout: () => set({ token: null, cliente: null }),
+    }),
+    {
+      name: 'auth-session-storage',
+    }
+  )
+);
 
 

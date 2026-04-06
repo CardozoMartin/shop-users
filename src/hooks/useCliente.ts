@@ -1,7 +1,13 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import { toast } from 'sonner';
-import { postLoginClienteFn, postRegisterClientFn } from '../api/Clients.api';
+import { 
+  getPerfilClienteFn, 
+  postLoginClienteFn, 
+  postRegisterClientFn,
+  postOlvidePasswordClienteFn,
+  postResetPasswordClienteFn,
+} from '../api/Clients.api';
 import type { IErrorResponse, ISuccessResponse } from '../types/api.type';
 import type { IClient } from '../types/clients.type';
 
@@ -45,6 +51,43 @@ export const useLoginCliente = () => {
       setCliente(clienteData);
       
       toast.success(res.mensaje || 'Login exitoso');
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
+    },
+  });
+};
+
+export const usePerfilCliente = (enabled: boolean) => {
+  return useQuery({
+    queryKey: ['perfil-cliente'],
+    queryFn: getPerfilClienteFn,
+    enabled,
+  });
+};
+
+//hook para solicitar el reset de password
+export const useOlvidePasswordCliente = () => {
+  return useMutation({
+    mutationFn: ({ email, tiendaId }: { email: string; tiendaId: number }) =>
+      postOlvidePasswordClienteFn(email, tiendaId),
+    onSuccess: (data: any) => {
+      toast.success(data.mensaje || 'Instrucciones enviadas a tu email');
+    },
+    onError: (error: AxiosError<IErrorResponse>) => {
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
+    },
+  });
+};
+
+//hook para confirmar el reset de password
+export const useResetPasswordCliente = () => {
+  return useMutation({
+    mutationFn: postResetPasswordClienteFn,
+    onSuccess: (data: any) => {
+      toast.success(data.mensaje || 'Contraseña restablecida correctamente');
     },
     onError: (error: AxiosError<IErrorResponse>) => {
       const errorMessage = getErrorMessage(error);

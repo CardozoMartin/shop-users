@@ -42,7 +42,8 @@ const CartDrawer = ({
     if (!items.length) return;
     let msj = `¡Hola! Quiero confirmar mi pedido:\n\n`;
     items.forEach((item: CarritoItem) => {
-      msj += `- ${item.cantidad}x ${item.producto?.nombre} ($${(Number(item.precioUnit) * item.cantidad).toLocaleString()})\n`;
+      const varText = (item as any).variante ? ` (${(item as any).variante.nombre})` : '';
+      msj += `- ${item.cantidad}x ${item.producto?.nombre}${varText} ($${(Number(item.precioUnit) * item.cantidad).toLocaleString()})\n`;
     });
     msj += `\nSubtotal: $${subtotal.toLocaleString()}`;
     msj += `\nEnvío: $${ship === 0 ? 'Gratis' : ship.toLocaleString()}`;
@@ -145,6 +146,11 @@ const CartDrawer = ({
                     style={{ color: txt, fontFamily: "'DM Sans',sans-serif" }}
                   >
                     {item.producto?.nombre}
+                    {(item as any).variante && (
+                       <span className="font-bold opacity-80" style={{ color: acento, marginLeft: 4 }}>
+                          ({(item as any).variante.nombre})
+                       </span>
+                    )}
                   </p>
                   <p
                     className="text-[.68rem] mt-0.5"

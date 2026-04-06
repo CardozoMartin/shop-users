@@ -2,7 +2,7 @@
 const ACENTO = 'var(--gor-acento)';
 const BTN_TXT = 'var(--gor-btn-txt)';
 
-const WORDS = [
+const DEFAULT_WORDS = [
   'Nueva Colección',
   'Envío a todo Tucumán',
   'Hecho Local',
@@ -11,8 +11,17 @@ const WORDS = [
   'Streetwear',
 ];
 
-export default function Marquee() {
-  const items = [...WORDS, ...WORDS, ...WORDS];
+interface MarqueeProps {
+  items?: Array<{ texto: string }>;
+}
+
+export default function Marquee({ items: dynamicItems }: MarqueeProps) {
+  const words = dynamicItems && dynamicItems.length > 0 
+    ? dynamicItems.map(it => it.texto) 
+    : DEFAULT_WORDS;
+
+  // Triplicamos para el loop infinito
+  const displayItems = [...words, ...words, ...words];
 
   return (
     <div className="overflow-hidden py-[9px]" style={{ background: ACENTO }}>
@@ -24,18 +33,18 @@ export default function Marquee() {
         .cz-track {
           display: flex;
           width: max-content;
-          animation: czmq 20s linear infinite;
+          animation: czmq 25s linear infinite;
         }
         .cz-track:hover { animation-play-state: paused }
       `}</style>
       <div className="cz-track">
-        {items.map((w, i) => (
+        {displayItems.map((w, i) => (
           <span
             key={i}
-            className="text-[.65rem] font-bold tracking-[.2em] uppercase px-7 whitespace-nowrap"
+            className="text-[.68rem] font-black tracking-[.25em] uppercase px-8 whitespace-nowrap"
             style={{ color: BTN_TXT, fontFamily: "'DM Sans',sans-serif" }}
           >
-            {w} <span className="opacity-45">◆</span>
+            {w} <span className="opacity-30 mx-2">◆</span>
           </span>
         ))}
       </div>

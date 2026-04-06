@@ -16,17 +16,14 @@ interface FormRegistroProps {
   errorGlobal?: string;
 }
 
-// ── COLORES (heredados de las CSS vars de la plantilla Ropa/VESTE) ───
+// ── COLORES ───────────────────────────────────────────────────
 const ACENTO = 'var(--rop-acento)';
 const DARK = 'var(--rop-dark)';
 const MUTED = 'var(--rop-muted)';
 const BTN_TXT = 'var(--rop-btn-txt)';
 const BORDER = 'var(--rop-border)';
 
-// ── COMPONENTE ────────────────────────────────────────────────
-// Este componente gestiona el alta de nuevos clientes para VESTE (Ropa)
 export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: FormRegistroProps) {
-  // 1. Iniciamos react-hook-form para captura y validación
   const {
     register,
     handleSubmit,
@@ -35,17 +32,11 @@ export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: F
     formState: { errors },
   } = useForm<IClientForm>({ mode: 'onBlur' });
 
-  // 2. Traemos el ID de la tienda del store
   const { tiendaId } = useTiendaIDStore();
-  console.log('Tienda ID en FormRegistro:', tiendaId); // Debug para verificar que se obtiene el ID correctamente
-
-  // 3. Mutación de registro
   const { mutate: postRegister, isPending } = useRegisterCliente();
 
-  // 4. Vigilamos la contraseña para match en confirmación
   const passwordActual = watch('password');
 
-  // 5. Preparación y envío de datos
   const handleSubmitForm = (data: IClient) => {
     const dataRegister: IClient = {
       nombre: data.nombre,
@@ -55,9 +46,7 @@ export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: F
       password: data.password,
       tiendaId: tiendaId as number,
     };
-
     postRegister(dataRegister);
-    // Limpiamos el formulario tras el envío
     reset();
   };
 
@@ -71,15 +60,20 @@ export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: F
         y forma parte de nuestra comunidad.
       </p>
 
-      {/* ── 7. CAMPOS DE REGISTRO ── */}
+      {/* Fields */}
       <div className="flex flex-col gap-4 mb-6">
         {/* Nombre y Apellido */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div className="grid grid-cols-2 gap-6">
           <FieldGroup label="NOMBRE" error={errors.nombre?.message}>
             <input
               {...register('nombre', { required: 'Requerido' })}
               placeholder="Juan"
-              style={fieldStyle(!!errors.nombre)}
+              className="w-full py-3 bg-transparent outline-none text-[.9rem] border-0 transition-colors duration-300"
+              style={{
+                borderBottom: `1px solid ${errors.nombre ? ACENTO : BORDER}`,
+                color: DARK,
+                fontFamily: "'Outfit', sans-serif",
+              }}
             />
           </FieldGroup>
 
@@ -87,7 +81,12 @@ export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: F
             <input
               {...register('apellido', { required: 'Requerido' })}
               placeholder="García"
-              style={fieldStyle(!!errors.apellido)}
+              className="w-full py-3 bg-transparent outline-none text-[.9rem] border-0 transition-colors duration-300"
+              style={{
+                borderBottom: `1px solid ${errors.apellido ? ACENTO : BORDER}`,
+                color: DARK,
+                fontFamily: "'Outfit', sans-serif",
+              }}
             />
           </FieldGroup>
         </div>
@@ -96,14 +95,16 @@ export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: F
           <input
             {...register('email', {
               required: 'Campo obligatorio',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Email inválido',
-              },
+              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Email inválido' },
             })}
             type="email"
             placeholder="hola@tuemail.com"
-            style={fieldStyle(!!errors.email)}
+            className="w-full py-3 bg-transparent outline-none text-[.9rem] border-0 transition-colors duration-300"
+            style={{
+              borderBottom: `1px solid ${errors.email ? ACENTO : BORDER}`,
+              color: DARK,
+              fontFamily: "'Outfit', sans-serif",
+            }}
           />
         </FieldGroup>
 
@@ -112,7 +113,12 @@ export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: F
             {...register('telefono', { required: 'Campo obligatorio' })}
             type="tel"
             placeholder="381 123 4567"
-            style={fieldStyle(!!errors.telefono)}
+            className="w-full py-3 bg-transparent outline-none text-[.9rem] border-0 transition-colors duration-300"
+            style={{
+              borderBottom: `1px solid ${errors.telefono ? ACENTO : BORDER}`,
+              color: DARK,
+              fontFamily: "'Outfit', sans-serif",
+            }}
           />
         </FieldGroup>
 
@@ -124,7 +130,12 @@ export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: F
             })}
             type="password"
             placeholder="Mínimo 8 caracteres"
-            style={fieldStyle(!!errors.password)}
+            className="w-full py-3 bg-transparent outline-none text-[.9rem] border-0 transition-colors duration-300"
+            style={{
+              borderBottom: `1px solid ${errors.password ? ACENTO : BORDER}`,
+              color: DARK,
+              fontFamily: "'Outfit', sans-serif",
+            }}
           />
         </FieldGroup>
 
@@ -136,74 +147,53 @@ export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: F
             })}
             type="password"
             placeholder="Repite tu contraseña"
-            style={fieldStyle(!!errors.confirmar)}
+            className="w-full py-3 bg-transparent outline-none text-[.9rem] border-0 transition-colors duration-300"
+            style={{
+              borderBottom: `1px solid ${errors.confirmar ? ACENTO : BORDER}`,
+              color: DARK,
+              fontFamily: "'Outfit', sans-serif",
+            }}
           />
         </FieldGroup>
       </div>
 
-      {/* 8. Feedback de servidor */}
+      {/* Error feedback */}
       {errorGlobal && (
         <div
-          style={{
-            background: '#000',
-            padding: '12px',
-            marginBottom: '1.5rem',
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: '.75rem',
-            color: '#fff',
-            textAlign: 'center',
-          }}
+          className="p-3 mb-6 text-center text-[.75rem] text-white bg-black"
+          style={{ fontFamily: "'Outfit', sans-serif" }}
         >
           {errorGlobal}
         </div>
       )}
 
-      {/* 9. Botón Submit rectangular */}
+      {/* Submit button */}
       <button
         onClick={handleSubmit(handleSubmitForm)}
         disabled={isPending}
-        className="w-full py-4 rounded-full text-sm font-bold tracking-widest text-white transition-all duration-200"
+        className="w-full py-4 rounded-full text-sm font-bold tracking-widest border-none transition-all duration-200"
         style={{
           background: DARK,
           color: BTN_TXT,
           cursor: isPending ? 'not-allowed' : 'pointer',
           opacity: isPending ? 0.6 : 1,
         }}
-        onMouseEnter={(e) => {
-          if (!isPending) e.currentTarget.style.background = ACENTO;
-        }}
-        onMouseLeave={(e) => {
-          if (!isPending) e.currentTarget.style.background = DARK;
-        }}
+        onMouseEnter={(e) => { if (!isPending) e.currentTarget.style.background = ACENTO; }}
+        onMouseLeave={(e) => { if (!isPending) e.currentTarget.style.background = DARK; }}
       >
         {isPending ? 'CREANDO...' : 'CREAR CUENTA'}
       </button>
 
-      {/* 10. Link de retorno al login */}
+      {/* Go to login link */}
       <p
-        style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontSize: '.8rem',
-          color: MUTED,
-          textAlign: 'center',
-          marginTop: '2rem',
-          fontWeight: 300,
-        }}
+        className="text-center text-[.8rem] font-light mt-8"
+        style={{ color: MUTED, fontFamily: "'Outfit', sans-serif" }}
       >
         ¿Ya eres miembro?{' '}
         <button
           onClick={onGoLogin}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: DARK,
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: '.8rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            padding: 0,
-            textDecoration: 'underline',
-          }}
+          className="bg-transparent border-none underline font-semibold cursor-pointer p-0 text-[.8rem]"
+          style={{ color: DARK, fontFamily: "'Outfit', sans-serif" }}
         >
           Iniciá sesión
         </button>
@@ -212,22 +202,7 @@ export default function FormRegistro({ tiendaNombre, onGoLogin, errorGlobal }: F
   );
 }
 
-// ── 11. HELPERS ───────────────────────────────────────────────
-
-function fieldStyle(hasError: boolean): React.CSSProperties {
-  return {
-    width: '100%',
-    padding: '12px 0',
-    border: 'none',
-    borderBottom: `1px solid ${hasError ? ACENTO : BORDER}`,
-    background: 'transparent',
-    color: DARK,
-    fontFamily: "'Outfit', sans-serif",
-    fontSize: '.9rem',
-    outline: 'none',
-    transition: 'border-color .3s',
-  };
-}
+// ── HELPERS ───────────────────────────────────────────────────
 
 function FieldGroup({
   label,
@@ -239,27 +214,18 @@ function FieldGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+    <div className="flex flex-col gap-0.5">
       <label
-        style={{
-          fontFamily: "'Outfit', sans-serif",
-          fontSize: '.62rem',
-          fontWeight: 600,
-          color: DARK,
-          letterSpacing: '.12em',
-        }}
+        className="text-[.62rem] font-semibold tracking-[.12em]"
+        style={{ fontFamily: "'Outfit', sans-serif", color: DARK }}
       >
         {label}
       </label>
       {children}
       {error && (
         <span
-          style={{
-            fontFamily: "'Outfit', sans-serif",
-            fontSize: '.65rem',
-            color: ACENTO,
-            marginTop: '4px',
-          }}
+          className="text-[.65rem] mt-1"
+          style={{ fontFamily: "'Outfit', sans-serif", color: ACENTO }}
         >
           {error}
         </span>

@@ -3,7 +3,7 @@ import { resolveTemplateIdFromShop } from './registry';
 
 const PlantillaGorras = lazy(() => import('./templates/TemplateGorras/TemplateGorras'));
 const PlantillaAccesorios = lazy(() => import('./templates/TemplateJoyeria/TemplateJoyeria'));
-const PlantillaRopa = lazy(() => import('./templates/TemplateRopa/TemplateRop'));
+const PlantillaRopa = lazy(() => import('./templates/TemplateRopa/TemplateRopa'));
 const PlantillaUrban = lazy(() => import('./templates/TemplateUrban/UrbanTiendzi'));
 
 const TEMPLATES: Record<string, React.ComponentType<any>> = {

@@ -14,6 +14,7 @@ import type { Producto } from './Types';
 interface ProductCardProps {
   producto: Producto;
   onSelect: (p: Producto) => void;
+  onAddToCart?: (p: Producto) => void;
   /** Si true muestra la categoría debajo del nombre (usado en Productos) */
   showCategoria?: boolean;
 }
@@ -21,6 +22,7 @@ interface ProductCardProps {
 export default function ProductCard({
   producto: p,
   onSelect,
+  onAddToCart,
   showCategoria = false,
 }: ProductCardProps) {
   const [hov, setHov] = useState(false);
@@ -28,11 +30,17 @@ export default function ProductCard({
   const hasOffer =
     p.precioOferta && Number(p.precioOferta) > 0 && Number(p.precioOferta) < Number(p.precio);
 
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onAddToCart) onAddToCart(p);
+  };
+
   return (
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      className="flex flex-col rounded-2xl overflow-hidden cursor-pointer transition-all duration-300"
+      onClick={() => onSelect(p)}
+      className="flex flex-col rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 group"
       style={{
         background: SURFACE,
         border: `1.5px solid ${hov ? ACENTO + '50' : BORDER}`,
@@ -53,27 +61,36 @@ export default function ProductCard({
           }}
         />
 
-        {/* Hover CTA */}
-        <div
-          className="absolute inset-0 flex items-end p-2.5 transition-opacity duration-300"
-          style={{
-            opacity: hov ? 1 : 0,
-            background: 'linear-gradient(to top, rgba(0,0,0,0.35) 0%, transparent 50%)',
+        {/* Floating Add to Cart Button (ALWAYS VISIBLE) */}
+        <button
+          onClick={handleAddToCart}
+          className="absolute bottom-3 right-3 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 active:scale-95 z-10"
+          style={{ 
+            background: ACENTO, 
+            color: BTN_TXT,
+            boxShadow: `0 4px 12px ${ACENTO}40`
           }}
+          title="Agregar al carrito"
         >
-          <button
-            onClick={() => onSelect(p)}
-            className="w-full py-2.5 rounded-lg text-[.62rem] font-bold tracking-widest uppercase border-none cursor-pointer"
-            style={{ background: ACENTO, color: BTN_TXT, fontFamily: "'DM Sans',sans-serif" }}
-          >
-            Ver Producto
-          </button>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+
+        {/* Hover CTA Overlay (Solo para detalle) */}
+        <div
+          className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        >
+           <span className="bg-white/90 px-4 py-2 rounded-full text-[.6rem] font-bold uppercase tracking-widest text-black shadow-sm">
+             Ver Detalles
+           </span>
         </div>
 
         {/* Badge destacado */}
         {p.destacado && (
           <div
-            className="absolute top-3 left-3 text-[.58rem] font-bold px-2 py-1 rounded tracking-[.06em] uppercase shadow-md"
+            className="absolute top-3 left-3 text-[.58rem] font-bold px-2 py-1 rounded tracking-[.06em] uppercase shadow-md pointer-events-none"
             style={{ background: ACENTO, color: BTN_TXT, fontFamily: "'DM Sans',sans-serif" }}
           >
             Destacado

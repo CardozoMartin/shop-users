@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import { useCarrito } from '../../../hooks/useCarrito';
+import { useStoreNavigation } from '../../../hooks/useStoreNavigation';
 import { useAuthSessionStore } from '../../../store/useAuthSession';
 import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 
@@ -8,15 +10,17 @@ import AboutUs from './AboutUs';
 import AccountView from './AccountView';
 import AuthView from './AuthView';
 import CartDrawer from './CartDrawer';
+import CheckoutView from './CheckoutView';
 import Contact from './Contact';
 import { Footer } from './Footer';
+import FullProductCatalog from './FullProductCatalog';
 import Hero from './Hero';
 import Marquee from './Marquee';
 import { Navbar } from './Navbar';
 import ProductDetailView from './ProductDetailView';
 import Productos from './Productos';
 import ProductosDestacados from './ProductosDestacados';
-import CheckoutView from './CheckoutView';
+import StoreReviewSection from './StoreReviewSection';
 import Toast from './Toast';
 import type { IHeroProps, Producto, Tienda } from './Types';
 
@@ -30,7 +34,6 @@ export interface PlantillaGorrasProps {
   };
 }
 
-type View = 'home' | 'auth' | 'account' | 'about' | 'checkout' | 'success';
 type NavTarget = 'inicio' | 'producto' | 'contacto' | 'sobrenosotros';
 
 // ── Constantes ────────────────────────────────────────────────
@@ -49,7 +52,7 @@ const TIENDA_DEFAULT = {
 
 // ── Helpers puros (fuera del componente) ──────────────────────
 
-/** CSS variables del tema — se recalculan solo si cambia isDark o acento */
+/** CSS variables del tema */
 function buildCssVars(isDark: boolean, acento: string): React.CSSProperties {
   return {
     '--gor-bg': isDark ? '#121212' : '#ffffff',
@@ -66,7 +69,6 @@ function buildCssVars(isDark: boolean, acento: string): React.CSSProperties {
   } as React.CSSProperties;
 }
 
-/** Objeto de tema para pasar a componentes que lo necesiten */
 const THEME = {
   bg: 'var(--gor-bg)',
   surface: 'var(--gor-surface)',
@@ -79,8 +81,9 @@ const THEME = {
   btnTxt: 'var(--gor-btn-txt)',
 };
 
-// ── Componente ────────────────────────────────────────────────
+// ── Componente Principal ──────────────────────────────────────
 export default function PlantillaGorras({ tienda, accent, themeConfig }: PlantillaGorrasProps) {
+  const { handleNavigate: navigateSection, navigateTo } = useStoreNavigation();
   const resolvedAccent = accent || themeConfig?.primary || '#f97316';
   const isDark = themeConfig?.modoOscuro ?? false;
   const cssVars = useMemo(() => buildCssVars(isDark, resolvedAccent), [isDark, resolvedAccent]);
@@ -93,22 +96,24 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
     if (tienda?.id) setTiendaId(tienda.id);
   }, [tienda?.id, setTiendaId]);
 
-  // ── Datos de tienda mergeados con fallback ─────────────────
+  // ── Datos de tienda mergeados ─────────────────────────────
   const mergedTienda = useMemo(
     () => ({
       ...TIENDA_DEFAULT,
+      ...tienda,
       nombre: tienda?.nombre || tienda?.titulo || TIENDA_DEFAULT.nombre,
       descripcion: tienda?.descripcion || TIENDA_DEFAULT.descripcion,
       whatsapp: tienda?.whatsapp || TIENDA_DEFAULT.whatsapp,
       instagram: tienda?.instagram || TIENDA_DEFAULT.instagram,
       ciudad: tienda?.ciudad || TIENDA_DEFAULT.ciudad,
       provincia: tienda?.provincia || TIENDA_DEFAULT.provincia,
+      metodosEntrega: tienda?.metodosEntrega || [],
+      metodosPago: tienda?.metodosPago || [],
     }),
     [tienda]
   );
 
   // ── Estado UI ─────────────────────────────────────────────
-  const [view, setView] = useState<View>('home');
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Producto | null>(null);
   const [lastOrderId, setLastOrderId] = useState<number | null>(null);
@@ -126,10 +131,10 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
 
   const cartCount = carrito?.cantidad || 0;
 
-  const addToCart = async (p: Producto, qty = 1) => {
+  const addToCart = async (p: Producto, qty = 1, varianteId?: number) => {
     if (!tienda?.id) return;
     try {
-      await agregarAlCarrito({ productoId: p.id, cantidad: qty, varianteId: null });
+      await agregarAlCarrito({ productoId: p.id, cantidad: qty, varianteId: varianteId || null });
       setToast({
         visible: true,
         msg: `${p.nombre} agregado al carrito`,
@@ -147,33 +152,12 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
   };
 
   // ── Navegación ────────────────────────────────────────────
-  const scrollToSection = useCallback((id: string) => {
-    const container = document.querySelector('.cz-scroll');
-    if (!container) return;
-    if (id === 'inicio') {
-      container.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    (container.querySelector(`#${id}`) as HTMLElement | null)?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  }, []);
-
   const handleNavigate = useCallback(
     (target: NavTarget) => {
-      if (target === 'sobrenosotros') {
-        setView('about');
-        return;
-      }
-      setView('home');
-      setTimeout(() => {
-        if (target === 'producto') scrollToSection('productos');
-        if (target === 'contacto') scrollToSection('contacto');
-        if (target === 'inicio') scrollToSection('inicio');
-      }, 100);
+      setSelectedProduct(null);
+      navigateSection(target);
     },
-    [scrollToSection]
+    [navigateSection]
   );
 
   // ── Props del Hero ────────────────────────────────────────
@@ -188,9 +172,9 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
     bgColor: isDark ? '#121212' : '#ffffff',
     mutedColor: isDark ? '#9ca3af' : '#6b7280',
     whatsapp: mergedTienda.whatsapp,
+    onNavigate: handleNavigate,
   };
 
-  // ── Render ────────────────────────────────────────────────
   return (
     <div style={cssVars}>
       <style>{`
@@ -210,142 +194,245 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
         <Navbar
           cartCount={cartCount}
           onCart={() => setCartOpen(true)}
-          onIngresar={() => setView('auth')}
-          onMiCuenta={() => setView('account')}
+          onIngresar={() => navigateTo('auth')}
+          onMiCuenta={() => navigateTo('account')}
           onNavigate={handleNavigate}
           logo={tienda?.logoUrl}
           titulo={mergedTienda.nombre}
         />
 
-        {/* ── HOME ── */}
-        {view === 'home' &&
-          (selectedProduct ? (
-            <ProductDetailView
-              product={selectedProduct}
-              onBack={() => setSelectedProduct(null)}
-              onCart={addToCart}
-              tienda={mergedTienda}
-              theme={THEME}
-            />
-          ) : (
-            <>
-              <div id="inicio" />
-              <Hero {...heroProps} />
-              <Marquee />
-              <div id="productos">
-                <ProductosDestacados onSelect={setSelectedProduct} tiendaId={tienda?.id} />
-                <Productos onSelect={setSelectedProduct} tiendaId={tienda?.id} />
+        <Routes>
+          {/* ── HOME ── */}
+          <Route
+            path="/"
+            element={
+              selectedProduct ? (
+                <ProductDetailView
+                  product={selectedProduct}
+                  onBack={() => setSelectedProduct(null)}
+                  onCart={addToCart}
+                  tienda={mergedTienda}
+                  theme={THEME}
+                  onLogin={() => navigateTo('auth')}
+                />
+              ) : (
+                <>
+                  <div id="inicio" />
+                  <Hero {...heroProps} />
+                  <Marquee items={tienda?.marqueeItems} />
+                  <div id="productos" className="scroll-mt-20">
+                    <ProductosDestacados
+                      onSelect={setSelectedProduct}
+                      onCart={addToCart}
+                      tiendaId={tienda?.id}
+                    />
+                    <Productos
+                      onSelect={setSelectedProduct}
+                      onCart={addToCart}
+                      tiendaId={tienda?.id}
+                      onViewAll={() => navigateTo('catalog')}
+                    />
+                  </div>
+                  <div id="contacto">
+                    <Contact tienda={mergedTienda} theme={THEME} />
+                  </div>
+                  {tienda?.id && (
+                    <StoreReviewSection
+                      tiendaId={tienda.id}
+                      onLogin={() => navigateTo('auth')}
+                      theme={THEME}
+                    />
+                  )}
+                </>
+              )
+            }
+          />
+
+          {/* ── CATALOG ── */}
+          <Route
+            path="/catalog"
+            element={
+              <div className="px-6 py-10 min-h-screen">
+                <button
+                  onClick={() => navigateTo('')}
+                  className="mb-8 px-5 py-2.5 rounded-full border-none cursor-pointer font-bold text-xs uppercase tracking-widest transition-all hover:scale-105"
+                  style={{
+                    background: resolvedAccent,
+                    color: 'white',
+                    fontFamily: "'DM Sans',sans-serif",
+                  }}
+                >
+                  ← Volver al Inicio
+                </button>
+                <FullProductCatalog
+                  tiendaId={tienda?.id || 0}
+                  onSelect={(p) => {
+                    setSelectedProduct(p);
+                    navigateTo('');
+                  }}
+                  onCart={addToCart}
+                  accent={resolvedAccent}
+                  theme={THEME}
+                />
               </div>
-              <div id="contacto">
-                <Contact tienda={mergedTienda} theme={THEME} />
+            }
+          />
+
+          {/* ── ABOUT ── */}
+          <Route
+            path="/about"
+            element={
+              <div className="px-6 py-10">
+                <button
+                  onClick={() => navigateTo('')}
+                  className="mb-6 px-4 py-2 rounded-full border-none cursor-pointer font-semibold transition-opacity hover:opacity-80"
+                  style={{
+                    background: 'var(--gor-acento)',
+                    color: 'var(--gor-btn-txt)',
+                    fontFamily: "'DM Sans',sans-serif",
+                  }}
+                >
+                  ← Volver a Inicio
+                </button>
+                <AboutUs
+                  titulo={tienda?.aboutUs?.titulo}
+                  descripcion={tienda?.aboutUs?.descripcion || mergedTienda.descripcion}
+                  imagenUrl={tienda?.aboutUs?.imagenUrl}
+                  direccion={tienda?.aboutUs?.direccion}
+                  ciudad={mergedTienda.ciudad}
+                  provincia={mergedTienda.provincia}
+                  instagram={mergedTienda.instagram}
+                  acento={resolvedAccent}
+                  bg="var(--gor-bg)"
+                  border="var(--gor-border)"
+                  txt="var(--gor-txt)"
+                  muted="var(--gor-muted)"
+                />
               </div>
-              <Footer
-                instagram={mergedTienda.instagram}
-                whatsapp={mergedTienda.whatsapp}
-                descripcion={mergedTienda.descripcion}
-                ciudad={mergedTienda.ciudad}
-                pais={mergedTienda.pais}
-                nombreTienda={mergedTienda.nombre}
-                acento="var(--gor-acento)"
+            }
+          />
+
+          {/* ── AUTH ── */}
+          <Route
+            path="/auth/*"
+            element={
+              <AuthView
+                onClose={() => navigateTo('')}
+                onLoginSuccess={() => navigateTo('account')}
+                tienda={tienda}
               />
-            </>
-          ))}
-
-        {/* ── ABOUT ── */}
-        {view === 'about' && (
-          <div className="px-6 py-10">
-            <button
-              onClick={() => setView('home')}
-              className="mb-6 px-4 py-2 rounded-full border-none cursor-pointer font-semibold transition-opacity hover:opacity-80"
-              style={{
-                background: 'var(--gor-acento)',
-                color: 'var(--gor-btn-txt)',
-                fontFamily: "'DM Sans',sans-serif",
-              }}
-            >
-              ← Volver a Inicio
-            </button>
-            <AboutUs
-              descripcion={mergedTienda.descripcion}
-              ciudad={mergedTienda.ciudad}
-              provincia={mergedTienda.provincia}
-              instagram={mergedTienda.instagram}
-              acento={resolvedAccent}
-              bg="var(--gor-bg)"
-              border="var(--gor-border)"
-              txt="var(--gor-txt)"
-              muted="var(--gor-muted)"
-            />
-          </div>
-        )}
-
-        {/* ── AUTH ── */}
-        {view === 'auth' && (
-          <AuthView
-            onClose={() => setView('home')}
-            onLoginSuccess={() => setView('account')}
-            tienda={tienda}
+            }
           />
-        )}
-        {/* ── ACCOUNT ── */}
-        {view === 'account' && (
-          <AccountView
-            onBack={() => setView('home')}
-            onLogout={() => {
-              logout();
-              setView('home');
-            }}
-          />
-        )}
 
-        {/* ── CHECKOUT ── */}
-        {view === 'checkout' && (
-          <CheckoutView 
-            tienda={tienda || (mergedTienda as any)}
-            carrito={carrito!}
-            onClose={() => setView('home')}
-            sessionId={sessionId}
-            onSuccess={(id) => {
-              setLastOrderId(id);
-              setView('success');
-            }}
-          />
-        )}
-
-        {/* ── SUCCESS ── */}
-        {view === 'success' && (
-          <div className="px-6 py-20 flex flex-col items-center text-center max-w-[500px] mx-auto">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl mb-8" style={{ background: `${resolvedAccent}15`, border: `2px solid ${resolvedAccent}` }}>
-              🎉
-            </div>
-            <h1 className="font-bold mb-4" style={{ fontFamily: "'Playfair Display',serif", fontSize: '2.5rem', color: 'var(--gor-txt)' }}>
-              ¡Pedido Recibido!
-            </h1>
-            <p className="text-[.95rem] leading-relaxed mb-10" style={{ color: 'var(--gor-muted)', fontFamily: "'DM Sans',sans-serif" }}>
-              Muchas gracias por tu compra. Tu pedido <strong>#{lastOrderId}</strong> ya fue registrado.
-              Nos pondremos en contacto con vos a la brevedad para coordinar el pago y envío.
-            </p>
-            <div className="flex flex-col w-full gap-4">
-              <button 
-                onClick={() => {
-                  const msj = `¡Hola! Acabo de realizar el pedido #${lastOrderId} en la web y quería confirmar los detalles.`;
-                  window.open(`https://wa.me/${mergedTienda.whatsapp}?text=${encodeURIComponent(msj)}`, '_blank');
+          {/* ── ACCOUNT ── */}
+          <Route
+            path="/account"
+            element={
+              <AccountView
+                onBack={() => navigateTo('')}
+                onLogout={() => {
+                  logout();
+                  navigateTo('');
                 }}
-                className="w-full py-4 rounded-xl font-bold border-none cursor-pointer transition-all hover:scale-[1.02]"
-                style={{ background: resolvedAccent, color: 'var(--gor-btn-txt)', fontFamily: "'DM Sans',sans-serif" }}
-              >
-                Hablar por WhatsApp
-              </button>
-              <button 
-                onClick={() => setView('home')}
-                className="w-full py-4 rounded-xl font-bold bg-transparent cursor-pointer transition-all hover:opacity-70"
-                style={{ border: `1.5px solid var(--gor-border)`, color: 'var(--gor-txt)', fontFamily: "'DM Sans',sans-serif" }}
-              >
-                Volver al inicio
-              </button>
-            </div>
-          </div>
-        )}
+              />
+            }
+          />
+
+          {/* ── CHECKOUT ── */}
+          <Route
+            path="/checkout"
+            element={
+              <CheckoutView
+                tienda={tienda || mergedTienda}
+                carrito={carrito!}
+                onClose={() => navigateTo('')}
+                sessionId={sessionId}
+                onSuccess={(id) => {
+                  setLastOrderId(id);
+                  navigateTo('order-success');
+                }}
+              />
+            }
+          />
+
+          {/* ── SUCCESS ── */}
+          <Route
+            path="/order-success"
+            element={
+              <div className="px-6 py-20 flex flex-col items-center text-center max-w-[500px] mx-auto">
+                <div
+                  className="w-20 h-20 rounded-full flex items-center justify-center text-3xl mb-8"
+                  style={{
+                    background: `${resolvedAccent}15`,
+                    border: `2px solid ${resolvedAccent}`,
+                  }}
+                >
+                  🎉
+                </div>
+                <h1
+                  className="font-bold mb-4"
+                  style={{
+                    fontFamily: "'Playfair Display',serif",
+                    fontSize: '2.5rem',
+                    color: 'var(--gor-txt)',
+                  }}
+                >
+                  ¡Pedido Recibido!
+                </h1>
+                <p
+                  className="text-[.95rem] leading-relaxed mb-10"
+                  style={{ color: 'var(--gor-muted)', fontFamily: "'DM Sans',sans-serif" }}
+                >
+                  Muchas gracias por tu compra. Tu pedido <strong>#{lastOrderId}</strong> ya fue
+                  registrado. Nos pondremos en contacto con vos a la brevedad para coordinar el pago
+                  y envío.
+                </p>
+                <div className="flex flex-col w-full gap-4">
+                  <button
+                    onClick={() => {
+                      const msj = `¡Hola! Acabo de realizar el pedido #${lastOrderId} en la web y quería confirmar los detalles.`;
+                      window.open(
+                        `https://wa.me/${mergedTienda.whatsapp}?text=${encodeURIComponent(msj)}`,
+                        '_blank'
+                      );
+                    }}
+                    className="w-full py-4 rounded-xl font-bold border-none cursor-pointer transition-all hover:scale-[1.02]"
+                    style={{
+                      background: resolvedAccent,
+                      color: 'var(--gor-btn-txt)',
+                      fontFamily: "'DM Sans',sans-serif",
+                    }}
+                  >
+                    Hablar por WhatsApp
+                  </button>
+                  <button
+                    onClick={() => navigateTo('')}
+                    className="w-full py-4 rounded-xl font-bold bg-transparent cursor-pointer transition-all hover:opacity-70"
+                    style={{
+                      border: `1.5px solid var(--gor-border)`,
+                      color: 'var(--gor-txt)',
+                      fontFamily: "'DM Sans',sans-serif",
+                    }}
+                  >
+                    Volver al inicio
+                  </button>
+                </div>
+              </div>
+            }
+          />
+        </Routes>
+
+        {/* ── GLOBAL FOOTER ── */}
+        <Footer
+          instagram={mergedTienda.instagram}
+          whatsapp={mergedTienda.whatsapp}
+          descripcion={mergedTienda.descripcion}
+          ciudad={mergedTienda.ciudad}
+          pais={mergedTienda.pais}
+          nombreTienda={mergedTienda.nombre}
+          acento="var(--gor-acento)"
+          onNavigate={handleNavigate}
+        />
       </div>
 
       {/* ── Cart Drawer ── */}
@@ -359,7 +446,7 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
           onRemove={(id) => eliminarItem(id)}
           onConfirmar={() => {
             setCartOpen(false);
-            setView('checkout');
+            navigateTo('checkout');
           }}
           theme={THEME}
         />

@@ -1,5 +1,6 @@
 // Productos.tsx
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   useStorefrontCategorias,
   useStorefrontNormales,
@@ -17,10 +18,12 @@ const SUBTLE = 'var(--gor-subtle)';
 
 interface Props {
   onSelect: (p: Producto) => void;
+  onCart?: (p: Producto) => void;
+  onViewAll?: () => void;
   tiendaId?: number;
 }
 
-export default function Productos({ onSelect, tiendaId }: Props) {
+export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Props) {
   const [cat, setCat] = useState<number | 'Todo'>('Todo');
   const [busqueda, setBusqueda] = useState('');
   const [busquedaFiltro, setBusquedaFiltro] = useState('');
@@ -28,6 +31,20 @@ export default function Productos({ onSelect, tiendaId }: Props) {
 
   const { data: categoriasData } = useStorefrontCategorias(tiendaId ?? 0);
   const categorias = categoriasData || [];
+
+  const categoriasPrincipales = categorias.filter((c: CategoriaProducto) => !c.padreId);
+  
+  let activeParentId: number | null = null;
+  if (cat !== 'Todo') {
+    const selectedCat = categorias.find((c: CategoriaProducto) => c.id === cat);
+    if (selectedCat) {
+      activeParentId = selectedCat.padreId ? selectedCat.padreId : selectedCat.id;
+    }
+  }
+
+  const subcategoriasVisibles = activeParentId 
+    ? categorias.filter((c: CategoriaProducto) => c.padreId === activeParentId)
+    : [];
 
   const { data: productosData, isLoading } = useStorefrontNormales(tiendaId ?? 0, {
     categoriaId: cat !== 'Todo' ? cat : undefined,
@@ -104,28 +121,75 @@ export default function Productos({ onSelect, tiendaId }: Props) {
           </form>
 
           {/* Chips de categoría */}
-          <div className="flex gap-1.5 flex-wrap">
-            {(['Todo', ...categorias] as Array<'Todo' | CategoriaProducto>).map((c) => {
-              const id = c === 'Todo' ? 'Todo' : c.id;
-              const label = c === 'Todo' ? 'Todo' : c.nombre;
-              const active = id === cat;
-              return (
-                <button
-                  key={id}
-                  onClick={() => handleCat(id)}
-                  className="px-4 py-1.5 rounded-full text-[.72rem] cursor-pointer transition-all duration-200 border-none"
-                  style={{
-                    border: `1.5px solid ${active ? ACENTO : BORDER}`,
-                    background: active ? `${ACENTO}14` : 'transparent',
-                    color: active ? ACENTO : MUTED,
-                    fontWeight: active ? 600 : 400,
-                    fontFamily: "'DM Sans',sans-serif",
-                  }}
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-1.5 flex-wrap">
+              {(['Todo', ...categoriasPrincipales] as Array<'Todo' | CategoriaProducto>).map((c) => {
+                const id = c === 'Todo' ? 'Todo' : c.id;
+                const label = c === 'Todo' ? 'Todo' : c.nombre;
+                const active = id === cat || id === activeParentId;
+                return (
+                  <button
+                    key={id}
+                    onClick={() => handleCat(id)}
+                    className="px-4 py-1.5 rounded-full text-[.72rem] cursor-pointer transition-all duration-200 border-none relative overflow-hidden"
+                    style={{
+                      border: `1.5px solid ${active ? ACENTO : BORDER}`,
+                      background: active ? `${ACENTO}14` : 'transparent',
+                      color: active ? ACENTO : MUTED,
+                      fontWeight: active ? 600 : 400,
+                      fontFamily: "'DM Sans',sans-serif",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            
+            {/* Chips de subcategoría */}
+            <AnimatePresence>
+              {subcategoriasVisibles.length > 0 && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden flex gap-2 flex-wrap"
                 >
-                  {label}
-                </button>
-              );
-            })}
+                  <button
+                    onClick={() => handleCat(activeParentId!)}
+                    className="px-4 py-1.5 rounded-full text-[.72rem] cursor-pointer transition-all duration-200 border-none"
+                    style={{
+                      border: `1.5px solid ${cat === activeParentId ? ACENTO : BORDER}`,
+                      background: cat === activeParentId ? `${ACENTO}14` : SURFACE,
+                      color: cat === activeParentId ? ACENTO : TXT,
+                      fontFamily: "'DM Sans',sans-serif",
+                      opacity: 0.9
+                    }}
+                  >
+                    Todos
+                  </button>
+                  {subcategoriasVisibles.map((sub: CategoriaProducto) => {
+                     const isActiveSub = cat === sub.id;
+                     return (
+                       <button
+                         key={sub.id}
+                         onClick={() => handleCat(sub.id)}
+                         className="px-4 py-1.5 rounded-full text-[.72rem] cursor-pointer transition-all duration-200 border-none"
+                         style={{
+                           border: `1.5px dashed ${isActiveSub ? ACENTO : BORDER}`,
+                           background: isActiveSub ? `${ACENTO}14` : 'transparent',
+                           color: isActiveSub ? ACENTO : MUTED,
+                           fontWeight: isActiveSub ? 600 : 400,
+                           fontFamily: "'DM Sans',sans-serif",
+                         }}
+                       >
+                         {sub.nombre}
+                       </button>
+                     );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -143,7 +207,13 @@ export default function Productos({ onSelect, tiendaId }: Props) {
             style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))' }}
           >
             {productos.map((p: Producto) => (
-              <ProductCard key={p.id} producto={p} onSelect={onSelect} showCategoria />
+              <ProductCard 
+                key={p.id} 
+                producto={p} 
+                onSelect={onSelect} 
+                onAddToCart={onCart}
+                showCategoria 
+              />
             ))}
           </div>
         )}
@@ -152,7 +222,7 @@ export default function Productos({ onSelect, tiendaId }: Props) {
         {allProductos.length > visibleCount && (
           <div className="mt-14 text-center">
             <button
-              onClick={() => setVisibleCount((prev) => prev + 12)}
+              onClick={onViewAll}
               className="px-8 py-3 rounded-full text-[.75rem] font-bold tracking-widest uppercase cursor-pointer transition-all duration-200"
               style={{
                 background: SURFACE,
@@ -169,7 +239,7 @@ export default function Productos({ onSelect, tiendaId }: Props) {
                 e.currentTarget.style.color = TXT;
               }}
             >
-              Ver más productos
+              Ver todos los productos
             </button>
           </div>
         )}
