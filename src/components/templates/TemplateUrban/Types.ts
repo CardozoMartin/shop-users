@@ -128,6 +128,7 @@ export interface ThemeProps {
   border?: string;
   acento?: string;
   btnTxt?: string;
+  modoOscuro?: boolean;
 }
 
 export interface ToastProps {

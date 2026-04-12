@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { motion } from 'framer-motion';
 import { useStorefrontDestacados } from '../../../hooks/useStorefrontProducts';
 import ProductCard from './ProductCard';
 import type { Producto } from './Types';
@@ -19,6 +18,12 @@ export default function ProductosDestacados({ onSelect, onCart, tiendaId }: Prop
   const { data: productosData, isLoading } = useStorefrontDestacados(tiendaId ?? 0);
   const productos = productosData?.datos || [];
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  const scrollCarousel = (dir: number) => {
+    if (!carouselRef.current) return;
+    const width = carouselRef.current.clientWidth;
+    carouselRef.current.scrollBy({ left: dir * width * 0.75, behavior: 'smooth' });
+  };
 
   if (isLoading || productos.length === 0) return null;
 
@@ -50,27 +55,42 @@ export default function ProductosDestacados({ onSelect, onCart, tiendaId }: Prop
         </div>
 
         {/* Carousel Container */}
-        <motion.div 
-          ref={carouselRef}
-          className="cursor-grab active:cursor-grabbing overflow-visible"
-        >
-          <motion.div 
-            drag="x"
-            dragConstraints={carouselRef}
-            className="flex gap-6 md:gap-8"
-            style={{ width: 'max-content' }}
+        <div className="relative">
+          <div
+            ref={carouselRef}
+            className="overflow-x-auto scroll-smooth pb-2 -mx-6 px-6"
+            style={{ scrollbarWidth: 'none' }}
           >
-            {productos.map((p: Producto) => (
-              <div key={p.id} className="w-[260px] md:w-[300px] shrink-0">
-                <ProductCard producto={p} onSelect={onSelect} onAddToCart={onCart} />
-              </div>
-            ))}
-            {/* Spacer for ending */}
-            <div className="w-[40px] shrink-0" />
-          </motion.div>
-        </motion.div>
+            <div className="flex gap-6 md:gap-8 mx-auto" style={{ width: 'max-content' }}>
+              {productos.map((p: Producto) => (
+                <div key={p.id} className="w-[260px] md:w-[300px] shrink-0">
+                  <ProductCard producto={p} onSelect={onSelect} onAddToCart={onCart} />
+                </div>
+              ))}
+              <div className="w-[40px] shrink-0" />
+            </div>
+          </div>
+        </div>
 
-        {/* Info Slide (Mobile only) */}
+        <div className="mt-8 flex justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => scrollCarousel(-1)}
+            className="w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-lg font-bold text-black transition hover:bg-white"
+            aria-label="Mover carrusel a la izquierda"
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollCarousel(1)}
+            className="w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-lg font-bold text-black transition hover:bg-white"
+            aria-label="Mover carrusel a la derecha"
+          >
+            →
+          </button>
+        </div>
+
         <div className="mt-8 flex justify-center md:hidden">
            <p className="text-[.65rem] font-bold uppercase tracking-[.25em] opacity-30">Deslizá para ver más ◆</p>
         </div>

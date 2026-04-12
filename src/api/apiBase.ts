@@ -28,10 +28,10 @@ api.interceptors.response.use(
     const isAuthLoginRequest = typeof requestUrl === 'string' && requestUrl.includes('/auth/login');
 
     if (error.response?.status === 401 && !isAuthLoginRequest) {
-      // Token expirado o inválido
+      // Token expirado o inválido — hacer logout silencioso
       const { logout } = useAuthSessionStore.getState();
       logout();
-      window.location.href = '/login';
+      // No redirigir a /login ya que esta es una SPA y la navegación la maneja el template
     }
 
     return Promise.reject(error);

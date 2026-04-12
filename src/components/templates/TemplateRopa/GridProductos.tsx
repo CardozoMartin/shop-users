@@ -1,7 +1,18 @@
 import { useState } from 'react';
-import { useStorefrontCategorias, useStorefrontNormales } from '../../../hooks/useStorefrontProducts';
+import {
+  useStorefrontCategorias,
+  useStorefrontNormales,
+} from '../../../hooks/useStorefrontProducts';
 
-export default function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tiendaId: number }) {
+export default function GridProductos({
+  onSelect,
+  onCart,
+  tiendaId,
+}: {
+  onSelect: (p: any) => void;
+  onCart?: (p: any, qty?: number, varianteId?: number) => void;
+  tiendaId: number;
+}) {
   const [cat, setCat] = useState<number | 'Todo'>('Todo');
   const [busqueda, setBusqueda] = useState('');
   const [busquedaFiltro, setBusquedaFiltro] = useState('');
@@ -28,13 +39,19 @@ export default function GridProductos({ onSelect, tiendaId }: { onSelect: (p: an
             className="text-[clamp(2.5rem,4vw,3.5rem)] tracking-[.04em] leading-[0.9]"
             style={{ fontFamily: "'Bebas Neue',sans-serif", color: 'var(--rop-dark)' }}
           >
-            TODO EL<br /><span style={{ color: 'var(--rop-acento)' }}>CATÁLOGO</span>
+            TODO EL
+            <br />
+            <span style={{ color: 'var(--rop-acento)' }}>CATÁLOGO</span>
           </h2>
 
           <div className="flex flex-col gap-4 items-end">
             {/* Search */}
             <form
-              onSubmit={(e) => { e.preventDefault(); setBusquedaFiltro(busqueda); setVisibleCount(12); }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                setBusquedaFiltro(busqueda);
+                setVisibleCount(12);
+              }}
               className="flex gap-2 w-full max-w-[300px]"
             >
               <input
@@ -70,7 +87,10 @@ export default function GridProductos({ onSelect, tiendaId }: { onSelect: (p: an
             {/* Category chips */}
             <div className="flex gap-1.5 flex-wrap justify-end">
               <button
-                onClick={() => { setCat('Todo'); setVisibleCount(12); }}
+                onClick={() => {
+                  setCat('Todo');
+                  setVisibleCount(12);
+                }}
                 className="py-1.5 px-4 rounded cursor-pointer text-[.7rem] tracking-[.06em] transition-all duration-150"
                 style={{
                   border: `1px solid ${'Todo' === cat ? 'var(--rop-acento)' : 'var(--rop-border)'}`,
@@ -85,7 +105,10 @@ export default function GridProductos({ onSelect, tiendaId }: { onSelect: (p: an
               {categorias.map((c: any) => (
                 <button
                   key={c.id}
-                  onClick={() => { setCat(c.id); setVisibleCount(12); }}
+                  onClick={() => {
+                    setCat(c.id);
+                    setVisibleCount(12);
+                  }}
                   className="py-1.5 px-4 rounded cursor-pointer text-[.7rem] tracking-[.06em] transition-all duration-150"
                   style={{
                     border: `1px solid ${c.id === cat ? 'var(--rop-acento)' : 'var(--rop-border)'}`,
@@ -111,7 +134,10 @@ export default function GridProductos({ onSelect, tiendaId }: { onSelect: (p: an
             Cargando prendas...
           </div>
         ) : (
-          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))' }}>
+          <div
+            className="grid gap-4"
+            style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))' }}
+          >
             {visibleProducts.map((p: any) => (
               <div
                 key={p.id}
@@ -132,25 +158,6 @@ export default function GridProductos({ onSelect, tiendaId }: { onSelect: (p: an
                     className="w-full h-full object-cover transition-transform duration-500 ease-out"
                     style={{ transform: hov === p.id ? 'scale(1.05)' : 'scale(1)' }}
                   />
-                  <div
-                    className="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
-                    style={{
-                      background: 'rgba(20,20,20,.4)',
-                      opacity: hov === p.id ? 1 : 0,
-                    }}
-                  >
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onSelect(p); }}
-                      className="py-2.5 px-6 border-none rounded cursor-pointer text-[.7rem] font-bold tracking-[.1em] uppercase"
-                      style={{
-                        background: 'var(--rop-acento)',
-                        color: 'var(--rop-btn-txt)',
-                        fontFamily: "'Outfit',sans-serif",
-                      }}
-                    >
-                      Ver Producto
-                    </button>
-                  </div>
                   {p.destacado && (
                     <span
                       className="absolute top-2.5 left-2.5 text-[.56rem] font-bold py-[3px] px-2 rounded-[3px] tracking-[.08em] uppercase"
@@ -158,6 +165,36 @@ export default function GridProductos({ onSelect, tiendaId }: { onSelect: (p: an
                     >
                       Destacado
                     </span>
+                  )}
+                </div>
+                <div className="mt-3 flex flex-col gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelect(p);
+                    }}
+                    className="w-full py-2 rounded border border-[var(--rop-border)] bg-transparent text-[.75rem] font-bold tracking-[.12em] uppercase"
+                    style={{
+                      color: 'var(--rop-dark)',
+                      fontFamily: "'Outfit',sans-serif",
+                    }}
+                  >
+                    Ver producto
+                  </button>
+                  {onCart && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onCart(p, 1);
+                      }}
+                      className="w-full py-2 rounded bg-[var(--rop-acento)] text-[.75rem] font-bold tracking-[.12em] uppercase"
+                      style={{
+                        color: 'var(--rop-btn-txt)',
+                        fontFamily: "'Outfit',sans-serif",
+                      }}
+                    >
+                      Agregar al carrito
+                    </button>
                   )}
                 </div>
                 <div className="mt-2 px-0.5">
@@ -174,14 +211,22 @@ export default function GridProductos({ onSelect, tiendaId }: { onSelect: (p: an
                     {p.categoria?.nombre || ''}
                   </p>
                   <div className="flex items-baseline gap-1.5 mt-1">
-                    {p.precioOferta && Number(p.precioOferta) > 0 && Number(p.precioOferta) < Number(p.precio) ? (
+                    {p.precioOferta &&
+                    Number(p.precioOferta) > 0 &&
+                    Number(p.precioOferta) < Number(p.precio) ? (
                       <>
-                        <span className="text-[.65rem] line-through" style={{ color: 'var(--rop-subtle)' }}>
+                        <span
+                          className="text-[.65rem] line-through"
+                          style={{ color: 'var(--rop-subtle)' }}
+                        >
                           ${Number(p.precio).toLocaleString()}
                         </span>
                         <span
                           className="text-[1.2rem] tracking-[.04em]"
-                          style={{ fontFamily: "'Bebas Neue',sans-serif", color: 'var(--rop-acento)' }}
+                          style={{
+                            fontFamily: "'Bebas Neue',sans-serif",
+                            color: 'var(--rop-acento)',
+                          }}
                         >
                           ${Number(p.precioOferta).toLocaleString()}
                         </span>

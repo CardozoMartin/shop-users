@@ -2783,7 +2783,11 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
               <Hero carrusel={carruselItems} />
               <Marquee />
               <CarruselProductos onCart={(p) => addToCart(p, 1)} items={destacadosProducts} />
-              <GridProductos onSelect={setSelectedProduct} tiendaId={tiendaIdNum} />
+              <GridProductos
+                onSelect={setSelectedProduct}
+                onCart={addToCart}
+                tiendaId={tiendaIdNum}
+              />
               <SobreNosotros tienda={mergedTienda} />
               <Banner />
               <Footer tienda={mergedTienda} />

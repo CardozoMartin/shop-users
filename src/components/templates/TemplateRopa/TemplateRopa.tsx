@@ -15,7 +15,6 @@ import CheckoutView from './CheckoutView';
 import Footer from './Footer';
 import GridProductos from './GridProductos';
 import Hero from './Hero';
-import Lookbook from './Lookbook';
 import Marquee from './Marquee';
 import Navbar from './Navbar';
 import ProductDetailView from './ProductDetailView';
@@ -188,7 +187,7 @@ export default function TemplateRopa({ tienda, accent, themeConfig }: PlantillaR
                     onNavigate={handleNavigate}
                   />
                   <Marquee tienda={mergedTienda} />
-                 
+
                   <div id="destacados">
                     <CarruselProductos
                       items={destacadosProducts}
@@ -197,7 +196,11 @@ export default function TemplateRopa({ tienda, accent, themeConfig }: PlantillaR
                     />
                   </div>
                   <div id="productos">
-                    <GridProductos onSelect={(p) => setSelectedProduct(p)} tiendaId={tienda?.id} />
+                    <GridProductos
+                      onSelect={(p) => setSelectedProduct(p)}
+                      onCart={addToCart}
+                      tiendaId={tienda?.id}
+                    />
                   </div>
                   <Banner tienda={mergedTienda} />
                   <div id="nosotros">

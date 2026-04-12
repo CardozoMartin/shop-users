@@ -31,7 +31,7 @@ interface UrbanTiendziProps {
   tienda?: Tienda;
   accent?: string;
   fontFamily?: string;
-  themeConfig?: { primary?: string };
+  themeConfig?: { primary?: string; modoOscuro?: boolean };
 }
 
 // ── Constantes y Estilos ──────────────────────────────────────
@@ -187,6 +187,7 @@ export default function UrbanTiendzi({ tienda, accent, themeConfig }: UrbanTiend
                     muted: '#71717a',
                     border: '#27272a',
                     btnTxt: '#ffffff',
+                    modoOscuro: themeConfig?.modoOscuro ?? false,
                   }}
                 />
               ) : (

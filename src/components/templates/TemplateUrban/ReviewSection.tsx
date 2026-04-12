@@ -53,12 +53,12 @@ const ReviewCard = ({ resena }: { resena: any }) => {
     <div className="bg-zinc-950 border border-zinc-900 p-6 flex flex-col gap-4">
       <div className="flex justify-between items-start">
         <div className="flex flex-col gap-1">
-          <span className="text-white text-[10px] font-black uppercase tracking-widest font-syncopate">
+          <span className="text-white text-[10px] font-bold uppercase tracking-widest">
             {nombre}
           </span>
           <StarRating value={resena.calificacion} readOnly size={12} />
         </div>
-        <span className="text-zinc-600 text-[9px] font-black uppercase tracking-tighter">{fecha}</span>
+        <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-tighter tabular-nums">{fecha}</span>
       </div>
 
       {resena.comentario && (
@@ -123,19 +123,19 @@ const ReviewSection = ({ productoId, onLogin }: ReviewSectionProps) => {
 
   return (
     <section className="mt-20 pt-16 border-t border-zinc-900" id="resenas-producto">
-      <div className="flex items-end justify-between mb-12">
+      <div className="flex items-end justify-between mb-12 border-b border-zinc-900 pb-6">
         <div>
-          <h3 className="text-white text-5xl uppercase leading-none mb-2 font-bebas">FEEDBACK_LOOP</h3>
-          <div className="w-16 h-1 bg-red-600" />
+          <h3 className="text-white text-6xl uppercase leading-none font-bebas tracking-wider">RESEÑAS</h3>
+          <p className="text-red-600 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">FEEDBACK_SYSTEM</p>
         </div>
         
         {stats && stats.total > 0 && (
           <div className="text-right">
-            <div className="text-red-600 text-4xl font-black font-bebas leading-none">
-              {stats.promedio} / 5.0
+            <div className="text-white text-5xl font-bebas leading-none">
+              {stats.promedio} <span className="text-zinc-700 text-3xl">/ 5.0</span>
             </div>
-            <div className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">
-              BASE_ON_{stats.total}_SAMPLES
+            <div className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mt-1">
+              BASADO EN {stats.total} OPINIONES
             </div>
           </div>
         )}
@@ -144,8 +144,8 @@ const ReviewSection = ({ productoId, onLogin }: ReviewSectionProps) => {
       {/* Grid: Form + Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-16">
         {/* Stats Column */}
-        <div className="bg-zinc-950 border border-zinc-900 p-8">
-           <h4 className="text-white text-xs font-black uppercase tracking-[0.2em] mb-6 font-syncopate">METRICS</h4>
+        <div className="bg-zinc-950 border border-zinc-900 p-8 flex flex-col justify-center">
+           <h4 className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.2em] mb-8">PUNTUACIÓN_GENERAL</h4>
            <div className="space-y-4">
             {[5, 4, 3, 2, 1].map((star) => {
               const entry = stats?.distribucion?.find((d: any) => d.calificacion === star);
@@ -172,16 +172,16 @@ const ReviewSection = ({ productoId, onLogin }: ReviewSectionProps) => {
             {isLoggedIn ? (
                 <div className="bg-zinc-950 border border-zinc-900 p-8 space-y-8">
                    <div className="flex items-center justify-between">
-                     <h4 className="text-white text-xs font-black uppercase tracking-[0.2em] font-syncopate">LOG_YOUR_EXPERIENCE</h4>
-                     <StarRating value={rating} onChange={setRating} size={20} />
+                     <h4 className="text-white text-xs font-bold uppercase tracking-[0.2em]">DEJANOS TU OPINIÓN</h4>
+                     <StarRating value={rating} onChange={setRating} size={22} />
                    </div>
 
                    <textarea
                      value={comentario}
                      onChange={(e) => setComentario(e.target.value)}
-                     placeholder="DATA_INPUT: ESCRIBÍ TU RESEÑA AQUÍ..."
+                     placeholder="ESCRIBÍ TU RESEÑA AQUÍ..."
                      rows={4}
-                     className="w-full bg-black border border-zinc-900 text-white p-5 text-sm uppercase font-barlow focus:outline-none focus:border-red-600 transition-all resize-none"
+                     className="w-full bg-black border border-zinc-900 text-white p-5 text-sm uppercase font-barlow focus:outline-none focus:border-red-600 transition-all resize-none placeholder:text-zinc-800"
                    />
 
                    <div className="flex flex-wrap items-center justify-between gap-6">
@@ -193,17 +193,17 @@ const ReviewSection = ({ productoId, onLogin }: ReviewSectionProps) => {
                           onChange={handleImageChange}
                           className="absolute inset-0 opacity-0 cursor-pointer"
                         />
-                        <button className="bg-transparent border border-zinc-800 text-zinc-500 hover:text-white px-6 py-3 text-[10px] font-black uppercase tracking-widest transition-all">
-                          {previewUrl ? 'PHOTO_ATTACHED' : 'UPLOAD_VISUAL_PROOF'}
+                        <button className="bg-transparent border border-zinc-800 text-zinc-600 hover:text-white px-6 py-3 text-[10px] font-bold uppercase tracking-widest transition-all">
+                          {previewUrl ? 'FOTO ADJUNTA' : 'SUBIR FOTO'}
                         </button>
                       </div>
 
                       <button
                         onClick={handleSubmit}
                         disabled={rating === 0 || isPending}
-                        className="bg-red-600 hover:bg-white hover:text-black text-white px-10 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="bg-red-600 hover:bg-white hover:text-black text-white px-10 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                       >
-                        {isPending ? 'TRANSMITTING...' : 'POST_LOG'}
+                        {isPending ? 'ENVIANDO...' : 'PUBLICAR OPINIÓN'}
                       </button>
                    </div>
 
@@ -219,12 +219,12 @@ const ReviewSection = ({ productoId, onLogin }: ReviewSectionProps) => {
                 </div>
             ) : (
                 <div className="bg-zinc-950 border-2 border-dashed border-zinc-900 p-12 text-center flex flex-col items-center justify-center h-full">
-                   <p className="text-zinc-500 text-xs font-black uppercase tracking-widest mb-6">REVIEWS_ARE_LOCKED_FOR_GUESTS</p>
+                   <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest mb-6">DEBES INICIAR SESIÓN PARA COMENTAR</p>
                    <button
                      onClick={onLogin}
-                     className="bg-white text-black hover:bg-red-600 hover:text-white px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer"
+                     className="bg-white text-black hover:bg-red-600 hover:text-white px-8 py-4 text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer"
                    >
-                     AUTH_REQUIRED.EXE
+                     INICIAR SESIÓN
                    </button>
                 </div>
             )}
@@ -232,7 +232,7 @@ const ReviewSection = ({ productoId, onLogin }: ReviewSectionProps) => {
       </div>
 
       {/* List of Reviews */}
-      <h4 className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em] mb-8 font-syncopate">ARCHIVED_REPORTS</h4>
+      <h4 className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.3em] mb-8">HISTORIAL DE RESEÑAS</h4>
       
       {isLoading ? (
         <div className="animate-pulse space-y-4">
@@ -240,8 +240,8 @@ const ReviewSection = ({ productoId, onLogin }: ReviewSectionProps) => {
             <div className="h-32 bg-zinc-950 w-full" />
         </div>
       ) : resenas.length === 0 ? (
-        <div className="py-20 border border-zinc-900 text-center uppercase text-zinc-700 text-[10px] font-black tracking-[0.5em]">
-          NO_DATA_AVAILABLE_IN_THIS_SECTOR
+        <div className="py-20 border border-zinc-900 text-center uppercase text-zinc-800 text-[10px] font-bold tracking-[0.5em]">
+          AÚN NO HAY RESEÑAS PARA ESTE PRODUCTO
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -105,7 +105,7 @@ export default function TemplateJoyeria({ tienda, accent, themeConfig }: Plantil
     if (!tienda?.id) return;
     try {
       await agregarAlCarrito({ productoId: p.id, cantidad: qty, varianteId: varianteId || null });
-      setToast({ msg: \`\${p.nombre} agregado al carrito\`, visible: true });
+      setToast({ msg: `${p.nombre} agregado al carrito`, visible: true });
       setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
     } catch (err) {
       console.error(err);
@@ -134,7 +134,7 @@ export default function TemplateJoyeria({ tienda, accent, themeConfig }: Plantil
   return (
     <div style={cssVars}>
       <style>{`
-        \${FONTS}
+        ${FONTS}
         * { box-sizing: border-box; margin: 0; padding: 0; }
         img { display: block; }
         .ac-scroll { overflow-y: auto; height: 100vh; scroll-behavior: smooth; }
@@ -325,8 +325,8 @@ export default function TemplateJoyeria({ tienda, accent, themeConfig }: Plantil
                   <div className="flex flex-col w-full gap-4">
                     <button
                       onClick={() => {
-                        const msj = \`¡Hola! Acabo de realizar el pedido #\${lastOrderId} en la web y quería confirmar los detalles.\`;
-                        window.open(\`https://wa.me/\${mergedTienda.whatsapp}?text=\${encodeURIComponent(msj)}\`, '_blank');
+                        const msj = `¡Hola! Acabo de realizar el pedido #${lastOrderId} en la web y quería confirmar los detalles.`;
+                        window.open(`https://wa.me/${mergedTienda.whatsapp}?text=${encodeURIComponent(msj)}`, '_blank');
                       }}
                       style={{ width: '100%', padding: '15px 40px', background: 'var(--acc-acento)', color: 'var(--acc-btn-txt)', border: 'none', borderRadius: '40px', cursor: 'pointer', fontFamily: "'Jost', sans-serif", fontSize: '.8rem', fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase' }}
                     >

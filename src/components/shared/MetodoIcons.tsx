@@ -1,47 +1,114 @@
-import andreaniImg from '../../assets/metodos/andreani.jpg';
-import correoImg from '../../assets/metodos/correo-argentino.png';
-import creditoImg from '../../assets/metodos/credito.png';
-import debitoImg from '../../assets/metodos/debito.png';
-import efectivoImg from '../../assets/metodos/efectivo.png';
-import mercadopagoImg from '../../assets/metodos/mercadopago.png';
-import puntoImg from '../../assets/metodos/punto-encuentro.png';
-import qrImg from '../../assets/metodos/qr.webp';
-import retiroImg from '../../assets/metodos/retiro.webp';
-import transferenciaImg from '../../assets/metodos/transferencia.jpg';
-import uberImg from '../../assets/metodos/uber.png';
+const metodoAssets = import.meta.glob('../../assets/metodos/*.{png,jpg,jpeg,webp,svg}', {
+  eager: true,
+  import: 'default',
+}) as Record<string, string>;
 
-export const METODOS_IMAGENES: Record<string, string> = {
-  mercadopago: mercadopagoImg,
-  efectivo: efectivoImg,
-  transferencia: transferenciaImg,
-  debito: debitoImg,
-  credito: creditoImg,
-  qr: qrImg,
-  retiro: retiroImg,
-  andreani: andreaniImg,
-  correo: correoImg,
-  uber: uberImg,
-  punto: puntoImg,
-};
+const svgAssets = import.meta.glob('../../assets/SVG/*.{png,jpg,jpeg,webp,svg}', {
+  eager: true,
+  import: 'default',
+}) as Record<string, string>;
 
-export const IMAGEN_DEFAULT = efectivoImg;
+function crearMetodosImagenes(assets: Record<string, string>): Record<string, string> {
+  return Object.entries(assets).reduce(
+    (acc, [path, src]) => {
+      const fileName = path.split('/').pop() ?? '';
+      const nameWithoutExt = fileName.replace(/\.[^/.]+$/, '');
+
+      // Ignorar versiones -1 para el nombre base
+      if (nameWithoutExt.endsWith('-1')) {
+        return acc;
+      }
+
+      // Normalizar la key (remover espacios, guiones, y pasar a minúsculas)
+      const normalizedKey = nameWithoutExt.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      if (!normalizedKey) {
+        return acc;
+      }
+
+      acc[normalizedKey] = src;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+}
+
+export const METODOS_IMAGENES: Record<string, string> = crearMetodosImagenes(metodoAssets);
+export const SVG_METODOS_IMAGENES: Record<string, string> = crearMetodosImagenes(svgAssets);
+export const IMAGEN_DEFAULT = Object.values(METODOS_IMAGENES)[0] ?? '';
 
 /**
- * Normaliza un string: minúsculas, sin acentos, sin espacios.
+ * Normaliza un string: minúsculas, sin acentos, sin espacios ni guiones.
  */
 export function normalizarMetodo(texto: string): string {
   return texto
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '');
+    .replace(/[^a-z0-9]/g, '');
 }
 
 /**
  * Devuelve la ruta de imagen correspondiente al nombre del método.
+ * Prioriza la carpeta SVG si se solicita.
  */
-export function getImagenForMetodo(nombre: string): string {
+export function getImagenForMetodo(nombre: string, preferSVG = false, isDarkMode = false): string {
   const normalizado = normalizarMetodo(nombre);
+
+  if (preferSVG) {
+    const getVariant = (baseKey: string) => {
+      if (isDarkMode) {
+        // Intentar encontrar la versión darkmode (case insensitive)
+        const darkKey = baseKey + 'darkmode';
+        if (SVG_METODOS_IMAGENES[darkKey]) return SVG_METODOS_IMAGENES[darkKey];
+      }
+      return SVG_METODOS_IMAGENES[baseKey];
+    };
+
+    // 1. Pagos
+    if (normalizado.includes('efectivo')) return getVariant('efectivo');
+    if (normalizado.includes('transferencia')) return getVariant('transferencia');
+    if (
+      normalizado.includes('pagoqr') ||
+      normalizado.includes('qr') ||
+      normalizado.includes('mercadopago')
+    )
+      return getVariant('pagosqr');
+    if (
+      normalizado.includes('tarjeta') ||
+      normalizado.includes('credito') ||
+      normalizado.includes('debito')
+    )
+      return getVariant('tarjetadecredito');
+
+    // 2. Entregas (Orden de prioridad: marcas/específicos primero)
+    if (normalizado.includes('uber') || normalizado.includes('ubber')) return getVariant('uber');
+    if (
+      normalizado.includes('cadeteria') ||
+      normalizado.includes('propia') ||
+      normalizado.includes('moto')
+    )
+      return getVariant('cadeteriapropia');
+    if (normalizado.includes('punto') && normalizado.includes('encuentro'))
+      return getVariant('puntoencuentro');
+    if (normalizado.includes('retiro') || normalizado.includes('local'))
+      return getVariant('retirolocal');
+
+    // Catch-all para envíos que no matchearon marcas específicas
+    if (
+      normalizado.includes('envio') ||
+      normalizado.includes('domicilio') ||
+      normalizado.includes('andrenai') ||
+      normalizado.includes('correo')
+    )
+      return getVariant('enviotodopais');
+
+    // Si nada de lo anterior funcionó, intentar match directo por key
+    const baseMatch = Object.keys(SVG_METODOS_IMAGENES).find(
+      (key) => !key.includes('darkmode') && normalizado.includes(key)
+    );
+    if (baseMatch) return getVariant(baseMatch);
+  }
+
   const keyMatch = Object.keys(METODOS_IMAGENES).find((key) => normalizado.includes(key));
   return keyMatch ? METODOS_IMAGENES[keyMatch] : IMAGEN_DEFAULT;
 }
@@ -54,6 +121,8 @@ interface MetodoChipProps {
   textColor?: string;
   borderColor?: string;
   backgroundColor?: string;
+  preferSVG?: boolean;
+  isDarkMode?: boolean;
 }
 
 export function MetodoChip({
@@ -63,8 +132,10 @@ export function MetodoChip({
   textColor = 'inherit',
   borderColor = 'rgba(0,0,0,0.08)',
   backgroundColor = 'transparent',
+  preferSVG = false,
+  isDarkMode = false,
 }: MetodoChipProps) {
-  const imagenSrc = getImagenForMetodo(nombre);
+  const imagenSrc = getImagenForMetodo(nombre, preferSVG, isDarkMode);
 
   return (
     <div
@@ -94,7 +165,7 @@ export function MetodoChip({
           fontSize: '13px',
           fontWeight: 500,
           color: textColor,
-          whiteSpace: 'nowrap',
+          lineHeight: '1.2',
         }}
       >
         {nombre}

@@ -140,6 +140,7 @@ export default function ProductDetailView({
   const productCategory = (product.categoria as any)?.nombre || product.category || 'GENERAL_STUFF';
   const metodosEntrega = tienda?.metodosEntrega ?? [];
   const metodosPago = tienda?.metodosPago ?? [];
+  const isDarkMode = theme?.modoOscuro ?? false;
 
   return (
     <div className="bg-black min-h-screen text-white pb-20">
@@ -280,48 +281,67 @@ export default function ProductDetailView({
               </button>
             </div>
 
-            {/* Logistics info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-10 border-t border-zinc-900">
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-black uppercase text-zinc-600 tracking-widest font-syncopate">
-                  LOGISTICS
+            <div className="flex flex-col gap-12 pt-10 border-t border-zinc-900">
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-black uppercase text-zinc-600 tracking-[0.3em] font-syncopate">
+                  LOGISTICS_NETWORK
                 </h4>
                 {metodosEntrega.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-4">
                     {metodosEntrega.map((me) => (
-                      <MetodoChip
+                      <div
                         key={me.metodoEntrega.id}
-                        nombre={me.metodoEntrega.nombre}
-                        backgroundColor="transparent"
-                        borderColor="#18181b"
-                        textColor="#a1a1aa"
-                      />
+                        className="flex items-center gap-4 p-4 bg-zinc-950 border border-zinc-900 hover:border-red-600 transition-colors group"
+                      >
+                        <MetodoChip
+                          nombre={me.metodoEntrega.nombre}
+                          backgroundColor="transparent"
+                          borderColor="transparent"
+                          textColor="#a1a1aa"
+                          preferSVG={true}
+                          isDarkMode={true}
+                          iconSize={26}
+                          style={{
+                            padding: 0,
+                            border: 'none',
+                          }}
+                        />
+                      </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-[9px] text-zinc-800 font-black">NO_LOGISTICS_CONFIGURED</p>
+                  <p className="text-[9px] text-zinc-800 font-black">DATA_NOT_FOUND</p>
                 )}
               </div>
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-black uppercase text-zinc-600 tracking-widest font-syncopate">
-                  TRANSACTION_METHODS
+              <div className="space-y-6">
+                <h4 className="text-[10px] font-black uppercase text-zinc-600 tracking-[0.3em] font-syncopate">
+                  TRANSACTION_LAYERS
                 </h4>
                 {metodosPago.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-4">
                     {metodosPago.map((mp) => (
-                      <MetodoChip
+                      <div
                         key={mp.metodoPago.id}
-                        nombre={mp.metodoPago.nombre}
-                        backgroundColor="transparent"
-                        borderColor="#18181b"
-                        textColor="#a1a1aa"
-                      />
+                        className="flex items-center gap-4 p-4 bg-zinc-950 border border-zinc-900 hover:border-red-600 transition-colors"
+                      >
+                        <MetodoChip
+                          nombre={mp.metodoPago.nombre}
+                          backgroundColor="transparent"
+                          borderColor="transparent"
+                          textColor="#a1a1aa"
+                          preferSVG={true}
+                          isDarkMode={true}
+                          iconSize={26}
+                          style={{
+                            padding: 0,
+                            border: 'none',
+                          }}
+                        />
+                      </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-[9px] text-zinc-800 font-black">
-                    NO_PAYMENT_METHODS_SUPPORTED
-                  </p>
+                  <p className="text-[9px] text-zinc-800 font-black">ACCESS_DENIED_METHODS</p>
                 )}
               </div>
             </div>

@@ -9,11 +9,12 @@ interface AccountViewProps {
 
 export default function AccountView({ onBack, onLogout }: AccountViewProps) {
   const cliente = useAuthSessionStore((state) => state.cliente);
+  const token = useAuthSessionStore((state) => state.token);
 
   const { data: pedidos = [], isLoading, isError } = useQuery<any[]>({
     queryKey: ['misPedidos', cliente?.id],
-    queryFn: () => (cliente ? getMisPedidos(cliente.id) : Promise.resolve([])),
-    enabled: !!cliente?.id,
+    queryFn: () => getMisPedidos(),
+    enabled: !!token && !!cliente?.id,
     staleTime: 1000 * 60 * 5,
   });
 

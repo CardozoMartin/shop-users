@@ -87,6 +87,13 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
   const resolvedAccent = accent || themeConfig?.primary || '#f97316';
   const isDark = themeConfig?.modoOscuro ?? false;
   const cssVars = useMemo(() => buildCssVars(isDark, resolvedAccent), [isDark, resolvedAccent]);
+  const theme = useMemo(
+    () => ({
+      ...THEME,
+      modoOscuro: isDark,
+    }),
+    [isDark]
+  );
 
   // ── Stores ────────────────────────────────────────────────
   const { setTiendaId } = useTiendaIDStore();
@@ -212,7 +219,7 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
                   onBack={() => setSelectedProduct(null)}
                   onCart={addToCart}
                   tienda={mergedTienda}
-                  theme={THEME}
+                  theme={theme}
                   onLogin={() => navigateTo('auth')}
                 />
               ) : (

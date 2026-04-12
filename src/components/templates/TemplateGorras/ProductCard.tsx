@@ -65,27 +65,27 @@ export default function ProductCard({
         <button
           onClick={handleAddToCart}
           className="absolute bottom-3 right-3 w-10 h-10 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 active:scale-95 z-10"
-          style={{ 
-            background: ACENTO, 
+          style={{
+            background: ACENTO,
             color: BTN_TXT,
-            boxShadow: `0 4px 12px ${ACENTO}40`
+            boxShadow: `0 4px 12px ${ACENTO}40`,
           }}
           title="Agregar al carrito"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
         </button>
-
-        {/* Hover CTA Overlay (Solo para detalle) */}
-        <div
-          className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-        >
-           <span className="bg-white/90 px-4 py-2 rounded-full text-[.6rem] font-bold uppercase tracking-widest text-black shadow-sm">
-             Ver Detalles
-           </span>
-        </div>
 
         {/* Badge destacado */}
         {p.destacado && (
@@ -150,6 +150,34 @@ export default function ProductCard({
             >
               ${Number(p.precio).toLocaleString()}
             </p>
+          )}
+        </div>
+
+        <div className="mt-3 flex flex-col gap-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(p);
+            }}
+            className="w-full py-2 rounded border border-[var(--gor-border)] bg-transparent text-[.75rem] font-bold tracking-[.12em] uppercase"
+            style={{
+              color: TXT,
+              fontFamily: "'DM Sans',sans-serif",
+            }}
+          >
+            Ver producto
+          </button>
+          {onAddToCart && (
+            <button
+              onClick={handleAddToCart}
+              className="w-full py-2 rounded bg-[var(--gor-acento)] text-[.75rem] font-bold tracking-[.12em] uppercase"
+              style={{
+                color: BTN_TXT,
+                fontFamily: "'DM Sans',sans-serif",
+              }}
+            >
+              Agregar al carrito
+            </button>
           )}
         </div>
       </div>

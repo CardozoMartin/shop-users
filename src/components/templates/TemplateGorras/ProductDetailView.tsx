@@ -149,6 +149,7 @@ const ProductDetailView = ({
 
   const metodosEntrega = tienda?.metodosEntrega ?? [];
   const metodosPago = tienda?.metodosPago ?? [];
+  const isDarkMode = theme?.modoOscuro ?? false;
 
   return (
     <div className="px-6 py-12 min-h-[80vh] flex flex-col" style={{ background: 'var(--gor-bg)' }}>
@@ -377,75 +378,85 @@ const ProductDetailView = ({
             </div>
 
             <div
-              className="mt-auto pt-8 flex flex-col gap-6"
+              className="mt-6 pt-10 flex flex-col gap-10"
               style={{ borderTop: `1.5px solid ${border}` }}
             >
-              <div>
-                <h4
-                  className="text-[.9rem] font-bold mb-3"
-                  style={{ color: txt, fontFamily: "'DM Sans',sans-serif" }}
-                >
-                  Métodos de Envío
-                </h4>
+              <div className="flex flex-col gap-5">
+                <div className="flex items-center gap-2">
+                  <h4
+                    className="text-[.85rem] font-bold uppercase tracking-widest"
+                    style={{ color: txt, fontFamily: "'DM Sans',sans-serif" }}
+                  >
+                    Envío y Entregas
+                  </h4>
+                </div>
                 {metodosEntrega.length > 0 ? (
-                  <div className="flex flex-wrap gap-2.5">
+                  <div className="flex flex-wrap gap-3">
                     {metodosEntrega.map((me) => (
                       <div
                         key={me.metodoEntrega.id}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
-                        style={{ background: surface2 }}
+                        className="group flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
+                        style={{ background: surface2, border: `1px solid ${border}` }}
                       >
                         <MetodoChip
                           nombre={me.metodoEntrega.nombre}
-                          borderColor={border}
-                          backgroundColor={surface2}
+                          borderColor="transparent"
+                          backgroundColor="transparent"
                           textColor={txt}
-                          style={{ border: 'none' }}
+                          preferSVG={true}
+                          isDarkMode={theme?.modoOscuro}
+                          iconSize={28}
+                          style={{ padding: 0, border: 'none' }}
                         />
                       </div>
                     ))}
                   </div>
                 ) : (
                   <p
-                    className="text-sm"
+                    className="text-[.8rem] opacity-60"
                     style={{ color: muted, fontFamily: "'DM Sans',sans-serif" }}
                   >
-                    El dueño de la tienda no ingresó los métodos de entrega.
+                    No hay métodos de entrega configurados.
                   </p>
                 )}
               </div>
 
-              <div>
-                <h4
-                  className="text-[.9rem] font-bold mb-3"
-                  style={{ color: txt, fontFamily: "'DM Sans',sans-serif" }}
-                >
-                  Medios de Pago
-                </h4>
+              <div className="flex flex-col gap-5">
+                <div className="flex items-center gap-2">
+                  <h4
+                    className="text-[.85rem] font-bold uppercase tracking-widest"
+                    style={{ color: txt, fontFamily: "'DM Sans',sans-serif" }}
+                  >
+                    Formas de Pago
+                  </h4>
+                </div>
                 {metodosPago.length > 0 ? (
-                  <div className="flex flex-wrap gap-2.5">
+                  <div className="flex flex-wrap gap-3">
                     {metodosPago.map((mp) => (
                       <div
                         key={mp.metodoPago.id}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
-                        style={{ background: surface2 }}
+                        className="group flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 hover:scale-[1.02]"
+                        style={{ background: surface2, border: `1px solid ${border}` }}
                       >
                         <MetodoChip
                           nombre={mp.metodoPago.nombre}
-                          borderColor={border}
-                          backgroundColor={surface2}
+                          borderColor="transparent"
+                          backgroundColor="transparent"
                           textColor={txt}
-                          style={{ border: 'none' }}
+                          preferSVG={true}
+                          isDarkMode={theme?.modoOscuro}
+                          iconSize={28}
+                          style={{ padding: 0, border: 'none' }}
                         />
                       </div>
                     ))}
                   </div>
                 ) : (
                   <p
-                    className="text-sm"
+                    className="text-[.8rem] opacity-60"
                     style={{ color: muted, fontFamily: "'DM Sans',sans-serif" }}
                   >
-                    El dueño de la tienda no ingresó los métodos de pago.
+                    No hay métodos de pago configurados.
                   </p>
                 )}
               </div>

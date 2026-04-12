@@ -40,17 +40,6 @@ const CartDrawer = ({
 
   const handleConfirmar = () => {
     if (!items.length) return;
-    let msj = `¡Hola! Quiero confirmar mi pedido:\n\n`;
-    items.forEach((item: CarritoItem) => {
-      const varText = (item as any).variante ? ` (${(item as any).variante.nombre})` : '';
-      msj += `- ${item.cantidad}x ${item.producto?.nombre}${varText} ($${(Number(item.precioUnit) * item.cantidad).toLocaleString()})\n`;
-    });
-    msj += `\nSubtotal: $${subtotal.toLocaleString()}`;
-    msj += `\nEnvío: $${ship === 0 ? 'Gratis' : ship.toLocaleString()}`;
-    msj += `\n*TOTAL: $${total.toLocaleString()}*\n\n`;
-    msj += `Espero confirmación. ¡Muchas gracias!`;
-    const numeroStr = tienda?.whatsapp?.toString().replace(/\D/g, '') || '5493812345678';
-    window.open(`https://wa.me/${numeroStr}?text=${encodeURIComponent(msj)}`, '_blank');
     onConfirmar();
   };
 

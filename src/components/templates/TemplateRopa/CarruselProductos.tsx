@@ -90,7 +90,7 @@ export default function CarruselProductos({
           onMouseMove={onMov}
           onMouseUp={onUp}
           onMouseLeave={onUp}
-          className="vt-scroll flex gap-4 overflow-x-auto max-w-full px-8 pt-4 pb-8 select-none"
+          className="flex gap-4 overflow-x-auto max-w-full px-8 pt-4 pb-8 select-none"
           style={{
             cursor: isDrag ? 'grabbing' : 'grab',
             scrollbarWidth: 'none',
@@ -101,7 +101,9 @@ export default function CarruselProductos({
               key={p.id}
               onMouseEnter={() => setHov(i)}
               onMouseLeave={() => setHov(null)}
-              onClick={() => { if (!isDrag) onSelect(p); }}
+              onClick={() => {
+                if (!isDrag) onSelect(p);
+              }}
               className="shrink-0 w-[260px] flex flex-col cursor-pointer"
             >
               {/* Image */}
@@ -116,27 +118,6 @@ export default function CarruselProductos({
                   style={{ transform: hov === i ? 'scale(1.05)' : 'scale(1)' }}
                 />
 
-                {/* Overlay */}
-                <div
-                  className="absolute inset-0 flex flex-col justify-end p-3.5 transition-opacity duration-300"
-                  style={{
-                    background: 'linear-gradient(to top, rgba(20,20,20,.7) 0%, transparent 55%)',
-                    opacity: hov === i ? 1 : 0,
-                  }}
-                >
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onCart(p, 1); }}
-                    className="w-full py-2.5 border-none rounded cursor-pointer text-[.65rem] font-bold tracking-[.1em] uppercase"
-                    style={{
-                      background: 'var(--rop-acento)',
-                      color: 'var(--rop-btn-txt)',
-                      fontFamily: "'Outfit',sans-serif",
-                    }}
-                  >
-                    Agregar al carrito
-                  </button>
-                </div>
-
                 {/* Badge */}
                 {p.destacado && (
                   <span
@@ -146,6 +127,36 @@ export default function CarruselProductos({
                     Destacado
                   </span>
                 )}
+              </div>
+
+              {/* Actions */}
+              <div className="mt-3 flex flex-col gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(p);
+                  }}
+                  className="w-full py-2 rounded border border-[var(--rop-border)] bg-transparent text-[.75rem] font-bold tracking-[.12em] uppercase"
+                  style={{
+                    color: 'var(--rop-dark)',
+                    fontFamily: "'Outfit',sans-serif",
+                  }}
+                >
+                  Ver producto
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCart(p, 1);
+                  }}
+                  className="w-full py-2 rounded bg-[var(--rop-acento)] text-[.75rem] font-bold tracking-[.12em] uppercase"
+                  style={{
+                    color: 'var(--rop-btn-txt)',
+                    fontFamily: "'Outfit',sans-serif",
+                  }}
+                >
+                  Agregar al carrito
+                </button>
               </div>
 
               {/* Info */}
@@ -164,7 +175,10 @@ export default function CarruselProductos({
                 </p>
                 <div className="flex items-baseline gap-1.5">
                   {p.precioOferta && Number(p.precioOferta) > 0 && (
-                    <span className="text-[.68rem] line-through" style={{ color: 'var(--rop-subtle)' }}>
+                    <span
+                      className="text-[.68rem] line-through"
+                      style={{ color: 'var(--rop-subtle)' }}
+                    >
                       ${Number(p.precio).toLocaleString()}
                     </span>
                   )}
@@ -172,7 +186,10 @@ export default function CarruselProductos({
                     className="text-[1.2rem] tracking-[.04em]"
                     style={{
                       fontFamily: "'Bebas Neue',sans-serif",
-                      color: p.precioOferta && Number(p.precioOferta) > 0 ? 'var(--rop-acento)' : 'var(--rop-dark)',
+                      color:
+                        p.precioOferta && Number(p.precioOferta) > 0
+                          ? 'var(--rop-acento)'
+                          : 'var(--rop-dark)',
                     }}
                   >
                     ${Number(p.precioOferta || p.precio).toLocaleString()}
