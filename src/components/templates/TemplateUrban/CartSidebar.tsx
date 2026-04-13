@@ -1,3 +1,4 @@
+import { motion, AnimatePresence } from 'framer-motion';
 import type { CarritoItem } from './Types';
 
 export default function CartSidebar({
@@ -24,7 +25,7 @@ export default function CartSidebar({
         />
       )}
       <div
-        className="fixed top-0 right-0 h-full w-full max-w-md bg-zinc-950 z-[100] flex flex-col border-l-4 border-red-600 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(.22,1,.36,1)]"
+        className="fixed top-0 right-0 h-full w-full max-w-md bg-zinc-950/80 backdrop-blur-2xl z-[100] flex flex-col border-l-4 border-red-600 shadow-2xl transition-transform duration-500 ease-[cubic-bezier(.22,1,.36,1)]"
         style={{ transform: open ? 'translateX(0)' : 'translateX(100%)' }}
       >
         <div className="flex items-center justify-between px-8 py-6 border-b border-zinc-900">
@@ -41,17 +42,32 @@ export default function CartSidebar({
 
         <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
           {cart.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full text-zinc-700 gap-6">
-              <div className="w-20 h-20 border-4 border-zinc-900 rounded-full flex items-center justify-center opacity-30">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="flex flex-col items-center justify-center h-full text-zinc-700 gap-6"
+            >
+              <motion.div 
+                animate={{ y: [0, -10, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                className="w-20 h-20 border-4 border-zinc-900 rounded-full flex items-center justify-center opacity-30"
+              >
                 <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-              </div>
+              </motion.div>
               <p className="uppercase tracking-[0.4em] text-[10px] font-black opacity-40">Tu carrito está vacío</p>
-            </div>
+            </motion.div>
           )}
           {cart.map((item) => (
-            <div key={item.id} className="flex gap-5 bg-zinc-900 border border-zinc-800 p-4 transition-all hover:border-zinc-700 group">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              key={item.id} 
+              className="flex gap-5 bg-zinc-900/50 backdrop-blur-sm border border-zinc-800 p-4 transition-all hover:border-zinc-700 hover:bg-zinc-900 group"
+            >
               <div className="w-20 h-20 overflow-hidden bg-black flex-shrink-0">
                 <img
                   src={item.producto?.imagenPrincipalUrl || item.producto?.imagenUrl || 'https://via.placeholder.com/80'}
@@ -76,7 +92,7 @@ export default function CartSidebar({
               >
                 ×
               </button>
-            </div>
+            </motion.div>
           ))}
         </div>
 

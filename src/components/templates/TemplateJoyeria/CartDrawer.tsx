@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+
 export default function CartDrawer({
   items,
   onClose,
@@ -84,7 +86,10 @@ export default function CartDrawer({
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '1rem 1.5rem', opacity: isVaciando ? 0.5 : 1 }}>
           {items.length === 0 ? (
-            <div
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -94,6 +99,15 @@ export default function CartDrawer({
                 gap: '1rem',
               }}
             >
+              <motion.div 
+                animate={{ y: [0, -8, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                style={{ padding: '1.25rem', background: 'var(--acc-surface2)', borderRadius: '50%', color: 'var(--acc-muted)' }}
+              >
+                <svg width="34" height="34" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </motion.div>
               <p style={{ fontFamily: "'Jost',sans-serif", fontSize: '.82rem', color: 'var(--acc-muted)' }}>
                 Tu carrito está vacío
               </p>
@@ -110,9 +124,9 @@ export default function CartDrawer({
                   textUnderlineOffset: '3px',
                 }}
               >
-                Seguir comprando
+                Explorar colección
               </button>
-            </div>
+            </motion.div>
           ) : (
             items.map((item) => (
               <div

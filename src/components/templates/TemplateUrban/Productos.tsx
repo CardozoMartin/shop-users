@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import ProductCard from './ProductCard';
 import type { Producto } from './Types';
+import { SkeletonProductCard } from '../../shared/SkeletonProductCard';
 
 export default function Productos({
   onSelect,
@@ -34,11 +35,24 @@ export default function Productos({
 
   if (isLoading) {
     return (
-      <div className="py-20 text-center">
-        <div className="text-white text-4xl animate-pulse uppercase tracking-widest font-bebas">
-          Cargando colecciones...
+      <main id="productos" className="max-w-7xl mx-auto py-20 px-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-4">
+          <div>
+            <div className="h-10 w-64 bg-zinc-800 animate-pulse mb-2" />
+            <div className="w-16 h-1 bg-red-600 mt-2" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-8 w-20 bg-zinc-900 border border-zinc-800 animate-pulse" />
+            ))}
+          </div>
         </div>
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <SkeletonProductCard key={i} className="mb-2" imageClassName="aspect-[3/4] bg-zinc-900" />
+          ))}
+        </div>
+      </main>
     );
   }
 
