@@ -1,17 +1,19 @@
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { useLoginCliente } from '../../../hooks/useCliente';
-import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
-import { useAuthSessionStore } from '../../../store/useAuthSession';
-import type { LoginData } from './Types';
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useLoginCliente } from "../../../hooks/useCliente";
+import { useTiendaIDStore } from "../../../store/useTiendaIDStore";
+import { useAuthSessionStore } from "../../../store/useAuthSession";
+import type { LoginData } from "./Types";
+import type { CSSProperties, ReactNode } from "react";
 
-const ACENTO = 'var(--gor-acento)';
-const MUTED = 'var(--gor-muted)';
-const BTN_TXT = 'var(--gor-btn-txt)';
-const BORDER = 'var(--gor-border)';
-const SURFACE = 'var(--gor-surface)';
-const TXT = 'var(--gor-txt)';
+const ACENTO = "var(--gor-acento)";
+const MUTED = "var(--gor-muted)";
+const BTN_TXT = "var(--gor-btn-txt)";
+const BORDER = "var(--gor-border)";
+const SURFACE = "var(--gor-surface)";
+const TXT = "var(--gor-txt)";
 
+//Props ───────────────────────────────────────────────────────────────────
 interface FormLoginProps {
   tiendaNombre: string;
   onGoRegistro: () => void;
@@ -19,28 +21,43 @@ interface FormLoginProps {
   onLoginSuccess: () => void;
 }
 
-export default function FormLogin({ tiendaNombre, onGoRegistro, onGoOlvide, onLoginSuccess }: FormLoginProps) {
+export default function FormLogin({
+  tiendaNombre,
+  onGoRegistro,
+  onGoOlvide,
+  onLoginSuccess,
+}: FormLoginProps) {
+  //Acceso a tiendaId y token desde stores
   const { tiendaId } = useTiendaIDStore();
   const token = useAuthSessionStore((state) => state.token);
 
+  //Redirigir al dashboard si ya hay token (sesión activa)
   useEffect(() => {
     if (token) {
       onLoginSuccess();
     }
   }, [token, onLoginSuccess]);
 
+  //RHF para manejo de formulario y validaciones
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginData>({ mode: 'onBlur' });
+  } = useForm<LoginData>({ mode: "onBlur" });
 
+  //TQUERY para manejar el login - Peticion
   const { mutate: postLogin, isPending } = useLoginCliente();
 
+  //Handler para submit del formulario
   const handleSubmitForm = (data: LoginData) => {
-    postLogin({ email: data.email, password: data.password, tiendaId: tiendaId! });
+    postLogin({
+      email: data.email,
+      password: data.password,
+      tiendaId: tiendaId!,
+    });
   };
 
+  //Renderizado del formulario
   return (
     <div className="flex flex-col">
       {/* Descripción */}
@@ -48,7 +65,7 @@ export default function FormLogin({ tiendaNombre, onGoRegistro, onGoOlvide, onLo
         className="text-[.95rem] leading-[1.6] mb-8"
         style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
       >
-        Bienvenido de nuevo a{' '}
+        Bienvenido de nuevo a{" "}
         <strong className="font-bold" style={{ color: ACENTO }}>
           {tiendaNombre}
         </strong>
@@ -57,11 +74,15 @@ export default function FormLogin({ tiendaNombre, onGoRegistro, onGoOlvide, onLo
 
       {/* Campos */}
       <div className="flex flex-col gap-4 mb-2">
+        {/* Email */}
         <FieldGroup label="Email" error={errors.email?.message}>
           <input
-            {...register('email', {
-              required: 'El email es requerido',
-              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Email inválido' },
+            {...register("email", {
+              required: "El email es requerido",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Email inválido",
+              },
             })}
             type="email"
             placeholder="tucorreo@email.com"
@@ -69,10 +90,12 @@ export default function FormLogin({ tiendaNombre, onGoRegistro, onGoOlvide, onLo
             style={fieldStyle(!!errors.email)}
           />
         </FieldGroup>
-
+        {/* Contraseña */}
         <FieldGroup label="Contraseña" error={errors.password?.message}>
           <input
-            {...register('password', { required: 'La contraseña es requerida' })}
+            {...register("password", {
+              required: "La contraseña es requerida",
+            })}
             type="password"
             placeholder="••••••••"
             className="w-full px-4 py-3 rounded-lg text-[.88rem] outline-none transition-colors duration-200"
@@ -101,17 +124,17 @@ export default function FormLogin({ tiendaNombre, onGoRegistro, onGoOlvide, onLo
         style={{
           background: isPending ? `${ACENTO}80` : ACENTO,
           color: BTN_TXT,
-          cursor: isPending ? 'not-allowed' : 'pointer',
+          cursor: isPending ? "not-allowed" : "pointer",
           fontFamily: "'DM Sans',sans-serif",
         }}
         onMouseEnter={(e) => {
-          if (!isPending) e.currentTarget.style.opacity = '.85';
+          if (!isPending) e.currentTarget.style.opacity = ".85";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.opacity = '1';
+          e.currentTarget.style.opacity = "1";
         }}
       >
-        {isPending ? 'Ingresando...' : 'Ingresar'}
+        {isPending ? "Ingresando..." : "Ingresar"}
       </button>
 
       {/* Link a registro */}
@@ -119,7 +142,7 @@ export default function FormLogin({ tiendaNombre, onGoRegistro, onGoOlvide, onLo
         className="text-[.85rem] text-center mt-7"
         style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
       >
-        ¿No tenés cuenta?{' '}
+        ¿No tenés cuenta?{" "}
         <button
           onClick={onGoRegistro}
           className="bg-transparent border-none text-[.85rem] font-semibold cursor-pointer p-0 underline"
@@ -132,26 +155,26 @@ export default function FormLogin({ tiendaNombre, onGoRegistro, onGoOlvide, onLo
   );
 }
 
-// ── HELPERS ───────────────────────────────────────────────────
+//HELPERS───────────────────────────────────────────────────
 
-// Solo el borde es dinámico, el resto va en className del input
-function fieldStyle(hasError: boolean): React.CSSProperties {
+//Tipos internos────────────────────────────────────────────
+
+interface FieldGroupProps {
+  label: string;
+  error?: string;
+  children: ReactNode;
+}
+
+//Estilo dinámico del input: solo el borde cambia según estado de error */
+function fieldStyle(hasError: boolean): CSSProperties {
   return {
-    border: `1.5px solid ${hasError ? '#ef4444' : BORDER}`,
+    border: `1.5px solid ${hasError ? "#ef4444" : BORDER}`,
     background: SURFACE,
     color: TXT,
   };
 }
 
-function FieldGroup({
-  label,
-  error,
-  children,
-}: {
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
+function FieldGroup({ label, error, children }: FieldGroupProps) {
   return (
     <div className="flex flex-col gap-1.5">
       <label
@@ -162,7 +185,10 @@ function FieldGroup({
       </label>
       {children}
       {error && (
-        <span className="text-[.7rem] text-red-500" style={{ fontFamily: "'DM Sans',sans-serif" }}>
+        <span
+          className="text-[.7rem] text-red-500"
+          style={{ fontFamily: "'DM Sans',sans-serif" }}
+        >
           {error}
         </span>
       )}

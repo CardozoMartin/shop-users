@@ -1,143 +1,178 @@
-// Productos.tsx
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  useStorefrontCategorias,
-  useStorefrontNormales,
-} from '../../../hooks/useStorefrontProducts';
+import {useStorefrontCategorias,useStorefrontNormales,} from '../../../hooks/useStorefrontProducts';
 import ProductCard from './ProductCard';
 import type { CategoriaProducto, Producto } from './Types';
 
-const BG = 'var(--gor-bg)';
-const ACENTO = 'var(--gor-acento)';
-const BORDER = 'var(--gor-border)';
-const SURFACE = 'var(--gor-surface)';
-const TXT = 'var(--gor-txt)';
-const MUTED = 'var(--gor-muted)';
-const SUBTLE = 'var(--gor-subtle)';
+// ─── Tokens de tema ───────────────────────────────────────────────────────────
+// Variables CSS del tema de la tienda, definidas como constantes para evitar
+// strings hardcodeados dispersos en el JSX.
+
+const tema = {
+  bg:      'var(--gor-bg)',
+  acento:  'var(--gor-acento)',
+  border:  'var(--gor-border)',
+  surface: 'var(--gor-surface)',
+  txt:     'var(--gor-txt)',
+  muted:   'var(--gor-muted)',
+  subtle:  'var(--gor-subtle)',
+} as const;
+
+//Tipos────────────────────────────────────────────────────────────────────
 
 interface Props {
-  onSelect: (p: Producto) => void;
-  onCart?: (p: Producto) => void;
+  onSelect: (producto: Producto) => void;
+  onCart?: (producto: Producto) => void;
   onViewAll?: () => void;
   tiendaId?: number;
 }
 
+// Filtro de categoría: puede ser "Todo" o el id de una categoría específica
+type FiltroCategoriaId = number | 'Todo';
+
+// Helper──────────────────────────────────────────────────────────────────
+
+function resolverCategoriaPadreActiva(
+  categoriaSeleccionadaId: FiltroCategoriaId,
+  categorias: CategoriaProducto[]
+): number | null {
+  if (categoriaSeleccionadaId === 'Todo') return null;
+
+  const categoriaSeleccionada = categorias.find((c) => c.id === categoriaSeleccionadaId);
+  if (!categoriaSeleccionada) return null;
+
+  return categoriaSeleccionada.padreId ?? categoriaSeleccionada.id;
+}
+//Componente principal─────────────────────────────────────────────────────
+
 export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Props) {
-  const [cat, setCat] = useState<number | 'Todo'>('Todo');
-  const [busqueda, setBusqueda] = useState('');
-  const [busquedaFiltro, setBusquedaFiltro] = useState('');
-  const [visibleCount, setVisibleCount] = useState(12);
+  //Estado───────────────────────────────────────────────────────────────
+
+  const [categoriaFiltro, setCategoriaFiltro] = useState<FiltroCategoriaId>('Todo');
+  const [busquedaInput, setBusquedaInput]     = useState('');   
+  const [busquedaAplicada, setBusquedaAplicada] = useState(''); 
+  const [productosVisibles, setProductosVisibles] = useState(12);
+
+  //Datos de categorías──────────────────────────────────────────────────
 
   const { data: categoriasData } = useStorefrontCategorias(tiendaId ?? 0);
-  const categorias = categoriasData || [];
+  const categorias: CategoriaProducto[] = categoriasData || [];
 
-  const categoriasPrincipales = categorias.filter((c: CategoriaProducto) => !c.padreId);
-  
-  let activeParentId: number | null = null;
-  if (cat !== 'Todo') {
-    const selectedCat = categorias.find((c: CategoriaProducto) => c.id === cat);
-    if (selectedCat) {
-      activeParentId = selectedCat.padreId ? selectedCat.padreId : selectedCat.id;
-    }
-  }
+  const categoriasPrincipales = categorias.filter((c) => !c.padreId);
 
-  const subcategoriasVisibles = activeParentId 
-    ? categorias.filter((c: CategoriaProducto) => c.padreId === activeParentId)
+  const categoriaPadreActivaId = resolverCategoriaPadreActiva(categoriaFiltro, categorias);
+
+  // Subcategorías del padre activo, para mostrar como chips secundarios
+  const subcategoriasDePadreActivo = categoriaPadreActivaId
+    ? categorias.filter((c) => c.padreId === categoriaPadreActivaId)
     : [];
 
+  //Datos de productos───────────────────────────────────────────────────
+
   const { data: productosData, isLoading } = useStorefrontNormales(tiendaId ?? 0, {
-    categoriaId: cat !== 'Todo' ? cat : undefined,
-    busqueda: busquedaFiltro.trim() !== '' ? busquedaFiltro : undefined,
+    categoriaId: categoriaFiltro !== 'Todo' ? categoriaFiltro : undefined,
+    busqueda: busquedaAplicada.trim() !== '' ? busquedaAplicada : undefined,
   });
 
-  const allProductos = productosData?.datos || [];
-  const productos = allProductos.slice(0, visibleCount);
+  const todosLosProductos: Producto[] = productosData?.datos || [];
+  const productosPaginados = todosLosProductos.slice(0, productosVisibles);
+  const hayMasProductos = todosLosProductos.length > productosVisibles;
 
-  const handleCat = (id: number | 'Todo') => {
-    setCat(id);
-    setVisibleCount(12);
+  //Handlers────────────────────────────────────────────────────────────
+
+  const handleCambiarCategoria = (id: FiltroCategoriaId) => {
+    setCategoriaFiltro(id);
+    // resetear paginación al cambiar categoría
+    setProductosVisibles(12); 
   };
 
+  const handleSubmitBusqueda = (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusquedaAplicada(busquedaInput);
+    setProductosVisibles(12);
+  };
+
+  //Render───────────────────────────────────────────────────────────────
+
   return (
-    <section className="px-6 py-[4.5rem]" style={{ background: BG }}>
+    <section className="px-6 py-[4.5rem]" style={{ background: tema.bg }}>
       <div className="max-w-[1060px] mx-auto">
-        {/* Header */}
+
+        {/* ── Encabezado ── */}
         <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
           <h2
             className="font-bold"
             style={{
               fontFamily: "'Playfair Display',serif",
               fontSize: 'clamp(1.8rem,3.5vw,2.8rem)',
-              color: TXT,
+              color: tema.txt,
             }}
           >
             Toda la{' '}
-            <em className="italic font-normal" style={{ color: ACENTO }}>
+            <em className="italic font-normal" style={{ color: tema.acento }}>
               Colección
             </em>
           </h2>
           <span
             className="text-[.72rem]"
-            style={{ color: SUBTLE, fontFamily: "'DM Sans',sans-serif" }}
+            style={{ color: tema.subtle, fontFamily: "'DM Sans',sans-serif" }}
           >
-            {productos.length} productos
+            {productosPaginados.length} productos
           </span>
         </div>
 
-        {/* Filtros */}
+        {/*Filtros*/}
         <div className="flex flex-col gap-4 mb-8">
-          {/* Búsqueda */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setBusquedaFiltro(busqueda);
-              setVisibleCount(12);
-            }}
-            className="flex gap-2 w-full max-w-[400px]"
-          >
+
+          {/* Buscador */}
+          <form onSubmit={handleSubmitBusqueda} className="flex gap-2 w-full max-w-[400px]">
             <input
               type="text"
               placeholder="Buscar productos..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
+              value={busquedaInput}
+              onChange={(e) => setBusquedaInput(e.target.value)}
               className="flex-1 px-4 py-2.5 rounded-full text-[.85rem] outline-none transition-colors duration-300"
               style={{
-                border: `1.5px solid ${BORDER}`,
-                background: SURFACE,
-                color: TXT,
+                border: `1.5px solid ${tema.border}`,
+                background: tema.surface,
+                color: tema.txt,
                 fontFamily: "'DM Sans',sans-serif",
               }}
-              onFocus={(e) => (e.target.style.borderColor = ACENTO)}
-              onBlur={(e) => (e.target.style.borderColor = BORDER)}
+              onFocus={(e) => (e.target.style.borderColor = tema.acento)}
+              onBlur={(e)  => (e.target.style.borderColor = tema.border)}
             />
             <button
               type="submit"
               className="px-5 rounded-full text-[.85rem] font-semibold border-none cursor-pointer text-white transition-opacity duration-200 hover:opacity-85"
-              style={{ background: ACENTO, fontFamily: "'DM Sans',sans-serif" }}
+              style={{ background: tema.acento, fontFamily: "'DM Sans',sans-serif" }}
             >
               Buscar
             </button>
           </form>
 
-          {/* Chips de categoría */}
+          {/* Chips de categorías principales */}
           <div className="flex flex-col gap-3">
             <div className="flex gap-1.5 flex-wrap">
-              {(['Todo', ...categoriasPrincipales] as Array<'Todo' | CategoriaProducto>).map((c) => {
-                const id = c === 'Todo' ? 'Todo' : c.id;
-                const label = c === 'Todo' ? 'Todo' : c.nombre;
-                const active = id === cat || id === activeParentId;
+              {(['Todo', ...categoriasPrincipales] as Array<'Todo' | CategoriaProducto>).map((item) => {
+                const id    = item === 'Todo' ? 'Todo' : item.id;
+                const label = item === 'Todo' ? 'Todo' : item.nombre;
+
+                // Un chip de categoría principal se marca activo si:
+                // - es el ítem directamente seleccionado, o
+                // - es el padre de la subcategoría actualmente seleccionada
+                const estaActivo = id === categoriaFiltro || id === categoriaPadreActivaId;
+
                 return (
                   <button
                     key={id}
-                    onClick={() => handleCat(id)}
-                    className="px-4 py-1.5 rounded-full text-[.72rem] cursor-pointer transition-all duration-200 border-none relative overflow-hidden"
+                    onClick={() => handleCambiarCategoria(id)}
+                    className="px-4 py-1.5 rounded-full text-[.72rem] cursor-pointer transition-all duration-200 border-none"
                     style={{
-                      border: `1.5px solid ${active ? ACENTO : BORDER}`,
-                      background: active ? `${ACENTO}14` : 'transparent',
-                      color: active ? ACENTO : MUTED,
-                      fontWeight: active ? 600 : 400,
-                      fontFamily: "'DM Sans',sans-serif",
+                      border:      `1.5px solid ${estaActivo ? tema.acento : tema.border}`,
+                      background:  estaActivo ? `${tema.acento}14` : 'transparent',
+                      color:       estaActivo ? tema.acento : tema.muted,
+                      fontWeight:  estaActivo ? 600 : 400,
+                      fontFamily:  "'DM Sans',sans-serif",
                     }}
                   >
                     {label}
@@ -145,47 +180,49 @@ export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Pro
                 );
               })}
             </div>
-            
-            {/* Chips de subcategoría */}
+
+            {/* Chips de subcategorías (solo cuando hay padre activo) */}
             <AnimatePresence>
-              {subcategoriasVisibles.length > 0 && (
+              {subcategoriasDePadreActivo.length > 0 && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden flex gap-2 flex-wrap"
                 >
+                  {/* Opción "Todos" = seleccionar la categoría padre directamente */}
                   <button
-                    onClick={() => handleCat(activeParentId!)}
+                    onClick={() => handleCambiarCategoria(categoriaPadreActivaId!)}
                     className="px-4 py-1.5 rounded-full text-[.72rem] cursor-pointer transition-all duration-200 border-none"
                     style={{
-                      border: `1.5px solid ${cat === activeParentId ? ACENTO : BORDER}`,
-                      background: cat === activeParentId ? `${ACENTO}14` : SURFACE,
-                      color: cat === activeParentId ? ACENTO : TXT,
+                      border:     `1.5px solid ${categoriaFiltro === categoriaPadreActivaId ? tema.acento : tema.border}`,
+                      background: categoriaFiltro === categoriaPadreActivaId ? `${tema.acento}14` : tema.surface,
+                      color:      categoriaFiltro === categoriaPadreActivaId ? tema.acento : tema.txt,
                       fontFamily: "'DM Sans',sans-serif",
-                      opacity: 0.9
+                      opacity: 0.9,
                     }}
                   >
                     Todos
                   </button>
-                  {subcategoriasVisibles.map((sub: CategoriaProducto) => {
-                     const isActiveSub = cat === sub.id;
-                     return (
-                       <button
-                         key={sub.id}
-                         onClick={() => handleCat(sub.id)}
-                         className="px-4 py-1.5 rounded-full text-[.72rem] cursor-pointer transition-all duration-200 border-none"
-                         style={{
-                           border: `1.5px dashed ${isActiveSub ? ACENTO : BORDER}`,
-                           background: isActiveSub ? `${ACENTO}14` : 'transparent',
-                           color: isActiveSub ? ACENTO : MUTED,
-                           fontWeight: isActiveSub ? 600 : 400,
-                           fontFamily: "'DM Sans',sans-serif",
-                         }}
-                       >
-                         {sub.nombre}
-                       </button>
-                     );
+
+                  {subcategoriasDePadreActivo.map((subcategoria) => {
+                    const estaActiva = categoriaFiltro === subcategoria.id;
+                    return (
+                      <button
+                        key={subcategoria.id}
+                        onClick={() => handleCambiarCategoria(subcategoria.id)}
+                        className="px-4 py-1.5 rounded-full text-[.72rem] cursor-pointer transition-all duration-200 border-none"
+                        style={{
+                          border:     `1.5px dashed ${estaActiva ? tema.acento : tema.border}`,
+                          background: estaActiva ? `${tema.acento}14` : 'transparent',
+                          color:      estaActiva ? tema.acento : tema.muted,
+                          fontWeight: estaActiva ? 600 : 400,
+                          fontFamily: "'DM Sans',sans-serif",
+                        }}
+                      >
+                        {subcategoria.nombre}
+                      </button>
+                    );
                   })}
                 </motion.div>
               )}
@@ -193,11 +230,11 @@ export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Pro
           </div>
         </div>
 
-        {/* Grid */}
-        {isLoading && !productos.length ? (
+        {/* Grid de productos*/}
+        {isLoading && !productosPaginados.length ? (
           <div
             className="py-16 text-center"
-            style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
+            style={{ color: tema.muted, fontFamily: "'DM Sans',sans-serif" }}
           >
             Cargando catálogo...
           </div>
@@ -206,43 +243,44 @@ export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Pro
             className="grid gap-x-7 gap-y-10"
             style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))' }}
           >
-            {productos.map((p: Producto) => (
-              <ProductCard 
-                key={p.id} 
-                producto={p} 
-                onSelect={onSelect} 
+            {productosPaginados.map((producto) => (
+              <ProductCard
+                key={producto.id}
+                producto={producto}
+                onSelect={onSelect}
                 onAddToCart={onCart}
-                showCategoria 
+                showCategoria
               />
             ))}
           </div>
         )}
 
-        {/* Ver más */}
-        {allProductos.length > visibleCount && (
+        {/*Botón "ver más" (paginación manual)*/}
+        {hayMasProductos && (
           <div className="mt-14 text-center">
             <button
               onClick={onViewAll}
               className="px-8 py-3 rounded-full text-[.75rem] font-bold tracking-widest uppercase cursor-pointer transition-all duration-200"
               style={{
-                background: SURFACE,
-                color: TXT,
-                border: `1.5px solid ${BORDER}`,
-                fontFamily: "'DM Sans',sans-serif",
+                background:  tema.surface,
+                color:       tema.txt,
+                border:      `1.5px solid ${tema.border}`,
+                fontFamily:  "'DM Sans',sans-serif",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = ACENTO;
-                e.currentTarget.style.color = ACENTO;
+                e.currentTarget.style.borderColor = tema.acento;
+                e.currentTarget.style.color = tema.acento;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = BORDER;
-                e.currentTarget.style.color = TXT;
+                e.currentTarget.style.borderColor = tema.border;
+                e.currentTarget.style.color = tema.txt;
               }}
             >
               Ver todos los productos
             </button>
           </div>
         )}
+
       </div>
     </section>
   );

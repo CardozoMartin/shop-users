@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useAuthSessionStore } from '../../../store/useAuthSession';
-import type { NavbarProps } from './Types';
+import { useEffect, useState } from "react";
+import { useAuthSessionStore } from "../../../store/useAuthSession";
+import type { NavbarProps } from "./Types";
 
 export const Navbar = ({
   cartCount,
@@ -17,10 +17,10 @@ export const Navbar = ({
   const cliente = useAuthSessionStore((s) => s.cliente);
 
   useEffect(() => {
-    const el = document.querySelector('.cz-scroll');
+    const el = document.querySelector(".cz-scroll");
     const fn = () => setScrolled((el?.scrollTop ?? 0) > 50);
-    el?.addEventListener('scroll', fn, { passive: true });
-    return () => el?.removeEventListener('scroll', fn);
+    el?.addEventListener("scroll", fn, { passive: true });
+    return () => el?.removeEventListener("scroll", fn);
   }, []);
 
   return (
@@ -28,31 +28,40 @@ export const Navbar = ({
       className="sticky top-0 z-50 h-16 flex items-center justify-between px-8 transition-all duration-300"
       style={{
         // ← dinámico: cambia con scroll y tema, no se puede con Tailwind puro
-        background: scrolled ? 'var(--gor-bg-alpha)' : 'var(--gor-bg)',
-        borderBottom: scrolled ? '1px solid var(--gor-border)' : '1px solid transparent',
-        backdropFilter: scrolled ? 'blur(10px)' : 'none',
+        background: scrolled ? "var(--gor-bg-alpha)" : "var(--gor-bg)",
+        borderBottom: scrolled
+          ? "1px solid var(--gor-border)"
+          : "1px solid transparent",
+        backdropFilter: scrolled ? "blur(10px)" : "none",
       }}
     >
       {/* Brand */}
-      <div 
+      <div
         className="flex items-center gap-2 cursor-pointer transition-opacity hover:opacity-80"
-        onClick={() => onNavigate('inicio')}
+        onClick={() => onNavigate("inicio")}
       >
         <span
           className="text-2xl font-bold font-['Playfair_Display',serif]"
-          style={{ color: 'var(--gor-txt)' }}
+          style={{ color: "var(--gor-txt)" }}
         >
           {logo ? (
-            <img src={logo} alt={titulo || 'Logo'} className="h-8 object-contain" />
+            <img
+              src={logo}
+              alt={titulo || "Logo"}
+              className="h-8 object-contain"
+            />
           ) : (
-            titulo || 'CapZone'
+            titulo || "CapZone"
           )}
         </span>
 
         {/* Badge NEW */}
         <span
           className="text-[.52rem] font-bold px-2 py-0.5 rounded-full tracking-widest uppercase"
-          style={{ background: 'var(--gor-acento)', color: 'var(--gor-btn-txt)' }}
+          style={{
+            background: "var(--gor-acento)",
+            color: "var(--gor-btn-txt)",
+          }}
         >
           NEW
         </span>
@@ -63,19 +72,26 @@ export const Navbar = ({
         {/* Links */}
         {(
           [
-            { label: 'Inicio', target: 'inicio' },
-            { label: 'Producto', target: 'producto' },
-            { label: 'Contacto', target: 'contacto' },
-            { label: 'Sobre Nosotros', target: 'sobrenosotros' },
-          ] as Array<{ label: string; target: import('./Types').NavbarTarget }>
+            { label: "Inicio", target: "inicio" },
+            { label: "Producto", target: "producto" },
+            { label: "Contacto", target: "contacto" },
+            { label: "Sobre Nosotros", target: "sobrenosotros" },
+          ] as Array<{ label: string; target: import("./Types").NavbarTarget }>
         ).map((item) => (
           <a
             key={item.target}
             href="#"
             className="text-[.78rem] font-medium tracking-wide no-underline transition-colors duration-200"
-            style={{ color: 'var(--gor-muted)', fontFamily: "'DM Sans',sans-serif" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--gor-acento)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--gor-muted)')}
+            style={{
+              color: "var(--gor-muted)",
+              fontFamily: "'DM Sans',sans-serif",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.color = "var(--gor-acento)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.color = "var(--gor-muted)")
+            }
             onClick={(e) => {
               e.preventDefault();
               onNavigate(item.target);
@@ -89,8 +105,8 @@ export const Navbar = ({
         <div
           className="flex items-center gap-1.5 rounded-full px-3.5 py-1.5"
           style={{
-            border: '1px solid var(--gor-border)',
-            background: 'var(--gor-surface)',
+            border: "1px solid var(--gor-border)",
+            background: "var(--gor-surface)",
           }}
         >
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
@@ -111,12 +127,18 @@ export const Navbar = ({
           <input
             placeholder="Buscar gorras..."
             className="bg-transparent border-none outline-none text-[.72rem] w-28"
-            style={{ color: 'var(--gor-txt)', fontFamily: "'DM Sans',sans-serif" }}
+            style={{
+              color: "var(--gor-txt)",
+              fontFamily: "'DM Sans',sans-serif",
+            }}
           />
         </div>
 
         {/* Cart */}
-        <button onClick={onCart} className="relative bg-transparent border-none cursor-pointer p-1">
+        <button
+          onClick={onCart}
+          className="relative bg-transparent border-none cursor-pointer p-1"
+        >
           <svg width="20" height="20" viewBox="0 0 14 14" fill="none">
             <path
               d="M.583.583h2.333l1.564 7.81a1.17 1.17 0 0 0 1.166.94h5.67a1.17 1.17 0 0 0 1.167-.94l.933-4.893H3.5m2.333 8.75a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0m6.417 0a.583.583 0 1 1-1.167 0 .583.583 0 0 1 1.167 0"
@@ -130,7 +152,10 @@ export const Navbar = ({
           {cartCount > 0 && (
             <span
               className="absolute -top-1 -right-1.5 text-[.52rem] font-bold w-4 h-4 rounded-full flex items-center justify-center"
-              style={{ background: 'var(--gor-acento)', color: 'var(--gor-btn-txt)' }}
+              style={{
+                background: "var(--gor-acento)",
+                color: "var(--gor-btn-txt)",
+              }}
             >
               {cartCount}
             </span>
@@ -141,13 +166,13 @@ export const Navbar = ({
         <button
           className="px-5 py-2 rounded-full text-[.72rem] font-semibold cursor-pointer border-none transition-opacity duration-200 hover:opacity-85"
           style={{
-            background: 'var(--gor-acento)',
-            color: 'var(--gor-btn-txt)',
+            background: "var(--gor-acento)",
+            color: "var(--gor-btn-txt)",
             fontFamily: "'DM Sans',sans-serif",
           }}
           onClick={cliente ? onMiCuenta : onIngresar}
         >
-          {cliente ? 'Mi cuenta' : 'Ingresar'}
+          {cliente ? "Mi cuenta" : "Ingresar"}
         </button>
       </div>
 
@@ -158,8 +183,22 @@ export const Navbar = ({
       >
         <svg width="22" height="15" viewBox="0 0 22 15" fill="none">
           <rect width="22" height="1.5" rx=".75" fill="var(--gor-txt)" />
-          <rect x="6" y="6.5" width="16" height="1.5" rx=".75" fill="var(--gor-txt)" />
-          <rect x="3" y="13" width="19" height="1.5" rx=".75" fill="var(--gor-txt)" />
+          <rect
+            x="6"
+            y="6.5"
+            width="16"
+            height="1.5"
+            rx=".75"
+            fill="var(--gor-txt)"
+          />
+          <rect
+            x="3"
+            y="13"
+            width="19"
+            height="1.5"
+            rx=".75"
+            fill="var(--gor-txt)"
+          />
         </svg>
       </button>
 
@@ -168,24 +207,30 @@ export const Navbar = ({
         <div
           className="absolute top-16 left-0 right-0 z-50 flex flex-col gap-4 px-8 py-6"
           style={{
-            background: 'var(--gor-bg)',
-            borderBottom: '1px solid var(--gor-border)',
-            boxShadow: '0 8px 24px rgba(0,0,0,.06)',
+            background: "var(--gor-bg)",
+            borderBottom: "1px solid var(--gor-border)",
+            boxShadow: "0 8px 24px rgba(0,0,0,.06)",
           }}
         >
           {(
             [
-              { label: 'Inicio', target: 'inicio' },
-              { label: 'Producto', target: 'producto' },
-              { label: 'Contacto', target: 'contacto' },
-              { label: 'Sobre Nosotros', target: 'sobrenosotros' },
-            ] as Array<{ label: string; target: import('./Types').NavbarTarget }>
+              { label: "Inicio", target: "inicio" },
+              { label: "Producto", target: "producto" },
+              { label: "Contacto", target: "contacto" },
+              { label: "Sobre Nosotros", target: "sobrenosotros" },
+            ] as Array<{
+              label: string;
+              target: import("./Types").NavbarTarget;
+            }>
           ).map((item) => (
             <a
               key={item.target}
               href="#"
               className="text-[.85rem] font-medium no-underline"
-              style={{ color: 'var(--gor-muted)', fontFamily: "'DM Sans',sans-serif" }}
+              style={{
+                color: "var(--gor-muted)",
+                fontFamily: "'DM Sans',sans-serif",
+              }}
               onClick={(e) => {
                 e.preventDefault();
                 setOpen(false);
@@ -200,12 +245,12 @@ export const Navbar = ({
             onClick={cliente ? onMiCuenta : onIngresar}
             className="self-start mt-2 px-6 py-2.5 rounded-full text-[.75rem] font-semibold cursor-pointer border-none"
             style={{
-              background: 'var(--gor-acento)',
-              color: 'var(--gor-btn-txt)',
+              background: "var(--gor-acento)",
+              color: "var(--gor-btn-txt)",
               fontFamily: "'DM Sans',sans-serif",
             }}
           >
-            {cliente ? 'Mi cuenta' : 'Ingresar'}
+            {cliente ? "Mi cuenta" : "Ingresar"}
           </button>
         </div>
       )}

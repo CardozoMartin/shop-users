@@ -1,4 +1,4 @@
-import type { IFooterProps } from './Types';
+import type { IFooterProps } from "./Types";
 
 export const Footer = ({
   instagram,
@@ -7,13 +7,13 @@ export const Footer = ({
   descripcion,
   ciudad,
   pais,
-  acento = 'var(--gor-acento)',
+  acento = "var(--gor-acento)",
   nombreTienda,
   onNavigate,
 }: IFooterProps) => {
   const socials = [
     {
-      label: 'Instagram',
+      label: "Instagram",
       href: `https://instagram.com/${instagram}`,
       icon: (
         <svg
@@ -32,7 +32,7 @@ export const Footer = ({
       ),
     },
     {
-      label: 'Facebook',
+      label: "Facebook",
       href: `https://facebook.com/${facebook}`,
       icon: (
         <svg
@@ -49,7 +49,7 @@ export const Footer = ({
       ),
     },
     {
-      label: 'WhatsApp',
+      label: "WhatsApp",
       href: `https://wa.me/${whatsapp}`,
       icon: (
         <svg
@@ -70,16 +70,23 @@ export const Footer = ({
   return (
     <footer
       className="px-6 md:px-16 lg:px-24 xl:px-32 pt-8 w-full"
-      style={{ background: 'var(--gor-footer-bg)', color: 'rgba(255,255,255,0.5)' }}
+      style={{
+        background: "var(--gor-footer-bg)",
+        color: "rgba(255,255,255,0.5)",
+      }}
     >
       <div className="flex flex-col md:flex-row justify-between w-full gap-10 border-b border-white/10 pb-6">
         {/* Brand + descripción */}
         <div className="md:max-w-72">
           <div className="text-[1.4rem] font-bold text-white font-['Playfair_Display',serif]">
-            {(nombreTienda || '').slice(0, -4)}
-            <span style={{ color: acento }}>{(nombreTienda || '').slice(-4)}</span>
+            {(nombreTienda || "").slice(0, -4)}
+            <span style={{ color: acento }}>
+              {(nombreTienda || "").slice(-4)}
+            </span>
           </div>
-          <p className="mt-4 text-sm leading-relaxed text-white/45">{descripcion}</p>
+          <p className="mt-4 text-sm leading-relaxed text-white/45">
+            {descripcion}
+          </p>
 
           {/* Redes sociales */}
           <div className="flex gap-2 mt-5">
@@ -96,8 +103,8 @@ export const Footer = ({
                   e.currentTarget.style.color = acento;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.4)';
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.currentTarget.style.color = "rgba(255,255,255,0.4)";
                 }}
               >
                 {icon}
@@ -116,7 +123,7 @@ export const Footer = ({
             <ul className="text-sm space-y-2 list-none p-0 m-0">
               <li>
                 <button
-                  onClick={() => onNavigate?.('inicio')}
+                  onClick={() => onNavigate?.("inicio")}
                   className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
                 >
                   Inicio
@@ -124,7 +131,7 @@ export const Footer = ({
               </li>
               <li>
                 <button
-                  onClick={() => onNavigate?.('producto')}
+                  onClick={() => onNavigate?.("producto")}
                   className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
                 >
                   Catálogo
@@ -132,7 +139,7 @@ export const Footer = ({
               </li>
               <li>
                 <button
-                  onClick={() => onNavigate?.('sobrenosotros')}
+                  onClick={() => onNavigate?.("sobrenosotros")}
                   className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
                 >
                   Sobre Nosotros
@@ -140,7 +147,7 @@ export const Footer = ({
               </li>
               <li>
                 <button
-                  onClick={() => onNavigate?.('contacto')}
+                  onClick={() => onNavigate?.("contacto")}
                   className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
                 >
                   Contacto
@@ -189,10 +196,10 @@ export const Footer = ({
 
       {/* Copyright */}
       <p className="pt-4 text-center text-xs pb-5 text-white/20">
-        © {new Date().getFullYear()}{' '}
+        © {new Date().getFullYear()}{" "}
         <span style={{ color: acento }} className="opacity-80">
           {nombreTienda}
-        </span>{' '}
+        </span>{" "}
         — Todos los derechos reservados.
       </p>
     </footer>
