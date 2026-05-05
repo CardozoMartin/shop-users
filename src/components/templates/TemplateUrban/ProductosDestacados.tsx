@@ -29,7 +29,30 @@ export default function ProductosDestacados({
   );
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  if (isLoading || featuredProducts.length === 0) return null;
+  if (isLoading) return null;
+
+  if (featuredProducts.length === 0) {
+    return (
+      <section className="bg-black py-24 border-y border-zinc-900">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
+            <div>
+              <h2 className="text-white text-7xl font-black leading-none uppercase font-bebas">
+                DROP <span style={{ color: acento }}>DESTACADO</span>
+              </h2>
+              <div className="w-32 h-1.5 bg-red-600 mt-4" style={{ backgroundColor: acento }} />
+            </div>
+            <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.5em] font-syncopate max-w-xs text-right">
+              PIEZAS EXCLUSIVAS SELECCIONADAS PARA DOMINAR LA TEMPORADA.
+            </p>
+          </div>
+          <div className="text-center text-zinc-600 py-10 uppercase tracking-widest text-sm">
+            Todavía no hay productos destacados cargados en esta tienda.
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-black py-24 border-y border-zinc-900">

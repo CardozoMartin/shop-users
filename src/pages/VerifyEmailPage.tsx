@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getVerificarEmailClienteFn } from '../api/Clients.api';
 import { motion } from 'framer-motion';
@@ -10,6 +10,7 @@ export default function VerifyEmailPage() {
   
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Verificando tu cuenta...');
+  const hasFetched = useRef(false);
 
   useEffect(() => {
     if (!token) {
@@ -17,6 +18,9 @@ export default function VerifyEmailPage() {
       setMessage('Token de verificación no encontrado.');
       return;
     }
+
+    if (hasFetched.current) return;
+    hasFetched.current = true;
 
     const verificar = async () => {
       try {

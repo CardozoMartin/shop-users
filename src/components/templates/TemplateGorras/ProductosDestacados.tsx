@@ -100,7 +100,23 @@ export default function ProductosDestacados({ tiendaId, onSelect, onCart }: Prop
     el.scrollBy({ left: direccion * el.clientWidth * 0.75, behavior: 'smooth' });
   };
 
-  if (isLoading || productos.length === 0) return null;
+  if (isLoading) return null;
+
+  if (productos.length === 0) {
+    return (
+      <section
+        className="px-6 py-[4.5rem] overflow-hidden"
+        style={{ background: tema.bg, borderBottom: `1px solid ${tema.border}` }}
+      >
+        <div className="max-w-[1240px] mx-auto text-center">
+          <Encabezado />
+          <div className="py-10" style={{ color: tema.muted, fontFamily: "'DM Sans',sans-serif" }}>
+            Todavía no hay productos destacados cargados en esta tienda.
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

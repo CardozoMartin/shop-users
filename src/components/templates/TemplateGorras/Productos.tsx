@@ -238,6 +238,13 @@ export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Pro
           >
             Cargando catálogo...
           </div>
+        ) : !isLoading && productosPaginados.length === 0 ? (
+          <div
+            className="py-16 text-center"
+            style={{ color: tema.muted, fontFamily: "'DM Sans',sans-serif" }}
+          >
+            Todavía no hay productos cargados en esta tienda.
+          </div>
         ) : (
           <div
             className="grid gap-x-7 gap-y-10"
