@@ -29,7 +29,7 @@ export default function SobreNosotros({ tienda }: { tienda: any }) {
             marginBottom: '1.2rem',
           }}
         >
-          <div style={{ width: '2rem', height: '1px', background: 'var(--acc-acento)' }} opacity={0.4} />
+          <div style={{ width: '2rem', height: '1px', background: 'var(--acc-acento)', opacity: 0.4 }} />
           <span
             style={{
               fontFamily: "'Jost',sans-serif",
@@ -41,7 +41,7 @@ export default function SobreNosotros({ tienda }: { tienda: any }) {
           >
             Nuestra historia
           </span>
-          <div style={{ width: '2rem', height: '1px', background: 'var(--acc-acento)' }} opacity={0.4} />
+          <div style={{ width: '2rem', height: '1px', background: 'var(--acc-acento)', opacity: 0.4 }} />
         </div>
         <h3
           style={{

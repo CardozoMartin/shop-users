@@ -41,8 +41,6 @@ export interface PlantillaAccesoriosProps {
   themeConfig?: any;
 }
 
-type NavTarget = 'inicio' | 'catalog' | 'contacto' | 'about';
-
 function buildCssVars(isDark: boolean, acento: string): React.CSSProperties {
   return {
     '--acc-bg': isDark ? '#121212' : '#f5f1eb',
@@ -60,13 +58,13 @@ function buildCssVars(isDark: boolean, acento: string): React.CSSProperties {
 }
 
 export default function TemplateJoyeria({ tienda, accent, themeConfig }: PlantillaAccesoriosProps) {
-  const { handleNavigate: navigateSection, navigateTo } = useStoreNavigation();
+  const { navigateTo } = useStoreNavigation();
   const resolvedAccent = accent || themeConfig?.primary || '#b5835a';
   const isDark = themeConfig?.modoOscuro ?? false;
   const cssVars = useMemo(() => buildCssVars(isDark, resolvedAccent), [isDark, resolvedAccent]);
 
   const { setTiendaId } = useTiendaIDStore();
-  const { logout, cliente } = useAuthSessionStore();
+  const { logout } = useAuthSessionStore();
 
   useEffect(() => {
     if (tienda?.id) setTiendaId(tienda.id);

@@ -8,6 +8,7 @@ const tema = {
   bg: 'var(--gor-bg)',
   border: 'var(--gor-border)',
   txt: 'var(--gor-txt)',
+  muted: 'var(--gor-muted)',
   acento: 'var(--gor-acento)',
 } as const;
 

@@ -166,7 +166,14 @@ export default function Navbar({
             </a>
           ))}
           <button
-            onClick={() => { setOpen(false); cliente ? onMiCuenta() : onIngresar(); }}
+            onClick={() => {
+              setOpen(false);
+              if (cliente) {
+                onMiCuenta();
+              } else {
+                onIngresar();
+              }
+            }}
             className="self-start mt-2 py-2.5 px-6 border-none rounded cursor-pointer text-[.78rem] font-semibold"
             style={{
               background: 'var(--rop-dark)',

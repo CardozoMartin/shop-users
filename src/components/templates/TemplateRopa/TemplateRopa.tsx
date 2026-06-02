@@ -21,10 +21,6 @@ import ProductDetailView from './ProductDetailView';
 import SobreNosotros from './SobreNosotros';
 import Toast from './Toast';
 
-const FONTS = `
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap');
-`;
-
 const TIENDA_DEFAULT = {
   nombre: 'VESTE',
   tagline: 'Ropa de autor · Tucumán',
@@ -45,7 +41,7 @@ export interface PlantillaRopaProps {
 }
 
 export default function TemplateRopa({ tienda, accent, themeConfig }: PlantillaRopaProps) {
-  const { handleNavigate: navigateSection, navigateTo } = useStoreNavigation();
+  const { navigateTo } = useStoreNavigation();
   const resolvedAccent = accent || themeConfig?.primary || '#e63946';
   const isDark = themeConfig?.modoOscuro ?? false;
 
@@ -67,7 +63,7 @@ export default function TemplateRopa({ tienda, accent, themeConfig }: PlantillaR
   }, [isDark, resolvedAccent]);
 
   const { setTiendaId } = useTiendaIDStore();
-  const { logout, cliente } = useAuthSessionStore();
+  const { logout } = useAuthSessionStore();
 
   useEffect(() => {
     if (tienda?.id) setTiendaId(tienda.id);

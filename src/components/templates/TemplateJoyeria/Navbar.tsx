@@ -12,7 +12,7 @@ interface NavbarProps {
   onNavigate?: (path: string) => void;
 }
 
-export default function Navbar({ cartCount, onCart, onIngresar, onMiCuenta, logo, titulo, theme, onNavigate }: NavbarProps) {
+export default function Navbar({ cartCount, onCart, onIngresar, onMiCuenta, logo, titulo, onNavigate }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -238,7 +238,11 @@ export default function Navbar({ cartCount, onCart, onIngresar, onMiCuenta, logo
             <button
                onClick={() => {
                  setOpen(false);
-                 cliente ? onMiCuenta() : onIngresar();
+                 if (cliente) {
+                   onMiCuenta();
+                 } else {
+                   onIngresar();
+                 }
                }}
                style={{ flex: 1, padding: '10px', background: 'var(--acc-acento)', border: 'none', borderRadius: '8px', color: 'var(--acc-btn-txt)', fontFamily: "'Jost', sans-serif" }}
             >

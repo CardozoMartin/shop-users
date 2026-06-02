@@ -19,6 +19,8 @@ export interface CategoriaProducto {
 }
 
 export interface MetodoEntregaItem {
+  detalle?: string | null;
+  zonaCobertura?: string | null;
   metodoEntrega: {
     id: number;
     nombre: string;
@@ -26,6 +28,7 @@ export interface MetodoEntregaItem {
 }
 
 export interface MetodoPagoItem {
+  detalle?: string | null;
   metodoPago: {
     id: number;
     nombre: string;
