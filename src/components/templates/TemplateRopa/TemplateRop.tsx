@@ -963,7 +963,14 @@ function CarruselProductos({ onCart, items }: { onCart: (p: any) => void; items:
 /* ═══════════════════════════════════════════════
    GRID PRODUCTOS — todos los productos con filtro
 ═══════════════════════════════════════════════ */
-function GridProductos({ onSelect, tiendaId }: { onSelect: (p: any) => void; tiendaId: number }) {
+function GridProductos({
+  onSelect,
+  tiendaId,
+}: {
+  onSelect: (p: any) => void;
+  onCart?: (p: any, qty?: number, vId?: number) => void;
+  tiendaId: number;
+}) {
   const [cat, setCat] = useState<number | 'Todo'>('Todo');
   const [busqueda, setBusqueda] = useState('');
   const [busquedaFiltro, setBusquedaFiltro] = useState('');

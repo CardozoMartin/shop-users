@@ -57,7 +57,6 @@ export default function CheckoutView({
     watch,
     trigger,
     setValue,
-    formState: {},
   } = useForm<CheckoutFormValues>({
     defaultValues: {
       nombre: '', email: '', tel: '', calle: '', numero: '',

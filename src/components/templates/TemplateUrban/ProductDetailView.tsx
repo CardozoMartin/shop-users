@@ -140,7 +140,6 @@ export default function ProductDetailView({
   const productCategory = (product.categoria as any)?.nombre || product.category || 'GENERAL_STUFF';
   const metodosEntrega = tienda?.metodosEntrega ?? [];
   const metodosPago = tienda?.metodosPago ?? [];
-  const isDarkMode = theme?.modoOscuro ?? false;
 
   return (
     <div className="bg-black min-h-screen text-white pb-20">

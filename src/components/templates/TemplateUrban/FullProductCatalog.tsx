@@ -85,7 +85,7 @@ export default function FullProductCatalog({
 
         {filtered.length === 0 ? (
           <div className="text-center text-zinc-600 py-32 uppercase tracking-widest text-sm">
-            No hay productos en esta categoría aún.
+            Todavía no hay productos cargados en esta tienda.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
