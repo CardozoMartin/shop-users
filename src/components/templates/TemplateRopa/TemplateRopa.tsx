@@ -21,6 +21,10 @@ import ProductDetailView from './ProductDetailView';
 import SobreNosotros from './SobreNosotros';
 import Toast from './Toast';
 
+const FONTS = `
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&display=swap');
+`;
+
 const TIENDA_DEFAULT = {
   nombre: 'VESTE',
   tagline: 'Ropa de autor · Tucumán',

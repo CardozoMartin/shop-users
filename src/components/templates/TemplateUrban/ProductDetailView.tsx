@@ -302,7 +302,7 @@ export default function ProductDetailView({
                           borderColor="transparent"
                           textColor="#a1a1aa"
                           preferSVG={true}
-                          isDarkMode={isDarkMode}
+                          isDarkMode={theme?.modoOscuro ?? false}
                           iconSize={26}
                           style={{
                             padding: 0,
@@ -333,7 +333,7 @@ export default function ProductDetailView({
                           borderColor="transparent"
                           textColor="#a1a1aa"
                           preferSVG={true}
-                          isDarkMode={isDarkMode}
+                          isDarkMode={theme?.modoOscuro ?? false}
                           iconSize={26}
                           style={{
                             padding: 0,
