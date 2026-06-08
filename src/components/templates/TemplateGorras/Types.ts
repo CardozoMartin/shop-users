@@ -15,9 +15,12 @@ export interface NavbarProps {
 export interface CategoriaProducto {
   id: number;
   nombre: string;
+  padreId?: number | null;
 }
 
 export interface MetodoEntregaItem {
+  detalle?: string | null;
+  zonaCobertura?: string | null;
   metodoEntrega: {
     id: number;
     nombre: string;
@@ -25,10 +28,12 @@ export interface MetodoEntregaItem {
 }
 
 export interface MetodoPagoItem {
+  detalle?: string | null;
   metodoPago: {
     id: number;
     nombre: string;
   };
+  detalle?: string | null;
 }
 
 export interface Producto {
@@ -71,6 +76,13 @@ export interface Tienda {
   metodosEntrega?: MetodoEntregaItem[];
   metodosPago?: MetodoPagoItem[];
   carrusel?: HeroSlide[];
+  aboutUs?: {
+    titulo?: string | null;
+    descripcion?: string | null;
+    imagenUrl?: string | null;
+    direccion?: string | null;
+  } | null;
+  marqueeItems?: Array<{ texto: string; orden: number }>;
 }
 
 //Hero types
@@ -95,6 +107,7 @@ export interface IHeroProps {
   bgColor?: string;
   mutedColor?: string;
   whatsapp?: string;
+  onNavigate?: (target: NavbarTarget) => void;
 }
 
 //types de CartDrawer
@@ -108,6 +121,7 @@ export interface ThemeProps {
   border?: string;
   acento?: string;
   btnTxt?: string;
+  modoOscuro?: boolean;
 }
 
 //types Toast
@@ -145,11 +159,15 @@ export interface IFooterProps {
   pais?: string;
   acento?: string;
   nombreTienda?: string;
+  onNavigate?: (target: import('./Types').NavbarTarget) => void;
 }
 
 //types AboutUs
 export interface AboutUsProps {
-  descripcion?: string;
+  titulo?: string | null;
+  descripcion?: string | null;
+  imagenUrl?: string | null;
+  direccion?: string | null;
   ciudad?: string;
   provincia?: string;
   instagram?: string;

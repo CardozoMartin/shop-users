@@ -1,4 +1,4 @@
-﻿import { useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useLoginCliente } from '../../../hooks/useCliente';
 import { useTiendaIDStore } from '../../../store/useTiendaIDStore';
 
@@ -18,7 +18,7 @@ interface FormLoginProps {
   errorGlobal?: string;
 }
 
-// ── COLORES (heredados de las CSS vars de la plantilla Ropa/VESTE) ───
+// ── COLORES ───────────────────────────────────────────────────
 const ACENTO = 'var(--rop-acento)';
 const DARK = 'var(--rop-dark)';
 const MUTED = 'var(--rop-muted)';
@@ -66,11 +66,10 @@ export default function FormLogin({
             })}
             type="email"
             placeholder="hola@tuemail.com"
-            className="w-full px-3.5 py-2 rounded-md border text-sm"
+            className="w-full px-3.5 py-2 rounded-md border text-sm bg-transparent outline-none"
             style={{
               borderColor: errors.email ? ACENTO : BORDER,
               color: DARK,
-              background: 'transparent',
             }}
           />
         </FieldGroup>
@@ -82,11 +81,10 @@ export default function FormLogin({
             })}
             type="password"
             placeholder="••••••••"
-            className="w-full px-3.5 py-2 rounded-md border text-sm"
+            className="w-full px-3.5 py-2 rounded-md border text-sm bg-transparent outline-none"
             style={{
               borderColor: errors.password ? ACENTO : BORDER,
               color: DARK,
-              background: 'transparent',
             }}
           />
         </FieldGroup>
@@ -94,14 +92,14 @@ export default function FormLogin({
         <button
           type="button"
           onClick={onGoOlvide}
-          className="self-start text-xs underline"
+          className="self-start text-xs underline bg-transparent border-none cursor-pointer"
           style={{ color: MUTED, fontFamily: "'Outfit', sans-serif" }}
         >
           Olvidé mi contraseña
         </button>
 
         {errorGlobal && (
-          <p className="rounded-md p-2 text-xs" style={{ background: '#fee2e2', color: '#991b1b' }}>
+          <p className="rounded-md p-2 text-xs bg-red-50 text-red-800">
             {errorGlobal}
           </p>
         )}
@@ -109,7 +107,7 @@ export default function FormLogin({
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 rounded-full text-sm font-bold tracking-widest text-white"
+          className="w-full py-3 rounded-full text-sm font-bold tracking-widest cursor-pointer border-none"
           style={{ background: DARK, opacity: loading ? 0.6 : 1, color: BTN_TXT }}
         >
           {loading ? 'CONECTANDO...' : 'INICIAR SESIÓN'}
@@ -123,7 +121,7 @@ export default function FormLogin({
           <button
             type="button"
             onClick={onGoRegistro}
-            className="underline font-semibold"
+            className="underline font-semibold bg-transparent border-none cursor-pointer p-0"
             style={{ color: DARK }}
           >
             Únete ahora

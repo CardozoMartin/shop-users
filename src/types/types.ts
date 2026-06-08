@@ -11,12 +11,31 @@ export interface CarruselItem {
   activa?: boolean;
 }
 
+// ─── About Us ─────────────────────────────────────────────────────────────
+
+export interface AboutUsData {
+  titulo?: string | null;
+  descripcion?: string | null;
+  imagenUrl?: string | null;
+  direccion?: string | null;
+}
+
+// ─── Marquee Item ─────────────────────────────────────────────────────────
+
+export interface MarqueeItem {
+  id?: number;
+  texto: string;
+  orden?: number;
+}
+
 // ─── Datos editables de la tienda ────────────────────────────────────────────
 
 export interface TiendaData {
   titulo: string;
   descripcion?: string;
   carrusel?: CarruselItem[];
+  aboutUs?: AboutUsData | null;
+  marqueeItems?: MarqueeItem[];
   // Agregá más campos a medida que crezca
 }
 

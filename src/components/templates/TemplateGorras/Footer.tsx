@@ -1,4 +1,4 @@
-import type { IFooterProps } from './Types';
+import type { IFooterProps } from "./Types";
 
 export const Footer = ({
   instagram,
@@ -7,12 +7,13 @@ export const Footer = ({
   descripcion,
   ciudad,
   pais,
-  acento = 'var(--gor-acento)',
+  acento = "var(--gor-acento)",
   nombreTienda,
+  onNavigate,
 }: IFooterProps) => {
   const socials = [
     {
-      label: 'Instagram',
+      label: "Instagram",
       href: `https://instagram.com/${instagram}`,
       icon: (
         <svg
@@ -31,7 +32,7 @@ export const Footer = ({
       ),
     },
     {
-      label: 'Facebook',
+      label: "Facebook",
       href: `https://facebook.com/${facebook}`,
       icon: (
         <svg
@@ -48,7 +49,7 @@ export const Footer = ({
       ),
     },
     {
-      label: 'WhatsApp',
+      label: "WhatsApp",
       href: `https://wa.me/${whatsapp}`,
       icon: (
         <svg
@@ -69,16 +70,23 @@ export const Footer = ({
   return (
     <footer
       className="px-6 md:px-16 lg:px-24 xl:px-32 pt-8 w-full"
-      style={{ background: 'var(--gor-footer-bg)', color: 'rgba(255,255,255,0.5)' }}
+      style={{
+        background: "var(--gor-footer-bg)",
+        color: "rgba(255,255,255,0.5)",
+      }}
     >
       <div className="flex flex-col md:flex-row justify-between w-full gap-10 border-b border-white/10 pb-6">
         {/* Brand + descripción */}
         <div className="md:max-w-72">
           <div className="text-[1.4rem] font-bold text-white font-['Playfair_Display',serif]">
-            {(nombreTienda || '').slice(0, -4)}
-            <span style={{ color: acento }}>{(nombreTienda || '').slice(-4)}</span>
+            {(nombreTienda || "").slice(0, -4)}
+            <span style={{ color: acento }}>
+              {(nombreTienda || "").slice(-4)}
+            </span>
           </div>
-          <p className="mt-4 text-sm leading-relaxed text-white/45">{descripcion}</p>
+          <p className="mt-4 text-sm leading-relaxed text-white/45">
+            {descripcion}
+          </p>
 
           {/* Redes sociales */}
           <div className="flex gap-2 mt-5">
@@ -95,8 +103,8 @@ export const Footer = ({
                   e.currentTarget.style.color = acento;
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.4)';
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.currentTarget.style.color = "rgba(255,255,255,0.4)";
                 }}
               >
                 {icon}
@@ -107,6 +115,47 @@ export const Footer = ({
 
         {/* Columnas derecha */}
         <div className="flex-1 flex items-start md:justify-end gap-16 md:gap-20">
+          {/* Navegación */}
+          <div className="hidden sm:block">
+            <h2 className="font-semibold mb-4 text-white text-sm tracking-widest uppercase">
+              Navegación
+            </h2>
+            <ul className="text-sm space-y-2 list-none p-0 m-0">
+              <li>
+                <button
+                  onClick={() => onNavigate?.("inicio")}
+                  className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
+                >
+                  Inicio
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate?.("producto")}
+                  className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
+                >
+                  Catálogo
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate?.("sobrenosotros")}
+                  className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
+                >
+                  Sobre Nosotros
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate?.("contacto")}
+                  className="bg-transparent border-none p-0 text-white/50 hover:text-white/80 cursor-pointer transition-colors text-[.85rem]"
+                >
+                  Contacto
+                </button>
+              </li>
+            </ul>
+          </div>
+
           {/* Contacto */}
           <div>
             <h2 className="font-semibold mb-4 text-white text-sm tracking-widest uppercase">
@@ -117,7 +166,7 @@ export const Footer = ({
                 href={`https://wa.me/${whatsapp}`}
                 target="_blank"
                 rel="noreferrer"
-                className="block text-white/50 hover:text-white/80 transition-colors"
+                className="block text-white/50 hover:text-white/80 transition-colors no-underline"
               >
                 📱 {whatsapp}
               </a>
@@ -125,7 +174,7 @@ export const Footer = ({
                 href={`https://instagram.com/${instagram}`}
                 target="_blank"
                 rel="noreferrer"
-                className="block text-white/50 hover:text-white/80 transition-colors"
+                className="block text-white/50 hover:text-white/80 transition-colors no-underline"
               >
                 📷 @{instagram}
               </a>
@@ -147,10 +196,10 @@ export const Footer = ({
 
       {/* Copyright */}
       <p className="pt-4 text-center text-xs pb-5 text-white/20">
-        © {new Date().getFullYear()}{' '}
+        © {new Date().getFullYear()}{" "}
         <span style={{ color: acento }} className="opacity-80">
           {nombreTienda}
-        </span>{' '}
+        </span>{" "}
         — Todos los derechos reservados.
       </p>
     </footer>

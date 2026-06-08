@@ -37,6 +37,7 @@ const Hero = ({
   bgColor = 'var(--gor-bg)',
   mutedColor = 'var(--gor-muted)',
   whatsapp = '5493812345678',
+  onNavigate,
 }: IHeroProps) => {
   const [active, setActive] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -115,6 +116,7 @@ const Hero = ({
           <div className="flex items-center gap-4 flex-wrap">
             {/* Ver colección */}
             <button
+              onClick={() => onNavigate?.('producto')}
               className="px-7 py-3 rounded-full text-[.75rem] font-semibold tracking-wide cursor-pointer border-none transition-opacity duration-200 hover:opacity-85"
               style={{
                 background: acento,
