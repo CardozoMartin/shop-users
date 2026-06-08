@@ -13,7 +13,6 @@ const BORDER = "var(--gor-border)";
 const SURFACE = "var(--gor-surface)";
 const TXT = "var(--gor-txt)";
 
-//Props ───────────────────────────────────────────────────────────────────
 interface FormLoginProps {
   tiendaNombre: string;
   onGoRegistro: () => void;
@@ -27,28 +26,23 @@ export default function FormLogin({
   onGoOlvide,
   onLoginSuccess,
 }: FormLoginProps) {
-  //Acceso a tiendaId y token desde stores
   const { tiendaId } = useTiendaIDStore();
   const token = useAuthSessionStore((state) => state.token);
 
-  //Redirigir al dashboard si ya hay token (sesión activa)
   useEffect(() => {
     if (token) {
       onLoginSuccess();
     }
   }, [token, onLoginSuccess]);
 
-  //RHF para manejo de formulario y validaciones
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginData>({ mode: "onBlur" });
 
-  //TQUERY para manejar el login - Peticion
   const { mutate: postLogin, isPending } = useLoginCliente();
 
-  //Handler para submit del formulario
   const handleSubmitForm = (data: LoginData) => {
     postLogin({
       email: data.email,
@@ -57,10 +51,8 @@ export default function FormLogin({
     });
   };
 
-  //Renderizado del formulario
   return (
     <div className="flex flex-col">
-      {/* Descripción */}
       <p
         className="text-[.95rem] leading-[1.6] mb-8"
         style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
@@ -72,9 +64,7 @@ export default function FormLogin({
         . Ingresá para ver tus pedidos y datos guardados.
       </p>
 
-      {/* Campos */}
       <div className="flex flex-col gap-4 mb-2">
-        {/* Email */}
         <FieldGroup label="Email" error={errors.email?.message}>
           <input
             {...register("email", {
@@ -90,7 +80,6 @@ export default function FormLogin({
             style={fieldStyle(!!errors.email)}
           />
         </FieldGroup>
-        {/* Contraseña */}
         <FieldGroup label="Contraseña" error={errors.password?.message}>
           <input
             {...register("password", {
@@ -104,7 +93,6 @@ export default function FormLogin({
         </FieldGroup>
       </div>
 
-      {/* ¿Olvidaste tu contraseña? */}
       <button
         onClick={onGoOlvide}
         className="self-end bg-transparent border-none text-[.78rem] cursor-pointer py-2 pb-6 underline transition-colors duration-200"
@@ -115,9 +103,6 @@ export default function FormLogin({
         ¿Olvidaste tu contraseña?
       </button>
 
-      {/* Error global */}
-
-      {/* Botón submit */}
       <button
         onClick={handleSubmit(handleSubmitForm)}
         className="w-full py-3.5 rounded-full text-[.78rem] font-bold tracking-wide uppercase border-none transition-opacity duration-200"
@@ -137,7 +122,6 @@ export default function FormLogin({
         {isPending ? "Ingresando..." : "Ingresar"}
       </button>
 
-      {/* Link a registro */}
       <p
         className="text-[.85rem] text-center mt-7"
         style={{ color: MUTED, fontFamily: "'DM Sans',sans-serif" }}
@@ -155,17 +139,12 @@ export default function FormLogin({
   );
 }
 
-//HELPERS───────────────────────────────────────────────────
-
-//Tipos internos────────────────────────────────────────────
-
 interface FieldGroupProps {
   label: string;
   error?: string;
   children: ReactNode;
 }
 
-//Estilo dinámico del input: solo el borde cambia según estado de error */
 function fieldStyle(hasError: boolean): CSSProperties {
   return {
     border: `1.5px solid ${hasError ? "#ef4444" : BORDER}`,
@@ -185,10 +164,7 @@ function FieldGroup({ label, error, children }: FieldGroupProps) {
       </label>
       {children}
       {error && (
-        <span
-          className="text-[.7rem] text-red-500"
-          style={{ fontFamily: "'DM Sans',sans-serif" }}
-        >
+        <span className="text-[.7rem] text-red-500" style={{ fontFamily: "'DM Sans',sans-serif" }}>
           {error}
         </span>
       )}
