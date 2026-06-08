@@ -13,7 +13,6 @@ interface CartDrawerProps {
 
 const CartDrawer = ({
   carrito,
-  tienda,
   isVaciando,
   onClose,
   onQty,

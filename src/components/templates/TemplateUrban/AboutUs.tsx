@@ -11,8 +11,6 @@ export default function AboutUs({
   acento = '#dc2626',
   bg = 'transparent',
   border = '#27272a',
-  txt = '#ffffff',
-  muted = '#a1a1aa',
 }: AboutUsProps) {
   if (!descripcion && !titulo && !imagenUrl) return null;
 

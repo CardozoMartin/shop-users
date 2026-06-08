@@ -12,7 +12,7 @@ interface NavbarProps {
   onNavigate?: (path: string) => void;
 }
 
-export default function Navbar({ cartCount, onCart, onIngresar, onMiCuenta, logo, titulo, theme, onNavigate }: NavbarProps) {
+export default function Navbar({ cartCount, onCart, onIngresar, onMiCuenta, logo, titulo, onNavigate }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 

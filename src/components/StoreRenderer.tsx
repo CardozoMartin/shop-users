@@ -1,5 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { resolveTemplateIdFromShop } from './registry';
+import { useStorefrontProductos } from '../hooks/useStorefrontProducts';
+import EmptyStoreView from './shared/EmptyStoreView';
 
 const PlantillaGorras = lazy(() => import('./templates/TemplateGorras/TemplateGorras'));
 const PlantillaAccesorios = lazy(() => import('./templates/TemplateJoyeria/TemplateJoyeria'));
@@ -21,6 +23,8 @@ interface StoreRendererProps {
 }
 
 const StoreRenderer = ({ tienda }: StoreRendererProps) => {
+  const { data: productosData, isLoading: isLoadingProd } = useStorefrontProductos(tienda?.id || 0);
+
   const templateId = resolveTemplateIdFromShop(tienda);
   const Template = TEMPLATES[templateId] ?? PlantillaAccesorios;
   const tema = tienda.temaConfig;
@@ -42,6 +46,21 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
 
   const resolvedAccent = tema?.colorAcento || tema?.colorPrimario || defaultAccent;
 
+  const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
+  const hasProducts = productosData?.datos && productosData.datos.length > 0;
+
+  if (isLoadingProd) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500" />
+      </div>
+    );
+  }
+
+  if (!hasProducts && !isPreview) {
+    return <EmptyStoreView tienda={tienda} accent={resolvedAccent} />;
+  }
+
   return (
     <Suspense
       fallback={
@@ -50,6 +69,12 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
         </div>
       }
     >
+      {!hasProducts && isPreview && (
+        <div className="bg-gradient-to-r from-amber-600 to-amber-700 text-white text-center py-2.5 px-4 text-[11px] sm:text-xs font-bold tracking-wider uppercase sticky top-0 z-[99999] flex items-center justify-center gap-2 shadow-lg border-b border-amber-500/20">
+          <span className="inline-block animate-pulse">⚠️</span>
+          <span>Modo Vista Previa: Tu tienda está vacía. Tus clientes verán la pantalla "Tienda en Preparación" hasta que cargues tu primer producto.</span>
+        </div>
+      )}
       <Template
         tienda={tienda}
         tema={tema}

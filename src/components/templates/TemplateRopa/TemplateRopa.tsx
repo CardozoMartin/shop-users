@@ -45,7 +45,7 @@ export interface PlantillaRopaProps {
 }
 
 export default function TemplateRopa({ tienda, accent, themeConfig }: PlantillaRopaProps) {
-  const { handleNavigate: navigateSection, navigateTo } = useStoreNavigation();
+  const { navigateTo } = useStoreNavigation();
   const resolvedAccent = accent || themeConfig?.primary || '#e63946';
   const isDark = themeConfig?.modoOscuro ?? false;
 
@@ -67,7 +67,7 @@ export default function TemplateRopa({ tienda, accent, themeConfig }: PlantillaR
   }, [isDark, resolvedAccent]);
 
   const { setTiendaId } = useTiendaIDStore();
-  const { logout, cliente } = useAuthSessionStore();
+  const { logout } = useAuthSessionStore();
 
   useEffect(() => {
     if (tienda?.id) setTiendaId(tienda.id);
@@ -145,7 +145,7 @@ export default function TemplateRopa({ tienda, accent, themeConfig }: PlantillaR
   return (
     <div style={cssVars}>
       <style>{`
-        \${FONTS}
+        ${FONTS}
         * { box-sizing: border-box; margin: 0; padding: 0; }
         img { display: block; }
         .vt-scroll { overflow-y: auto; height: 100vh; scroll-behavior: smooth; }

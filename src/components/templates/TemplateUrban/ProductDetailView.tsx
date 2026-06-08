@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import ImageFallback from '../../shared/ImageFallback';
 import { MetodoChip } from '../../shared/MetodoIcons';
 import ReviewSection from './ReviewSection';
 import type { Producto, ThemeProps, Tienda } from './Types';
@@ -129,8 +130,7 @@ export default function ProductDetailView({
     ...(product.imagenes || []),
   ];
 
-  const currentImage =
-    imagenActiva || product.imagenPrincipalUrl || 'https://via.placeholder.com/600';
+  const currentImage = imagenActiva || product.imagenPrincipalUrl;
   const basePrice = Number(product.precio || 0) + extra;
   const offerPrice =
     product.precioOferta && Number(product.precioOferta) > 0
@@ -156,11 +156,15 @@ export default function ProductDetailView({
           {/* Gallery */}
           <div className="flex flex-col gap-4">
             <div className="relative aspect-square overflow-hidden bg-zinc-950 border border-zinc-900">
-              <img
-                src={currentImage}
-                alt={product.nombre}
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-              />
+              {currentImage ? (
+                <img
+                  src={currentImage}
+                  alt={product.nombre}
+                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                />
+              ) : (
+                <ImageFallback className="bg-zinc-950 text-zinc-500" />
+              )}
               {offerPrice && (
                 <span className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-black px-4 py-2 uppercase tracking-[0.2em] font-syncopate">
                   OFERTA_LIMITADA
@@ -299,7 +303,7 @@ export default function ProductDetailView({
                           borderColor="transparent"
                           textColor="#a1a1aa"
                           preferSVG={true}
-                          isDarkMode={true}
+                          isDarkMode={isDarkMode}
                           iconSize={26}
                           style={{
                             padding: 0,
@@ -330,7 +334,7 @@ export default function ProductDetailView({
                           borderColor="transparent"
                           textColor="#a1a1aa"
                           preferSVG={true}
-                          isDarkMode={true}
+                          isDarkMode={isDarkMode}
                           iconSize={26}
                           style={{
                             padding: 0,

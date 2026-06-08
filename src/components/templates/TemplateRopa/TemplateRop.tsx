@@ -2785,7 +2785,6 @@ export default function PlantillaRopa({ tienda, accent, themeConfig }: Plantilla
               <CarruselProductos onCart={(p) => addToCart(p, 1)} items={destacadosProducts} />
               <GridProductos
                 onSelect={setSelectedProduct}
-                onCart={addToCart}
                 tiendaId={tiendaIdNum}
               />
               <SobreNosotros tienda={mergedTienda} />

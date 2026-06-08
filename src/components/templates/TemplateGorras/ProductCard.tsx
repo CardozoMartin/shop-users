@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ImageFallback from "../../shared/ImageFallback";
 import type { MouseEvent } from "react";
 import type { Producto } from "./Types";
 
@@ -137,16 +138,19 @@ export default function ProductCard({
         className="relative aspect-square overflow-hidden"
         style={{ background: SURFACE2 }}
       >
-        <img
-          src={p.imagenPrincipalUrl || "https://via.placeholder.com/600"}
-          alt={p.nombre}
-          className="w-full h-full object-cover transition-transform duration-500"
-          style={{
-            transform: hov ? "scale(1.08)" : "scale(1)",
-            // cubic-bezier no disponible en Tailwind sin config personalizada
-            transitionTimingFunction: "cubic-bezier(0.165, 0.84, 0.44, 1)",
-          }}
-        />
+        {p.imagenPrincipalUrl ? (
+          <img
+            src={p.imagenPrincipalUrl}
+            alt={p.nombre}
+            className="w-full h-full object-cover transition-transform duration-500"
+            style={{
+              transform: hov ? "scale(1.08)" : "scale(1)",
+              transitionTimingFunction: "cubic-bezier(0.165, 0.84, 0.44, 1)",
+            }}
+          />
+        ) : (
+          <ImageFallback style={{ color: MUTED }} />
+        )}
 
         {/* Botón flotante agregar al carrito */}
         <button

@@ -30,6 +30,7 @@ export interface MetodoPagoItem {
     id: number;
     nombre: string;
   };
+  detalle?: string | null;
 }
 
 export interface Producto {

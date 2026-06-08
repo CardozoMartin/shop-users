@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ImageFallback from '../../shared/ImageFallback';
 import {
   useStorefrontCategorias,
   useStorefrontNormales,
@@ -152,12 +153,16 @@ export default function GridProductos({
                     transform: hov === p.id ? 'translateY(-3px)' : 'translateY(0)',
                   }}
                 >
-                  <img
-                    src={p.imagenPrincipalUrl || 'https://via.placeholder.com/300x400'}
-                    alt={p.nombre}
-                    className="w-full h-full object-cover transition-transform duration-500 ease-out"
-                    style={{ transform: hov === p.id ? 'scale(1.05)' : 'scale(1)' }}
-                  />
+                  {p.imagenPrincipalUrl ? (
+                    <img
+                      src={p.imagenPrincipalUrl}
+                      alt={p.nombre}
+                      className="w-full h-full object-cover transition-transform duration-500 ease-out"
+                      style={{ transform: hov === p.id ? 'scale(1.05)' : 'scale(1)' }}
+                    />
+                  ) : (
+                    <ImageFallback style={{ color: 'var(--rop-muted)' }} />
+                  )}
                   {p.destacado && (
                     <span
                       className="absolute top-2.5 left-2.5 text-[.56rem] font-bold py-[3px] px-2 rounded-[3px] tracking-[.08em] uppercase"

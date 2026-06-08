@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import ImageFallback from '../../shared/ImageFallback';
 
 export default function ProductDetailView({
   product,
@@ -75,11 +76,15 @@ export default function ProductDetailView({
               border: `1px solid var(--acc-border)`,
             }}
           >
-            <img
-              src={product.imagenPrincipalUrl || 'https://via.placeholder.com/600'}
-              alt={product.nombre}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+            {product.imagenPrincipalUrl ? (
+              <img
+                src={product.imagenPrincipalUrl}
+                alt={product.nombre}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <ImageFallback style={{ color: 'var(--acc-muted)' }} />
+            )}
           </div>
 
           <div style={{ flex: '1 1 380px', display: 'flex', flexDirection: 'column' }}>

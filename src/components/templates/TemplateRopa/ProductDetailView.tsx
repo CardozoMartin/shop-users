@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import ImageFallback from '../../shared/ImageFallback';
 import { MetodoChip } from '../../shared/MetodoIcons';
 
 export default function ProductDetailView({
@@ -115,22 +116,28 @@ export default function ProductDetailView({
               className="relative aspect-[3/4] rounded-lg overflow-hidden"
               style={{ background: 'var(--rop-surface)' }}
             >
-              <img
-                src={imagenActiva || product.imagenPrincipalUrl || 'https://via.placeholder.com/600x800'}
-                alt={product.nombre}
-                className="w-full h-full object-cover"
-              />
+              {imagenActiva || product.imagenPrincipalUrl ? (
+                <img
+                  src={imagenActiva || product.imagenPrincipalUrl}
+                  alt={product.nombre}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <ImageFallback style={{ color: 'var(--rop-muted)' }} />
+              )}
             </div>
 
             {/* Thumbnails */}
             {(product.imagenes || []).length > 0 && (
               <div className="flex gap-2 overflow-x-auto pb-1">
-                <img
-                  src={product.imagenPrincipalUrl}
-                  onClick={() => setImagenActiva(product.imagenPrincipalUrl)}
-                  className="w-[60px] h-[80px] object-cover rounded cursor-pointer"
-                  style={{ border: imagenActiva === product.imagenPrincipalUrl ? '2px solid var(--rop-acento)' : 'none' }}
-                />
+                {product.imagenPrincipalUrl && (
+                  <img
+                    src={product.imagenPrincipalUrl}
+                    onClick={() => setImagenActiva(product.imagenPrincipalUrl)}
+                    className="w-[60px] h-[80px] object-cover rounded cursor-pointer"
+                    style={{ border: imagenActiva === product.imagenPrincipalUrl ? '2px solid var(--rop-acento)' : 'none' }}
+                  />
+                )}
                 {product.imagenes.map((img: any) => (
                   <img
                     key={img.id}

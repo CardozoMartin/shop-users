@@ -8,6 +8,7 @@ type AuthMode = 'login' | 'registro' | 'olvide';
 
 interface AuthViewProps {
   onClose: () => void;
+  onLoginSuccess?: () => void;
   tienda?: {
     nombre?: string;
     logoUrl?: string;

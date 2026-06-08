@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ImageFallback from '../../shared/ImageFallback';
 import type { Producto } from './Types';
 
 const TAG_COLORS: Record<string, string> = {
@@ -23,7 +24,7 @@ export default function ProductCard({
   const productName = product.nombre || product.name || 'Producto';
   const productPrice = product.precio ?? product.price ?? 0;
   const productCategory = (product.categoria as any)?.nombre || product.category || 'General';
-  const productImage = product.imagenPrincipalUrl || product.imagenUrl || product.img || 'https://via.placeholder.com/600';
+  const productImage = product.imagenPrincipalUrl || product.imagenUrl || product.img;
   const productTag = product.tag || 'NEW DROP';
   const productSizes = product.talles || product.sizes || ['Único'];
   const productColors = product.colores || product.colors || ['Negro'];
@@ -42,12 +43,16 @@ export default function ProductCard({
         onMouseLeave={() => setHovered(false)}
         onClick={() => onDetail(product)}
       >
-        <img
-          src={productImage}
-          alt={productName}
-          className="w-full h-full object-cover transition-transform duration-500"
-          style={{ transform: hovered ? 'scale(1.08)' : 'scale(1)' }}
-        />
+        {productImage ? (
+          <img
+            src={productImage}
+            alt={productName}
+            className="w-full h-full object-cover transition-transform duration-500"
+            style={{ transform: hovered ? 'scale(1.08)' : 'scale(1)' }}
+          />
+        ) : (
+          <ImageFallback className="bg-zinc-900 text-zinc-400" />
+        )}
         <span
           className={`absolute top-3 left-3 text-[10px] font-black px-3 py-1 uppercase tracking-widest z-10 ${TAG_COLORS[productTag] || 'bg-zinc-700 text-white'}`}
         >
