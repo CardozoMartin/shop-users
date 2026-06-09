@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { resolveTemplateIdFromShop } from './registry';
 import { useStorefrontProductos } from '../hooks/useStorefrontProducts';
-import EmptyStoreView from './shared/EmptyStoreView';
 
 const PlantillaGorras = lazy(() => import('./templates/TemplateGorras/TemplateGorras'));
 const PlantillaAccesorios = lazy(() => import('./templates/TemplateJoyeria/TemplateJoyeria'));
@@ -55,10 +54,6 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500" />
       </div>
     );
-  }
-
-  if (!hasProducts && !isPreview) {
-    return <EmptyStoreView tienda={tienda} accent={resolvedAccent} />;
   }
 
   return (
