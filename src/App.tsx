@@ -1,40 +1,36 @@
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 
 const PublicStorePage = lazy(() => import('./pages/PublicStorePage'));
 const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
 const ResetPassPage = lazy(() => import('./pages/ResetPassPage'));
+const StoreDirectoryPage = lazy(() => import('./pages/StoreDirectoryPage'));
 
-const LoginPlaceholder = () => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: '8px', fontFamily: 'sans-serif' }}>
-    <p style={{ fontSize: '1.25rem', fontWeight: 600, color: '#1e293b' }}>Iniciar sesión</p>
-    <p style={{ fontSize: '0.85rem', color: '#64748b' }}>Próximamente</p>
+const LoadingSpinner = () => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'linear-gradient(135deg, #f8f7ff 0%, #f0f4ff 50%, #fdf4ff 100%)' }}>
+    <div style={{
+      width: 48, height: 48, borderRadius: '50%',
+      border: '3px solid #e0e7ff', borderTopColor: '#6366f1',
+      animation: 'spin 0.7s linear infinite'
+    }} />
+    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
   </div>
 );
 
 function App() {
   return (
     <BrowserRouter>
-      <Suspense
-        fallback={
-          <div className="flex items-center justify-center min-h-screen">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500" />
-          </div>
-        }
-      >
+      <Suspense fallback={<LoadingSpinner />}>
         <Routes>
-          {/* Auth */}
-          <Route path="/login" element={<LoginPlaceholder />} />
-
-          {/* Tienda pública por slug */}
-          <Route path="/:slug/*" element={<PublicStorePage />} />
+          {/* Directorio de tiendas — raíz */}
+          <Route path="/" element={<StoreDirectoryPage />} />
 
           {/* Email & Auth */}
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/reset-password" element={<ResetPassPage />} />
 
-          {/* Redirect root hacia alguna tienda si no hay slug */}
-          <Route path="/" element={<Navigate to="/default-store" replace />} />
+          {/* Tienda pública por slug — debe ir ÚLTIMO */}
+          <Route path="/:slug/*" element={<PublicStorePage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
@@ -42,4 +38,3 @@ function App() {
 }
 
 export default App;
-
