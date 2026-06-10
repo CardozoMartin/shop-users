@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { resolveTemplateIdFromShop } from './registry';
 import { useStorefrontProductos } from '../hooks/useStorefrontProducts';
+import EmptyStoreView from './shared/EmptyStoreView';
 
 const PlantillaGorras = lazy(() => import('./templates/TemplateGorras/TemplateGorras'));
 const PlantillaAccesorios = lazy(() => import('./templates/TemplateJoyeria/TemplateJoyeria'));
@@ -12,7 +13,6 @@ const TEMPLATES: Record<string, React.ComponentType<any>> = {
   plantilla_gorras: PlantillaGorras,
   plantilla_ropa: PlantillaRopa,
   plantilla_urban: PlantillaUrban,
-  // Pendientes de implementación — usan la plantilla visual más cercana como fallback
   plantilla_moder: PlantillaRopa,
   plantilla_pink: PlantillaAccesorios,
 };
@@ -42,92 +42,98 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
   };
 
   const { accent: defaultAccent, font: defaultFont } = getDefaultDesign(templateId);
-
   const resolvedAccent = tema?.colorAcento || tema?.colorPrimario || defaultAccent;
-
   const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
-  const hasProducts = productosData?.datos && productosData.datos.length > 0;
+  const hasProducts = Boolean(productosData?.datos?.length);
 
   if (isLoadingProd) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-950">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-indigo-500" />
       </div>
     );
+  }
+
+  if (!hasProducts && !isPreview) {
+    return <EmptyStoreView tienda={tienda} accent={resolvedAccent} />;
   }
 
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500" />
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-indigo-500" />
         </div>
       }
     >
       {!hasProducts && isPreview && (
-        <div className="bg-gradient-to-r from-amber-600 to-amber-700 text-white text-center py-2.5 px-4 text-[11px] sm:text-xs font-bold tracking-wider uppercase sticky top-0 z-[99999] flex items-center justify-center gap-2 shadow-lg border-b border-amber-500/20">
-          <span className="inline-block animate-pulse">⚠️</span>
-          <span>Modo Vista Previa: Tu tienda está vacía. Tus clientes verán la pantalla "Tienda en Preparación" hasta que cargues tu primer producto.</span>
+        <div className="sticky top-0 z-[99999] flex items-center justify-center gap-2 border-b border-amber-500/20 bg-gradient-to-r from-amber-600 to-amber-700 px-4 py-2.5 text-center text-[11px] font-bold uppercase tracking-wider text-white shadow-lg sm:text-xs">
+          <span className="inline-block animate-pulse">!</span>
+          <span>
+            Modo Vista Previa: Tu tienda esta vacia. Tus clientes veran la pantalla
+            "Tienda en Preparacion" hasta que cargues tu primer producto.
+          </span>
         </div>
       )}
+
       <Template
         tienda={tienda}
         tema={tema}
         accent={resolvedAccent}
         fontFamily={tema?.fuenteTitulo || defaultFont}
         themeConfig={{
-        primary: resolvedAccent,
-        secondary: tema?.colorSecundario || '#64748b',
-        accent: resolvedAccent,
-        background: tema?.colorFondo || (templateId === 'plantilla_pink' ? '#fff1f2' : '#ffffff'),
-        text: tema?.colorTexto || '#1e293b',
-        buttonBg: tema?.buttonBg || tema?.colorBoton || resolvedAccent,
-        buttonText: tema?.colorTextoBoton || '#ffffff',
-        navbarBg: tema?.colorNavbarBg || '#ffffff',
-        navbarText: tema?.colorNavbarText || resolvedAccent,
-        fontTitle: tema?.fuenteTitulo || defaultFont,
-        fontBody: tema?.fuenteCuerpo || 'Inter',
-        navbarStyle: tema?.navbarStyle || 'STICKY',
-        heroLayout: tema?.heroLayout || 'CENTERED',
-        cardStyle: tema?.cardStyle || 'MINIMAL',
-        borderRadius: tema?.borderRadius || 'MD',
-        heroCtaTexto: tema?.heroCtaTexto || 'Comprar ahora',
-        heroBg: tema?.heroBg,
-        heroTitulo: tema?.heroTitulo,
-        heroSubtitulo: tema?.heroSubtitulo,
-        borderNavBg: tema?.borderNavBg || '#E5E7EB',
-        colorTextNav: tema?.colorTextNav,
-        hoverTextNav: tema?.hoverTextNav,
-        navbarFixed: tema?.navbarFixed ?? true,
-        seccionesVisibles: tema?.seccionesVisibles,
-        cardMostrarPrecio: tema?.cardMostrarPrecio ?? true,
-        cardMostrarBadge: tema?.cardMostrarBadge ?? true,
-        modoOscuro: tema?.modoOscuro ?? true,
-      }}
-      personalizacion={{
-        temaConfig: {
-          ...tema,
-          color_primario: tema?.colorPrimario,
-          hero_titulo: tema?.heroTitulo || tienda.titulo,
-          hero_subtitulo: tema?.heroSubtitulo || tienda.descripcion,
-        },
-        sections: Object.entries(
-          tema?.seccionesVisibles ?? {
-            hero: true,
-            products: true,
-            contact: true,
-            footer: true,
-            navbar: true,
-          }
-        ).map(([key, enabled], i) => ({
-          id: i + 1,
-          key,
-          enabled,
-        })),
-      }}
-    />
-  </Suspense>
-);
+          primary: resolvedAccent,
+          secondary: tema?.colorSecundario || '#64748b',
+          accent: resolvedAccent,
+          background: tema?.colorFondo || (templateId === 'plantilla_pink' ? '#fff1f2' : '#ffffff'),
+          text: tema?.colorTexto || '#1e293b',
+          buttonBg: tema?.buttonBg || tema?.colorBoton || resolvedAccent,
+          buttonText: tema?.colorTextoBoton || '#ffffff',
+          navbarBg: tema?.colorNavbarBg || '#ffffff',
+          navbarText: tema?.colorNavbarText || resolvedAccent,
+          fontTitle: tema?.fuenteTitulo || defaultFont,
+          fontBody: tema?.fuenteCuerpo || 'Inter',
+          navbarStyle: tema?.navbarStyle || 'STICKY',
+          heroLayout: tema?.heroLayout || 'CENTERED',
+          cardStyle: tema?.cardStyle || 'MINIMAL',
+          borderRadius: tema?.borderRadius || 'MD',
+          heroCtaTexto: tema?.heroCtaTexto || 'Comprar ahora',
+          heroBg: tema?.heroBg,
+          heroTitulo: tema?.heroTitulo,
+          heroSubtitulo: tema?.heroSubtitulo,
+          borderNavBg: tema?.borderNavBg || '#E5E7EB',
+          colorTextNav: tema?.colorTextNav,
+          hoverTextNav: tema?.hoverTextNav,
+          navbarFixed: tema?.navbarFixed ?? true,
+          seccionesVisibles: tema?.seccionesVisibles,
+          cardMostrarPrecio: tema?.cardMostrarPrecio ?? true,
+          cardMostrarBadge: tema?.cardMostrarBadge ?? true,
+          modoOscuro: tema?.modoOscuro ?? true,
+        }}
+        personalizacion={{
+          temaConfig: {
+            ...tema,
+            color_primario: tema?.colorPrimario,
+            hero_titulo: tema?.heroTitulo || tienda.titulo,
+            hero_subtitulo: tema?.heroSubtitulo || tienda.descripcion,
+          },
+          sections: Object.entries(
+            tema?.seccionesVisibles ?? {
+              hero: true,
+              products: true,
+              contact: true,
+              footer: true,
+              navbar: true,
+            }
+          ).map(([key, enabled], i) => ({
+            id: i + 1,
+            key,
+            enabled,
+          })),
+        }}
+      />
+    </Suspense>
+  );
 };
 
 export default StoreRenderer;
