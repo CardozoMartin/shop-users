@@ -42,18 +42,28 @@ export default function Navbar({
         className="flex flex-col leading-none cursor-pointer"
         onClick={() => onNavigate?.('')}
       >
-        <span
-          className="text-[1.8rem] tracking-[.08em] leading-[0.9]"
-          style={{ fontFamily: "'Bebas Neue',sans-serif", color: 'var(--rop-dark)' }}
-        >
-          {tienda.nombre}
-        </span>
-        <span
-          className="text-[.52rem] tracking-[.18em] uppercase mt-px"
-          style={{ fontFamily: "'Outfit',sans-serif", color: 'var(--rop-muted)' }}
-        >
-          {tienda.tagline}
-        </span>
+        {tienda.logoUrl ? (
+          <img
+            src={tienda.logoUrl}
+            alt={tienda.nombre || 'Logo'}
+            style={{ height: '36px', objectFit: 'contain', objectPosition: 'left' }}
+          />
+        ) : (
+          <>
+            <span
+              className="text-[1.8rem] tracking-[.08em] leading-[0.9]"
+              style={{ fontFamily: "'Bebas Neue',sans-serif", color: 'var(--rop-dark)' }}
+            >
+              {tienda.nombre}
+            </span>
+            <span
+              className="text-[.52rem] tracking-[.18em] uppercase mt-px"
+              style={{ fontFamily: "'Outfit',sans-serif", color: 'var(--rop-muted)' }}
+            >
+              {tienda.tagline}
+            </span>
+          </>
+        )}
       </div>
 
       {/* Desktop links */}
