@@ -28,24 +28,33 @@ function useDebounce<T>(value: T, delay: number): T {
 
 // ─── Logo (mismo estilo que tiendafree Hero) ──────────────────────
 const Logo = () => (
-  <div className="flex items-center gap-2 flex-shrink-0">
-    <div className="relative inline-flex items-center justify-center isolate">
-      {/* brush strokes naranjas detrás del texto */}
+  <div className="flex items-center gap-1 flex-shrink-0">
+    <span className="relative inline-flex items-center isolate text-xl sm:text-2xl font-black tracking-[-0.04em]">
+      {/* brush strokes de fondo — centrados sobre el texto */}
       <svg
-        className="absolute inset-0 -z-10 w-[150%] h-[160%] -translate-x-3 -translate-y-1"
-        viewBox="0 0 100 48"
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '110%',
+          height: '200%',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+        viewBox="0 0 110 60"
         fill="none"
-        stroke="#ff6b3d"
-        strokeWidth="13"
+        stroke="#fca326"
+        strokeWidth="14"
         strokeLinecap="round"
       >
-        <path d="M92,24 L10,24" pathLength="100" strokeDasharray="100" strokeOpacity="0.35" />
-        <path d="M8,38 L95,34" pathLength="100" strokeDasharray="100" strokeOpacity="0.28" />
+        <path d="M5,28 Q55,22 105,28" strokeOpacity="0.45" />
+        <path d="M3,42 Q55,36 107,40" strokeOpacity="0.35" />
       </svg>
-      <span className="relative z-10 text-xl sm:text-2xl font-black tracking-[-0.04em] text-[#15110e] px-1">
-        <span style={{ color: '#7c3aed' }}>Tiendi</span>Zi
-      </span>
-    </div>
+      <span style={{ position: 'relative', zIndex: 1, color: '#7c3aed' }}>Tiendi</span>
+      <span style={{ position: 'relative', zIndex: 1, color: '#15110e' }}>Zi</span>
+    </span>
   </div>
 );
 
@@ -227,29 +236,30 @@ const StoreDirectoryPage = () => {
       <section className="pt-14 pb-10 px-4">
         <div className="max-w-3xl mx-auto text-center">
 
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-[#fff3ee] text-[#ff6b3d] text-xs font-bold px-3.5 py-1.5 rounded-full mb-6 border border-[#ffd4c2]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b3d] animate-pulse" />
-            Directorio de tiendas
-          </div>
-
           {/* Título */}
           <h1 className="text-[clamp(2.4rem,6vw,4.5rem)] font-black leading-[0.92] tracking-[-0.05em] text-[#15110e] mb-5">
             Descubrí tiendas{' '}
-            <span className="relative inline-block">
+            <span className="relative inline-block pb-2">
               <span style={{ color: '#ff6b3d' }}>únicas</span>
               {/* Wavy underline naranja */}
               <svg
-                className="absolute -bottom-1 left-0 w-full"
-                viewBox="0 0 100 12"
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '8px',
+                  overflow: 'visible',
+                }}
+                viewBox="0 0 100 8"
                 preserveAspectRatio="none"
                 fill="none"
                 stroke="#ff6b3d"
-                strokeWidth="4"
+                strokeWidth="3"
                 strokeLinecap="round"
-                style={{ height: '0.35em' }}
               >
-                <path d="M2,8 Q25,2 50,8 T98,8" />
+                <path d="M0,5 Q12,1 25,5 T50,5 T75,5 T100,5" />
               </svg>
             </span>
           </h1>
