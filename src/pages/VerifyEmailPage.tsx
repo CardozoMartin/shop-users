@@ -7,6 +7,8 @@ export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
+  const slug = searchParams.get('slug');
+  const goHome = () => navigate(slug ? `/${slug}` : '/');
   
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Verificando tu cuenta...');
@@ -70,10 +72,10 @@ export default function VerifyEmailPage() {
 
         {status !== 'loading' && (
           <button
-            onClick={() => navigate('/')}
+            onClick={goHome}
             className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold transition-all shadow-lg shadow-indigo-200"
           >
-            Volver a la tienda
+            {slug ? 'Ir a la tienda' : 'Volver al inicio'}
           </button>
         )}
       </motion.div>

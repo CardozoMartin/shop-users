@@ -8,6 +8,8 @@ export default function ResetPassPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');
+  const slug = searchParams.get('slug');
+  const goHome = () => navigate(slug ? `/${slug}` : '/');
   
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
   const { mutate: resetPassword, isPending } = useResetPasswordCliente();
@@ -19,7 +21,7 @@ export default function ResetPassPage() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white rounded-3xl p-10 text-center shadow-xl">
           <p className="text-red-500 font-semibold mb-6">Enlace de restablecimiento inválido.</p>
-          <button onClick={() => navigate('/')} className="px-6 py-2 bg-slate-800 text-white rounded-xl">Volver</button>
+          <button onClick={goHome} className="px-6 py-2 bg-slate-800 text-white rounded-xl">Volver</button>
         </div>
       </div>
     );
@@ -42,7 +44,7 @@ export default function ResetPassPage() {
           <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-6">✓</div>
           <h1 className="text-2xl font-bold text-slate-900 mb-4">¡Contraseña actualizada!</h1>
           <p className="text-slate-500 mb-8">Tu contraseña ha sido restablecida con éxito. Ya podés iniciar sesión con tu nueva clave.</p>
-          <button onClick={() => navigate('/')} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100">Ir al inicio</button>
+          <button onClick={goHome} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100">Ir a la tienda</button>
         </motion.div>
       </div>
     );
@@ -85,7 +87,7 @@ export default function ResetPassPage() {
           <button
             type="submit"
             disabled={isPending}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-200 disabled:opacity-50"
+            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-200 disabled:opacity-50 cursor-pointer"
           >
             {isPending ? 'Actualizando...' : 'Actualizar contraseña'}
           </button>
