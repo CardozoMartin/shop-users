@@ -98,13 +98,19 @@ export interface Tienda {
   marqueeItems?: Array<{ texto: string; orden: number }>;
 }
 
+export type TipoSeccionHero = 'CARRUSEL' | 'BANNER' | 'HERO_FIJO' | 'VIDEO';
+
 export interface HeroSlide {
+  id?: number;
   url?: string;
   img?: string;
   label?: string;
   subtitulo?: string;
   titulo?: string;
   descripcion?: string;
+  tipo?: TipoSeccionHero;
+  linkUrl?: string | null;
+  etiqueta?: string | null;
 }
 
 export interface IHeroProps {

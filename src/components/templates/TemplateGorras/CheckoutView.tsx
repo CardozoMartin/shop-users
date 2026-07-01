@@ -14,6 +14,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import { createPedido } from '../../../api/pedidos.api';
+import { postCrearPreferenciaMpFn } from '../../../api/pagos.api';
 import { usePerfilCliente } from '../../../hooks/useCliente';
 import { useAuthSessionStore } from '../../../store/useAuthSession';
 import type { Carrito, Tienda } from './Types';
@@ -428,6 +429,15 @@ export default function CheckoutView({
         notasCliente: data.notas,
         costoEnvio: shipCost,
       });
+
+      // Si el método de pago es Mercado Pago, redirigimos al checkout de MP
+      const nombrePago = selectedPago?.metodoPago?.nombre?.toLowerCase() ?? '';
+      if (nombrePago.includes('mercadopago') || nombrePago.includes('mercado pago')) {
+        const pref = await postCrearPreferenciaMpFn(tienda.id!, res.id);
+        window.location.href = pref.initPoint;
+        return;
+      }
+
       onSuccess(res.id);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Ocurrió un error al procesar el pedido.');

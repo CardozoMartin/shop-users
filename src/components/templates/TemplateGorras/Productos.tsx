@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {useStorefrontCategorias,useStorefrontNormales,} from '../../../hooks/useStorefrontProducts';
+import { useStorefrontCategorias, useStorefrontNormales } from '../../../hooks/useStorefrontProducts';
 import ProductCard from './ProductCard';
 import type { CategoriaProducto, Producto } from './Types';
 
@@ -48,10 +48,22 @@ function resolverCategoriaPadreActiva(
 export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Props) {
   //Estado───────────────────────────────────────────────────────────────
 
+  const LIMITE = 12;
   const [categoriaFiltro, setCategoriaFiltro] = useState<FiltroCategoriaId>('Todo');
-  const [busquedaInput, setBusquedaInput]     = useState('');   
-  const [busquedaAplicada, setBusquedaAplicada] = useState(''); 
-  const [productosVisibles, setProductosVisibles] = useState(12);
+  const [busquedaInput, setBusquedaInput]     = useState('');
+  const [busquedaDebounced, setBusquedaDebounced] = useState('');
+  const [pagina, setPagina] = useState(1);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounce del buscador: dispara la query 400ms después de que el usuario deja de escribir
+  useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      setBusquedaDebounced(busquedaInput.trim());
+      setPagina(1);
+    }, 400);
+    return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
+  }, [busquedaInput]);
 
   //Datos de categorías──────────────────────────────────────────────────
 
@@ -71,25 +83,20 @@ export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Pro
 
   const { data: productosData, isLoading } = useStorefrontNormales(tiendaId ?? 0, {
     categoriaId: categoriaFiltro !== 'Todo' ? categoriaFiltro : undefined,
-    busqueda: busquedaAplicada.trim() !== '' ? busquedaAplicada : undefined,
+    busqueda: busquedaDebounced || undefined,
+    pagina,
+    limite: LIMITE,
   });
 
-  const todosLosProductos: Producto[] = productosData?.datos || [];
-  const productosPaginados = todosLosProductos.slice(0, productosVisibles);
-  const hayMasProductos = todosLosProductos.length > productosVisibles;
+  const productos: Producto[] = productosData?.datos || [];
+  const totalPaginas: number = productosData?.paginacion?.totalPaginas ?? 1;
+  const hayMasPaginas = pagina < totalPaginas;
 
   //Handlers────────────────────────────────────────────────────────────
 
   const handleCambiarCategoria = (id: FiltroCategoriaId) => {
     setCategoriaFiltro(id);
-    // resetear paginación al cambiar categoría
-    setProductosVisibles(12); 
-  };
-
-  const handleSubmitBusqueda = (e: React.FormEvent) => {
-    e.preventDefault();
-    setBusquedaAplicada(busquedaInput);
-    setProductosVisibles(12);
+    setPagina(1);
   };
 
   //Render───────────────────────────────────────────────────────────────
@@ -117,15 +124,15 @@ export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Pro
             className="text-[.72rem]"
             style={{ color: tema.subtle, fontFamily: "'DM Sans',sans-serif" }}
           >
-            {productosPaginados.length} productos
+            {productosData?.paginacion?.total ?? productos.length} productos
           </span>
         </div>
 
         {/*Filtros*/}
         <div className="flex flex-col gap-4 mb-8">
 
-          {/* Buscador */}
-          <form onSubmit={handleSubmitBusqueda} className="flex gap-2 w-full max-w-[400px]">
+          {/* Buscador con debounce */}
+          <div className="flex gap-2 w-full max-w-[400px]">
             <input
               type="text"
               placeholder="Buscar productos..."
@@ -141,14 +148,16 @@ export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Pro
               onFocus={(e) => (e.target.style.borderColor = tema.acento)}
               onBlur={(e)  => (e.target.style.borderColor = tema.border)}
             />
-            <button
-              type="submit"
-              className="px-5 rounded-full text-[.85rem] font-semibold border-none cursor-pointer text-white transition-opacity duration-200 hover:opacity-85"
-              style={{ background: tema.acento, fontFamily: "'DM Sans',sans-serif" }}
-            >
-              Buscar
-            </button>
-          </form>
+            {busquedaInput && (
+              <button
+                onClick={() => setBusquedaInput('')}
+                className="px-4 rounded-full text-[.85rem] font-semibold border-none cursor-pointer transition-opacity duration-200 hover:opacity-70"
+                style={{ background: tema.surface, color: tema.muted, border: `1.5px solid ${tema.border}`, fontFamily: "'DM Sans',sans-serif" }}
+              >
+                ✕
+              </button>
+            )}
+          </div>
 
           {/* Chips de categorías principales */}
           <div className="flex flex-col gap-3">
@@ -231,14 +240,14 @@ export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Pro
         </div>
 
         {/* Grid de productos*/}
-        {isLoading && !productosPaginados.length ? (
+        {isLoading && !productos.length ? (
           <div
             className="py-16 text-center"
             style={{ color: tema.muted, fontFamily: "'DM Sans',sans-serif" }}
           >
             Cargando catálogo...
           </div>
-        ) : !isLoading && productosPaginados.length === 0 ? (
+        ) : !isLoading && productos.length === 0 ? (
           <div
             className="py-16 text-center"
             style={{ color: tema.muted, fontFamily: "'DM Sans',sans-serif" }}
@@ -250,7 +259,7 @@ export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Pro
             className="grid gap-x-7 gap-y-10"
             style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))' }}
           >
-            {productosPaginados.map((producto) => (
+            {productos.map((producto) => (
               <ProductCard
                 key={producto.id}
                 producto={producto}
@@ -262,28 +271,37 @@ export default function Productos({ onSelect, onCart, onViewAll, tiendaId }: Pro
           </div>
         )}
 
-        {/*Botón "ver más" (paginación manual)*/}
-        {hayMasProductos && (
-          <div className="mt-14 text-center">
+        {/* Paginación real */}
+        {totalPaginas > 1 && (
+          <div className="mt-14 flex items-center justify-center gap-3">
             <button
-              onClick={onViewAll}
-              className="px-8 py-3 rounded-full text-[.75rem] font-bold tracking-widest uppercase cursor-pointer transition-all duration-200"
+              onClick={() => setPagina((p) => Math.max(1, p - 1))}
+              disabled={pagina === 1}
+              className="px-5 py-2.5 rounded-full text-[.75rem] font-semibold cursor-pointer transition-all duration-200 disabled:opacity-30"
               style={{
-                background:  tema.surface,
-                color:       tema.txt,
-                border:      `1.5px solid ${tema.border}`,
-                fontFamily:  "'DM Sans',sans-serif",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = tema.acento;
-                e.currentTarget.style.color = tema.acento;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = tema.border;
-                e.currentTarget.style.color = tema.txt;
+                background: tema.surface,
+                color: tema.txt,
+                border: `1.5px solid ${tema.border}`,
+                fontFamily: "'DM Sans',sans-serif",
               }}
             >
-              Ver todos los productos
+              ← Anterior
+            </button>
+            <span style={{ color: tema.muted, fontFamily: "'DM Sans',sans-serif", fontSize: '.8rem' }}>
+              {pagina} / {totalPaginas}
+            </span>
+            <button
+              onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+              disabled={!hayMasPaginas}
+              className="px-5 py-2.5 rounded-full text-[.75rem] font-semibold cursor-pointer transition-all duration-200 disabled:opacity-30"
+              style={{
+                background: tema.acento,
+                color: '#fff',
+                border: 'none',
+                fontFamily: "'DM Sans',sans-serif",
+              }}
+            >
+              Siguiente →
             </button>
           </div>
         )}

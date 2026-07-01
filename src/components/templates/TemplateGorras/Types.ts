@@ -98,6 +98,8 @@ export interface HeroSlide {
 export interface IHeroProps {
   titulo?: string;
   descripcion?: string;
+  ctaTexto?: string;
+  intervaloCarrusel?: number;
   imagenCarrusel?: HeroSlide[];
   tituloDos?: { primera: string; segunda: string };
   acento?: string;

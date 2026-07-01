@@ -1,14 +1,20 @@
 // ─── Imagen del carrusel ─────────────────────────────────────────────────────
 
+export type TipoSeccionHero = 'CARRUSEL' | 'BANNER' | 'HERO_FIJO' | 'VIDEO';
+
 export interface CarruselItem {
   id?: number;
   url: string;
   src?: string;
   titulo?: string | null;
-  subtitulo?: string;
+  subtitulo?: string | null;
   linkUrl?: string | null;
   orden?: number;
   activa?: boolean;
+  tipo?: TipoSeccionHero;
+  etiqueta?: string | null;
+  fechaDesde?: string | null;
+  fechaHasta?: string | null;
 }
 
 // ─── About Us ─────────────────────────────────────────────────────────────

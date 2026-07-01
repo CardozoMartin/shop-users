@@ -9,8 +9,8 @@ import {
 type ProductFilters = {
   categoriaId?: number;
   busqueda?: string;
-  page?: number;
-  limit?: number;
+  pagina?: number;
+  limite?: number;
 };
 
 const STOREFRONT_KEY = 'storefrontProducts';

@@ -1,7 +1,38 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, Component } from 'react';
+import type { ReactNode } from 'react';
 import { resolveTemplateIdFromShop } from './registry';
 import { useStorefrontProductos } from '../hooks/useStorefrontProducts';
 import EmptyStoreView from './shared/EmptyStoreView';
+import StorePopup from './shared/StorePopup';
+
+// ── Error Boundary para capturar crashes del template ────────────
+class TemplateBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, background: '#0d0d12', color: '#f3f4f6', fontFamily: 'sans-serif', padding: 32, textAlign: 'center' }}>
+          <p style={{ fontSize: 48 }}>⚠️</p>
+          <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Ocurrió un error al cargar la tienda</h2>
+          <p style={{ fontSize: 14, color: '#9ca3af', maxWidth: 380 }}>{this.state.error.message}</p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{ marginTop: 8, padding: '10px 24px', borderRadius: 12, border: 'none', background: '#f97316', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}
+          >
+            Recargar página
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const PlantillaGorras = lazy(() => import('./templates/TemplateGorras/TemplateGorras'));
 const PlantillaAccesorios = lazy(() => import('./templates/TemplateJoyeria/TemplateJoyeria'));
@@ -25,8 +56,8 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
   const { data: productosData, isLoading: isLoadingProd } = useStorefrontProductos(tienda?.id || 0);
 
   const templateId = resolveTemplateIdFromShop(tienda);
-  const Template = TEMPLATES[templateId] ?? PlantillaAccesorios;
-  const tema = tienda.temaConfig;
+  const Template = TEMPLATES[templateId] ?? PlantillaGorras;
+  const tema = tienda?.temaConfig ?? {};
 
   const getDefaultDesign = (id: string) => {
     switch (id) {
@@ -54,11 +85,14 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
     );
   }
 
-  if (!hasProducts && !isPreview) {
+  // Mostrar EmptyStoreView solo si la tienda está explícitamente inactiva o desactivada
+  const tiendaActiva = tienda?.activa !== false;
+  if (!hasProducts && !isPreview && !tiendaActiva) {
     return <EmptyStoreView tienda={tienda} accent={resolvedAccent} />;
   }
 
   return (
+    <TemplateBoundary>
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center">
@@ -76,6 +110,7 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
         </div>
       )}
 
+      <StorePopup tiendaId={tienda.id} />
       <Template
         tienda={tienda}
         tema={tema}
@@ -118,13 +153,9 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
             hero_subtitulo: tema?.heroSubtitulo || tienda.descripcion,
           },
           sections: Object.entries(
-            tema?.seccionesVisibles ?? {
-              hero: true,
-              products: true,
-              contact: true,
-              footer: true,
-              navbar: true,
-            }
+            (tema?.seccionesVisibles && typeof tema.seccionesVisibles === 'object')
+              ? tema.seccionesVisibles
+              : { hero: true, products: true, contact: true, footer: true, navbar: true }
           ).map(([key, enabled], i) => ({
             id: i + 1,
             key,
@@ -133,6 +164,7 @@ const StoreRenderer = ({ tienda }: StoreRendererProps) => {
         }}
       />
     </Suspense>
+    </TemplateBoundary>
   );
 };
 

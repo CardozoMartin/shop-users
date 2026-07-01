@@ -15,6 +15,7 @@ import Contact from './Contact';
 import { Footer } from './Footer';
 import FullProductCatalog from './FullProductCatalog';
 import Hero from './Hero';
+import HeroCarrusel from './HeroCarrusel';
 import Marquee from './Marquee';
 import { Navbar } from './Navbar';
 import ProductDetailView from './ProductDetailView';
@@ -169,8 +170,10 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
 
   // ── Props del Hero ────────────────────────────────────────
   const heroProps: IHeroProps = {
-    titulo: mergedTienda.nombre,
-    descripcion: mergedTienda.descripcion,
+    titulo: tienda?.temaConfig?.heroTitulo || mergedTienda.nombre,
+    descripcion: tienda?.temaConfig?.heroSubtitulo || mergedTienda.descripcion || '',
+    ctaTexto: tienda?.temaConfig?.heroCtaTexto || 'Ver colección',
+    intervaloCarrusel: tienda?.temaConfig?.intervaloCarrusel ?? 5000,
     imagenCarrusel: tienda?.carrusel || [],
     tituloDos: tienda?.tituloDos,
     acento: resolvedAccent,
@@ -225,7 +228,10 @@ export default function PlantillaGorras({ tienda, accent, themeConfig }: Plantil
               ) : (
                 <>
                   <div id="inicio" />
-                  <Hero {...heroProps} />
+                  {tienda?.temaConfig?.tipoSeccionHero === 'CARRUSEL'
+                    ? <HeroCarrusel {...heroProps} />
+                    : <Hero {...heroProps} />
+                  }
                   <Marquee items={tienda?.marqueeItems} />
                   <div id="productos" className="scroll-mt-20">
                     <ProductosDestacados

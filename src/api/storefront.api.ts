@@ -18,12 +18,14 @@ export const getStorefrontDestacadosFn = async (
  */
 export const getStorefrontNormalesFn = async (
   tiendaId: number,
-  filtros?: { categoriaId?: number; busqueda?: string; page?: number; limit?: number }
+  filtros?: { categoriaId?: number; busqueda?: string; pagina?: number; limite?: number }
 ) => {
   const { data } = await api.get(`/tiendas/${tiendaId}/productos/normales`, {
     params: filtros,
   });
-  return data.datos;
+  // El backend envuelve en responderOk → data.datos es el objeto paginado { datos, total, pagina, ... }
+  const paginado = data.datos;
+  return { datos: paginado?.datos ?? [], paginacion: paginado };
 };
 
 /**
